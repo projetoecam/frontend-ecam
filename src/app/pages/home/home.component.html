@@ -1,0 +1,201 @@
+<div class="min-h-screen bg-slate-100 text-slate-900">
+  <div class="flex min-h-screen">
+    <aside class="w-72 bg-slate-900 text-slate-100 border-r border-slate-700">
+      <div class="flex flex-col items-center justify-center gap-2 px-6 py-8 text-center border-b border-slate-700">
+        <div class="flex h-16 w-16 items-center justify-center rounded-3xl bg-indigo-500 text-2xl font-semibold shadow-xl shadow-indigo-500/20">
+          E
+        </div>
+        <div>
+          <p class="text-lg font-semibold">ECAM</p>
+          <p class="text-xs text-slate-400">Painel principal</p>
+        </div>
+      </div>
+
+      <nav class="space-y-1 px-4 py-6">
+        <button type="button" (click)="goHome()" class="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium text-slate-200 transition hover:bg-slate-700 hover:text-white">
+          <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-800 text-slate-300">🏠</span>
+          Início
+        </button>
+
+        <div class="rounded-3xl border border-slate-800 bg-slate-950/90 p-3">
+          <button type="button" class="flex w-full items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-slate-800" (click)="isCadastrosOpen = !isCadastrosOpen">
+            <span class="flex items-center gap-3">
+              <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-800 text-slate-300">🗂️</span>
+              Cadastros
+            </span>
+            <span class="text-slate-400">{{ isCadastrosOpen ? '−' : '+' }}</span>
+          </button>
+
+          <div *ngIf="isCadastrosOpen" class="mt-3 space-y-2 px-2">
+            <a href="#" class="block rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Usuários</a>
+            <a href="#" class="block rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Clientes</a>
+            <a href="#" class="block rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Produtos</a>
+            <a href="#" class="block rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Fornecedores</a>
+          </div>
+        </div>
+
+        <a href="#" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-slate-700 hover:text-white">
+          <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-800 text-slate-300">📊</span>
+          Relatórios
+        </a>
+
+        <a href="#" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-slate-700 hover:text-white">
+          <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-800 text-slate-300">⚙️</span>
+          Configurações
+        </a>
+      </nav>
+
+      <div class="mt-auto px-6 py-6 border-t border-slate-700 text-slate-400 text-xs">
+        Versão 1.0
+      </div>
+    </aside>
+
+    <main class="flex-1">
+      <header class="flex flex-col gap-4 border-b border-slate-200 bg-white px-6 py-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p class="text-sm uppercase tracking-[0.3em] text-slate-400">Painel de controle</p>
+          <h1 class="mt-2 text-3xl font-semibold text-slate-900">Bem-vindo ao ECAM</h1>
+          <p class="mt-2 text-sm text-slate-500">Última atualização: {{ lastRefresh | date:'HH:mm:ss' }}</p>
+        </div>
+
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <button type="button" (click)="refreshData()" class="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-700">
+            Atualizar dados
+          </button>
+
+          <div class="flex items-center gap-3 rounded-2xl bg-slate-100 px-4 py-3">
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600 text-white text-lg font-semibold">
+              {{ usuarioInicial }}
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-slate-900">{{ usuario || 'Usuário' }}</p>
+              <p class="text-xs text-slate-500">Logado</p>
+            </div>
+          </div>
+
+          <button type="button" (click)="logout()" class="rounded-2xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-500">
+            Logoff
+          </button>
+        </div>
+      </header>
+
+      <section class="p-6">
+        <div class="grid gap-6 xl:grid-cols-[1.4fr_0.9fr]">
+          <div class="space-y-6">
+            <div class="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+              <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+                <p class="text-sm uppercase tracking-[0.3em] text-slate-400">Usuários cadastrados</p>
+                <p class="mt-4 text-3xl font-semibold text-slate-900">{{ dashboard.totalUsers }}</p>
+              </div>
+              <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+                <p class="text-sm uppercase tracking-[0.3em] text-slate-400">Relatórios abertos</p>
+                <p class="mt-4 text-3xl font-semibold text-slate-900">{{ dashboard.openReports }}</p>
+              </div>
+              <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+                <p class="text-sm uppercase tracking-[0.3em] text-slate-400">Receita do mês</p>
+                <p class="mt-4 text-3xl font-semibold text-slate-900">{{ dashboard.monthlyRevenue }}</p>
+              </div>
+              <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+                <p class="text-sm uppercase tracking-[0.3em] text-slate-400">Saúde do sistema</p>
+                <p class="mt-4 text-3xl font-semibold text-slate-900">{{ dashboard.systemHealth }}</p>
+              </div>
+            </div>
+
+            <div class="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
+              <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 class="text-2xl font-semibold text-slate-900">Relatórios do sistema</h2>
+                  <p class="mt-2 text-slate-500">Resumo das informações mais recentes geradas pelo seu sistema.</p>
+                </div>
+                <span class="rounded-2xl bg-slate-100 px-4 py-2 text-sm font-medium text-slate-600">Atualizado há pouco</span>
+              </div>
+
+              <div class="mt-6 grid gap-6 lg:grid-cols-3">
+                <div class="rounded-[1.75rem] bg-slate-50 p-6">
+                  <p class="text-sm uppercase tracking-[0.3em] text-slate-400">Financeiro</p>
+                  <p class="mt-4 text-3xl font-semibold text-slate-900">12 relatórios</p>
+                  <p class="mt-2 text-sm text-slate-500">Receitas e despesas consolidadas.</p>
+                </div>
+                <div class="rounded-[1.75rem] bg-slate-50 p-6">
+                  <p class="text-sm uppercase tracking-[0.3em] text-slate-400">Operações</p>
+                  <p class="mt-4 text-3xl font-semibold text-slate-900">8 ativos</p>
+                  <p class="mt-2 text-sm text-slate-500">Relatórios processados em tempo real.</p>
+                </div>
+                <div class="rounded-[1.75rem] bg-slate-50 p-6">
+                  <p class="text-sm uppercase tracking-[0.3em] text-slate-400">Auditoria</p>
+                  <p class="mt-4 text-3xl font-semibold text-slate-900">4 novos</p>
+                  <p class="mt-2 text-sm text-slate-500">Entradas recentes para revisão.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
+              <div class="flex items-center justify-between gap-4">
+                <div>
+                  <h2 class="text-2xl font-semibold text-slate-900">Principais relatórios</h2>
+                  <p class="mt-2 text-slate-500">Visão rápida dos relatórios previstos para este mês.</p>
+                </div>
+                <button type="button" class="rounded-2xl border border-slate-200 bg-slate-100 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-200">Ver todos</button>
+              </div>
+
+              <div class="mt-6 space-y-4">
+                <div class="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5">
+                  <p class="text-sm font-semibold text-slate-900">Relatório de desempenho mensal</p>
+                  <p class="mt-2 text-sm text-slate-500">Indicadores de produtividade, tempo e resultados por área.</p>
+                </div>
+                <div class="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5">
+                  <p class="text-sm font-semibold text-slate-900">Nível de satisfação do cliente</p>
+                  <p class="mt-2 text-sm text-slate-500">Resumo de relatórios de feedback e atendimento.</p>
+                </div>
+                <div class="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5">
+                  <p class="text-sm font-semibold text-slate-900">Análise de riscos</p>
+                  <p class="mt-2 text-sm text-slate-500">Mapeamento de alertas e oportunidades.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <aside class="space-y-6">
+            <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm uppercase tracking-[0.3em] text-slate-400">Resumo rápido</p>
+                  <h3 class="mt-3 text-xl font-semibold text-slate-900">Painel de relatórios</h3>
+                </div>
+                <span class="rounded-2xl bg-slate-100 px-3 py-2 text-sm font-medium text-slate-600">Últimas 24h</span>
+              </div>
+              <div class="mt-6 space-y-4">
+                <div class="rounded-[1.75rem] bg-slate-50 p-5">
+                  <p class="text-sm font-semibold text-slate-900">Relatório de vendas</p>
+                  <p class="mt-2 text-sm text-slate-500">Gerado automaticamente para análise da diretoria.</p>
+                </div>
+                <div class="rounded-[1.75rem] bg-slate-50 p-5">
+                  <p class="text-sm font-semibold text-slate-900">Controle de estoque</p>
+                  <p class="mt-2 text-sm text-slate-500">Prévia dos cadastros e movimentações recentes.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="rounded-[2rem] border border-slate-200 bg-gradient-to-br from-indigo-600 to-violet-600 p-6 text-white shadow-lg shadow-indigo-500/20">
+              <h3 class="text-lg font-semibold">Cadastros</h3>
+              <p class="mt-3 text-sm text-indigo-100">Use o menu lateral para gerenciar os cadastros do sistema.</p>
+            </div>
+
+            <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+              <h3 class="text-lg font-semibold text-slate-900">Usuários cadastrados</h3>
+              <p class="mt-2 text-sm text-slate-500">Últimas entradas de cadastro de usuários do sistema.</p>
+
+              <div class="mt-5 space-y-4">
+                <div class="rounded-2xl bg-slate-50 p-4">
+                  <p class="font-semibold text-slate-900">Ana Paula</p>
+                  <p class="text-sm text-slate-500">Analista · cadastrado há 2 dias</p>
+                </div>
+                <div class="rounded-2xl bg-slate-50 p-4">
+                  <p class="font-semibold text-slate-900">Carlos Henrique</p>
+                  <p class="text-sm text-slate-500">Supervisor · cadastrado há 3 dias</p>
+                </div>
+                <div class="rounded-2xl bg-slate-50 p-4">
+                  <p class="font-semibold text-slate-900">Mariana Silva</p>
+                  <p class="text-sm text-slate-500">Coordenadora · cadastrado há 5 dias</p>
+                </div>
+              </div>

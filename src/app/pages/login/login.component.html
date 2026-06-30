@@ -1,39 +1,58 @@
-<div class="min-h-screen flex items-center justify-center bg-gray-100">
-  <div class="bg-white p-8 rounded-lg shadow-md w-96">
-    <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Projeto ECAM</h2>
-    
-    <form (ngSubmit)="fazerLogin()">
-      <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2">Login</label>
-        <input 
-          type="text" 
+<div class="min-h-screen flex items-center justify-center bg-slate-50 text-slate-900 px-4 py-8">
+  <div class="absolute inset-0 bg-gradient-to-br from-indigo-100 via-slate-50 to-white pointer-events-none"></div>
+
+  <section class="relative z-10 w-full max-w-md rounded-[2rem] border border-white/70 bg-white/90 p-8 shadow-2xl shadow-slate-300/40 backdrop-blur-xl">
+    <div class="mb-8 text-center">
+      <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-indigo-600 text-white shadow-lg shadow-indigo-500/20">
+        <span class="text-3xl font-semibold">E</span>
+      </div>
+      <h2 class="text-3xl font-semibold text-slate-900">Bem-vindo ao ECAM</h2>
+      <p class="mt-2 text-sm text-slate-500">Acesse sua conta para continuar</p>
+    </div>
+
+    <form (ngSubmit)="fazerLogin()" class="space-y-6">
+      <div>
+        <label class="mb-2 block text-sm font-medium text-slate-700">Login</label>
+        <input
+          type="text"
           name="usuario"
-          [(ngModel)]="usuario" 
-          class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          [(ngModel)]="usuario"
+          autocomplete="username"
+          class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 shadow-sm transition focus:border-indigo-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-100"
           placeholder="Digite seu usuário"
           required>
       </div>
 
-      <div class="mb-6">
-        <label class="block text-gray-700 text-sm font-bold mb-2">Senha</label>
-        <input 
-          type="password" 
+      <div>
+        <label class="mb-2 block text-sm font-medium text-slate-700">Senha</label>
+        <input
+          type="password"
           name="senha"
-          [(ngModel)]="senha" 
-          class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          [(ngModel)]="senha"
+          autocomplete="current-password"
+          class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 shadow-sm transition focus:border-indigo-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-100"
           placeholder="Digite sua senha"
           required>
       </div>
 
-      <div *ngIf="mensagemErro" class="text-red-500 text-sm text-center mb-4">
+      <div *ngIf="mensagemErro" class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
         {{ mensagemErro }}
       </div>
 
-      <button 
-        type="submit" 
-        class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300">
+      <div *ngIf="sucessoMensagem" class="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 shadow-sm">
+        <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">✓</span>
+        <span>{{ sucessoMensagem }}</span>
+      </div>
+
+      <button
+        type="submit"
+        class="w-full rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 py-3 text-base font-semibold text-white shadow-lg shadow-indigo-500/20 transition duration-300 hover:brightness-110">
         Entrar
       </button>
     </form>
-  </div>
+
+    <div class="mt-8 text-center text-sm text-slate-500">
+      <p>Precisa de ajuda? Entre em contato com o suporte.</p>
+    </div>
+  </section>
 </div>

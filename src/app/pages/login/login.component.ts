@@ -14,6 +14,8 @@ export class LoginComponent {
   usuario = '';
   senha = '';
   mensagemErro = '';
+  sucessoMensagem = '';
+  private sucessoTimeout?: ReturnType<typeof setTimeout>;
 
   constructor(private authService: AuthService, private router: Router) {}
 
@@ -23,9 +25,18 @@ export class LoginComponent {
     this.authService.login(this.usuario, this.senha).subscribe({
       next: (resposta) => {
         console.log('Login com sucesso!', resposta);
-        // Salva o token no navegador
+        // Salva o token e usuário no navegador
         localStorage.setItem('token', resposta.token);
-        alert('Login realizado com sucesso! Token JWT salvo no navegador.');
+        localStorage.setItem('usuario', this.usuario);
+        this.mensagemErro = '';
+        this.sucessoMensagem = 'Login realizado com sucesso!';
+        if (this.sucessoTimeout) {
+          clearTimeout(this.sucessoTimeout);
+        }
+        this.sucessoTimeout = setTimeout(() => {
+          this.sucessoMensagem = '';
+          this.router.navigate(['/home']);
+        }, 1000);
       },
       error: (erro) => {
         console.error('Erro no login', erro);
