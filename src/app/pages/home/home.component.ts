@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { MunicipioCadastroComponent } from './components/municipio-cadastro.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MunicipioCadastroComponent],
   templateUrl: './home.component.html'
 })
 export class HomeComponent {
@@ -13,13 +14,14 @@ export class HomeComponent {
   lastRefresh = new Date();
   isCadastrosOpen = true;
   isMobileMenuOpen = false;
+  cadastroAtivo: string | null = null;
   dashboard = {
     totalUsers: 1240,
     openReports: 18,
     monthlyRevenue: 'R$ 76.300',
     systemHealth: 'Excelente'
   };
-  cadastrosOptions = ['Usuários', 'Clientes', 'Produtos', 'Fornecedores'];
+  cadastrosOptions = ['Usuários', 'Municipios', 'Produtos', 'Fornecedores'];
 
   constructor(private router: Router) {}
 
@@ -47,5 +49,13 @@ export class HomeComponent {
     this.lastRefresh = new Date();
     this.dashboard.openReports += 1;
     this.dashboard.totalUsers += 2;
+  }
+
+  abrirMunicipios() {
+    this.cadastroAtivo = 'municipios';
+  }
+
+  voltarDashboard() {
+    this.cadastroAtivo = null;
   }
 }
