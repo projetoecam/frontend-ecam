@@ -20,19 +20,24 @@ export class LoginComponent {
   constructor(private authService: AuthService, private router: Router) {}
 
   fazerLogin() {
-    this.mensagemErro = ''; // Limpa os erros anteriores
+    this.mensagemErro = ''; 
 
-    this.authService.login(this.usuario, this.senha).subscribe({
-      next: (resposta) => {
+    // Montando o objeto que o serviço agora espera
+    const dadosLogin = { login: this.usuario, senha: this.senha };
+
+    this.authService.login(dadosLogin).subscribe({
+      next: (resposta: any) => { // Definido como 'any' para aceitar qualquer objeto
         console.log('Login com sucesso!', resposta);
-        // Salva o token e usuário no navegador
+        
+        // Agora o TS entende que você está acessando a propriedade
         localStorage.setItem('token', resposta.token);
         localStorage.setItem('usuario', this.usuario);
+        
         this.mensagemErro = '';
         this.sucessoMensagem = 'Login realizado com sucesso!';
-        if (this.sucessoTimeout) {
-          clearTimeout(this.sucessoTimeout);
-        }
+        
+        if (this.sucessoTimeout) clearTimeout(this.sucessoTimeout);
+        
         this.sucessoTimeout = setTimeout(() => {
           this.sucessoMensagem = '';
           this.router.navigate(['/home']);
