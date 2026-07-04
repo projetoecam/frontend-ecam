@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UsuarioService, Usuario } from '../../../core/services/usuario.service';
@@ -11,238 +11,120 @@ import { UsuarioService, Usuario } from '../../../core/services/usuario.service'
   styleUrls: ['./usuario-cadastro.component.css']
 })
 export class UsuarioCadastroComponent implements OnInit {
-  @Output() voltar = new EventEmitter<void>();
-
+  
+  // Variáveis de controle de dados
   usuarios: Usuario[] = [];
-  usuariosFiltrados: Usuario[] = [];
-
-  formularioAberto = false;
-  usuarioEdicao: Usuario = this.criarUsuarioVazio();
+  usuariosFiltrados: Usuario[] = []; // Esta variável é a que o HTML usa para desenhar
   usuarioSelecionado: Usuario | null = null;
-  searchTerm = '';
-  mensagem = '';
-  tipoMensagem: 'sucesso' | 'erro' = 'sucesso';
+  usuarioEdicao: Partial<Usuario> = {};
+
+  searchTerm: string = '';
+  perfisDisponiveis: string[] = ['ADMIN', 'COORDENADOR', 'OPERADOR'];
+
+  // Variáveis de controle de tela
   modalSucessoAberto = false;
+  formularioAberto = false;
+  mensagem = '';
+  tipoMensagem = '';
 
   carregandoLista = false;
   carregandoSalvar = false;
   carregandoDeletar = false;
 
-  perfisDisponiveis = ['ADMIN', 'GESTOR', 'OPERADOR'];
-
   constructor(private usuarioService: UsuarioService) {}
 
-  ngOnInit() {
-    this.usuarioService.usuarios$.subscribe(usuarios => {
-      this.usuarios = usuarios;
-      this.filtrar();
-    });
-
+  ngOnInit(): void {
     this.carregarUsuarios();
   }
 
-  private criarUsuarioVazio(): Usuario {
-    return {
-      nome: '',
-      login_usuario: '',
-      senha_hash: '',
-      perfil: '',
-      ativo: true,
-      data_criacao: this.dataAtualLocal(),
-      codigo_sessao: ''
-    };
-  }
-
-  private dataAtualLocal(): string {
-    const agora = new Date();
-    const timezoneOffset = agora.getTimezoneOffset() * 60000;
-    return new Date(agora.getTime() - timezoneOffset).toISOString().slice(0, 16);
-  }
-
-  carregarUsuarios() {
+  carregarUsuarios(): void {
     this.carregandoLista = true;
-    this.usuarioService.obterTodos().subscribe(
-      usuarios => {
-        this.usuarios = usuarios;
-        this.filtrar();
+    this.usuarioService.obterTodos().subscribe({
+      next: (dados) => {
+        this.usuarios = dados;
+        this.usuariosFiltrados = dados; // O SEGREDO ESTAVA AQUI: Alimentar o filtro!
         this.carregandoLista = false;
       },
-      erro => {
-        this.mostrarMensagem('Erro ao carregar usuários: ' + erro.message, 'erro');
+      error: (erro) => {
+        this.exibirMensagem('Falha ao carregar a lista de usuários do backend.', 'erro');
         this.carregandoLista = false;
       }
-    );
+    });
   }
 
-  filtrar() {
-    if (!this.searchTerm) {
-      this.usuariosFiltrados = [...this.usuarios];
-      return;
+  onSearchChange(): void {
+    const termo = this.searchTerm.toLowerCase().trim();
+    if (!termo) {
+      this.usuariosFiltrados = this.usuarios;
+    } else {
+      this.usuariosFiltrados = this.usuarios.filter(u =>
+        (u.nome?.toLowerCase().includes(termo)) ||
+        (u.login_usuario?.toLowerCase().includes(termo)) ||
+        (u.perfil?.toLowerCase().includes(termo))
+      );
     }
-
-    const termo = this.searchTerm.toLowerCase();
-    this.usuariosFiltrados = this.usuarios.filter(u =>
-      u.nome.toLowerCase().includes(termo) ||
-      u.login_usuario.toLowerCase().includes(termo) ||
-      u.perfil.toLowerCase().includes(termo)
-    );
   }
 
-  onSearchChange() {
-    this.filtrar();
-  }
-
-  abrirFormulario(usuario?: Usuario) {
+  abrirFormulario(usuario?: Usuario): void {
+    this.formularioAberto = true;
     if (usuario) {
-      this.usuarioEdicao = {
-        ...usuario,
-        data_criacao: this.formatarDataParaInput(usuario.data_criacao)
-      };
+      this.usuarioEdicao = { ...usuario };
     } else {
-      this.usuarioEdicao = this.criarUsuarioVazio();
+      this.usuarioEdicao = { ativo: true, perfil: '' }; // Valores default no novo
     }
-
-    this.formularioAberto = true;
   }
 
-  private formatarDataParaInput(data?: string | Date): string {
-    if (!data) {
-      return this.dataAtualLocal();
-    }
-
-    const dataObj = new Date(data);
-    if (Number.isNaN(dataObj.getTime())) {
-      return this.dataAtualLocal();
-    }
-
-    const timezoneOffset = dataObj.getTimezoneOffset() * 60000;
-    return new Date(dataObj.getTime() - timezoneOffset).toISOString().slice(0, 16);
-  }
-
-  fecharFormulario() {
+  fecharFormulario(): void {
     this.formularioAberto = false;
-    this.usuarioEdicao = this.criarUsuarioVazio();
+    this.usuarioEdicao = {};
   }
 
-  limparFormulario() {
-    this.usuarioEdicao = this.criarUsuarioVazio();
-  }
-
-  private mostrarSucessoSalvo() {
-    this.modalSucessoAberto = true;
-    setTimeout(() => {
-      this.modalSucessoAberto = false;
-    }, 1000);
-  }
-
-  private finalizarSalvarComSucesso() {
-    this.mostrarSucessoSalvo();
-    this.limparFormulario();
-    this.formularioAberto = true;
-    this.usuarioSelecionado = null;
-    this.carregarUsuarios();
-  }
-
-  salvar() {
-    if (!this.usuarioEdicao.nome || !this.usuarioEdicao.login_usuario || !this.usuarioEdicao.senha_hash || !this.usuarioEdicao.perfil) {
-      this.mostrarMensagem('Preencha os campos obrigatórios', 'erro');
-      return;
-    }
-
-    const nomeNormalizado = this.usuarioEdicao.nome.trim();
-    const loginNormalizado = this.usuarioEdicao.login_usuario.trim();
-    const senhaNormalizada = this.usuarioEdicao.senha_hash.trim();
-    const perfilNormalizado = this.usuarioEdicao.perfil.trim().toUpperCase();
-
-    if (!nomeNormalizado || !loginNormalizado || !senhaNormalizada || !perfilNormalizado) {
-      this.mostrarMensagem('Preencha os campos obrigatórios', 'erro');
-      return;
-    }
-
-    const listaUsuarios = Array.isArray(this.usuarios) ? this.usuarios : [];
-    const loginDuplicado = listaUsuarios.some(u =>
-      u.id !== this.usuarioEdicao.id &&
-      u.login_usuario.trim().toLowerCase() === loginNormalizado.toLowerCase()
-    );
-
-    if (loginDuplicado) {
-      this.mostrarMensagem('Este login de usuário já está cadastrado', 'erro');
-      return;
-    }
-
-    const payload: Usuario = {
-      ...this.usuarioEdicao,
-      nome: nomeNormalizado,
-      login_usuario: loginNormalizado,
-      senha_hash: senhaNormalizada,
-      perfil: perfilNormalizado,
-      data_criacao: this.usuarioEdicao.data_criacao ? new Date(this.usuarioEdicao.data_criacao).toISOString() : undefined
-    };
-
-    this.carregandoSalvar = true;
-
-    if (payload.id) {
-      this.usuarioService.atualizar(payload.id, payload).subscribe(
-        () => {
-          this.finalizarSalvarComSucesso();
-          this.carregandoSalvar = false;
-        },
-        erro => {
-          this.mostrarMensagem('Erro ao atualizar: ' + erro.message, 'erro');
-          this.carregandoSalvar = false;
-        }
-      );
-    } else {
-      this.usuarioService.criar(payload).subscribe(
-        () => {
-          this.finalizarSalvarComSucesso();
-          this.carregandoSalvar = false;
-        },
-        erro => {
-          this.mostrarMensagem('Erro ao criar: ' + erro.message, 'erro');
-          this.carregandoSalvar = false;
-        }
-      );
-    }
-  }
-
-  deletar(id?: number) {
-    if (!id) {
-      return;
-    }
-
-    if (!confirm('Deseja realmente deletar este usuário?')) {
-      return;
-    }
-
-    this.carregandoDeletar = true;
-    this.usuarioService.deletar(id).subscribe(
-      () => {
-        this.mostrarMensagem('Usuário deletado com sucesso', 'sucesso');
-        this.carregarUsuarios();
-        this.usuarioSelecionado = null;
-        this.carregandoDeletar = false;
-      },
-      erro => {
-        this.mostrarMensagem('Erro ao deletar: ' + erro.message, 'erro');
-        this.carregandoDeletar = false;
-      }
-    );
-  }
-
-  selecionarUsuario(usuario: Usuario) {
+  selecionarUsuario(usuario: Usuario): void {
     this.usuarioSelecionado = usuario;
   }
 
-  mostrarMensagem(texto: string, tipo: 'sucesso' | 'erro') {
-    this.mensagem = texto;
-    this.tipoMensagem = tipo;
-    setTimeout(() => {
-      this.mensagem = '';
-    }, 3000);
+  salvar(): void {
+    this.carregandoSalvar = true;
+    
+    if (this.usuarioEdicao.id) {
+      // Editar (Caso futuramente implemente edição de usuário)
+      this.carregandoSalvar = false;
+    } else {
+      // Criar novo usuário via endpoint registrar
+      this.usuarioService.criar(this.usuarioEdicao as Usuario).subscribe({
+        next: () => {
+          this.modalSucessoAberto = true;
+          setTimeout(() => this.modalSucessoAberto = false, 3000);
+          this.fecharFormulario();
+          this.carregarUsuarios(); // Atualiza a lista na tela imediatamente
+          this.carregandoSalvar = false;
+        },
+        error: (erro) => {
+          this.exibirMensagem('Erro ao salvar o usuário. ' + erro.message, 'erro');
+          this.carregandoSalvar = false;
+        }
+      });
+    }
   }
 
-  fecharPainel() {
-    this.voltar.emit();
+  deletar(id?: number): void {
+    if (!id) return;
+    this.carregandoDeletar = true;
+    this.usuarioService.deletar(id).subscribe({
+      next: () => {
+        this.carregarUsuarios();
+        this.carregandoDeletar = false;
+      },
+      error: () => {
+        this.exibirMensagem('Erro ao deletar o usuário.', 'erro');
+        this.carregandoDeletar = false;
+      }
+    });
+  }
+
+  exibirMensagem(msg: string, tipo: string) {
+    this.mensagem = msg;
+    this.tipoMensagem = tipo;
+    setTimeout(() => this.mensagem = '', 4000);
   }
 }
