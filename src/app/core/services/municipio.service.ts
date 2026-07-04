@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
+import { tap, catchError, map } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
@@ -21,12 +21,40 @@ export class MunicipioService {
 
   constructor(private http: HttpClient) {}
 
+  private logResposta(operacao: string, payload: any) {
+    console.log(`[MunicipioService] ${operacao}:`, payload);
+  }
+
   // Obter todos os municipios
   obterTodos(): Observable<Municipio[]> {
-    return this.http.get<Municipio[]>(this.apiUrl).pipe(
-      tap(municipios => this.municipiosSubject.next(municipios)),
+    return this.http.get<any>(this.apiUrl).pipe(
+      map(response => this.extrairListaMunicipios(response)),
+      tap(municipios => {
+        this.logResposta('GET municipios', municipios);
+        this.municipiosSubject.next(municipios);
+      }),
       catchError(this.handleError)
     );
+  }
+
+  private extrairListaMunicipios(response: any): Municipio[] {
+    if (Array.isArray(response)) {
+      return response;
+    }
+
+    if (Array.isArray(response?.content)) {
+      return response.content;
+    }
+
+    if (Array.isArray(response?.data)) {
+      return response.data;
+    }
+
+    if (Array.isArray(response?.municipios)) {
+      return response.municipios;
+    }
+
+    return [];
   }
 
   // Obter municipio por ID
@@ -40,6 +68,7 @@ export class MunicipioService {
   criar(municipio: Municipio): Observable<Municipio> {
     return this.http.post<Municipio>(this.apiUrl, municipio).pipe(
       tap(novoMunicipio => {
+        this.logResposta('POST municipio', novoMunicipio);
         const atual = this.municipiosSubject.value;
         this.municipiosSubject.next([...atual, novoMunicipio]);
       }),
@@ -51,6 +80,7 @@ export class MunicipioService {
   atualizar(id: number, municipio: Municipio): Observable<Municipio> {
     return this.http.put<Municipio>(`${this.apiUrl}/${id}`, municipio).pipe(
       tap(municipioAtualizado => {
+        this.logResposta('PUT municipio', municipioAtualizado);
         const atual = this.municipiosSubject.value;
         const indice = atual.findIndex(m => m.id === id);
         if (indice !== -1) {
@@ -67,6 +97,7 @@ export class MunicipioService {
   deletar(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
       tap(() => {
+        this.logResposta('DELETE municipio', { id });
         const atual = this.municipiosSubject.value;
         const novaLista = atual.filter(m => m.id !== id);
         this.municipiosSubject.next(novaLista);
@@ -84,7 +115,11 @@ export class MunicipioService {
       mensagem = error.error.message;
     } else {
       // Erro do servidor
-      mensagem = error.error?.mensagem || error.statusText || mensagem;
+      if (error.status === 409) {
+        mensagem = error.error?.mensagem || error.error?.message || 'Conflito: município já cadastrado';
+      } else {
+        mensagem = error.error?.mensagem || error.error?.message || error.statusText || mensagem;
+      }
     }
     
     console.error('Erro:', mensagem);

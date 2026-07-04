@@ -22,6 +22,7 @@ export class MunicipioCadastroComponent implements OnInit {
   searchTerm = '';
   mensagem = '';
   tipoMensagem: 'sucesso' | 'erro' = 'sucesso';
+  modalSucessoAberto = false;
   
   // Estados de carregamento
   carregandoLista = false;
@@ -85,41 +86,76 @@ export class MunicipioCadastroComponent implements OnInit {
     this.municipioEdicao = { nome: '', uf: '' };
   }
 
+  limparFormulario() {
+    this.municipioEdicao = { nome: '', uf: '' };
+  }
+
+  private mostrarSucessoSalvo() {
+    this.modalSucessoAberto = true;
+    setTimeout(() => {
+      this.modalSucessoAberto = false;
+    }, 1000);
+  }
+
+  private finalizarSalvarComSucesso() {
+    this.mostrarSucessoSalvo();
+    this.limparFormulario();
+    this.formularioAberto = true;
+    this.municipioSelecionado = null;
+    this.carregarMunicipios();
+  }
+
   salvar() {
     if (!this.municipioEdicao.nome || !this.municipioEdicao.uf) {
       this.mostrarMensagem('Preencha todos os campos', 'erro');
       return;
     }
 
-    this.carregandoSalvar = true;
+    const nomeNormalizado = this.municipioEdicao.nome.trim();
+    const ufNormalizada = this.municipioEdicao.uf.trim().toUpperCase();
+
+    if (!nomeNormalizado || !ufNormalizada) {
+      this.mostrarMensagem('Preencha todos os campos', 'erro');
+      return;
+    }
+
+    const listaMunicipios = Array.isArray(this.municipios) ? this.municipios : [];
+
+    const jaExiste = listaMunicipios.some(m =>
+      m.id !== this.municipioEdicao.id &&
+      m.nome.trim().toLowerCase() === nomeNormalizado.toLowerCase() &&
+      m.uf.trim().toUpperCase() === ufNormalizada
+    );
+
+    if (jaExiste) {
+      this.mostrarMensagem('Este município já está cadastrado para a UF informada', 'erro');
+      return;
+    }
+
+    this.municipioEdicao = {
+      ...this.municipioEdicao,
+      nome: nomeNormalizado,
+      uf: ufNormalizada
+    };
 
     if (this.municipioEdicao.id) {
       // Atualizar
       this.municipioService.atualizar(this.municipioEdicao.id, this.municipioEdicao).subscribe(
         () => {
-          this.mostrarMensagem('Municipio atualizado com sucesso', 'sucesso');
-          this.fecharFormulario();
-          this.municipioSelecionado = null;
-          this.carregarMunicipios();
-          this.carregandoSalvar = false;
+          this.finalizarSalvarComSucesso();
         },
         erro => {
           this.mostrarMensagem('Erro ao atualizar: ' + erro.message, 'erro');
-          this.carregandoSalvar = false;
         }
       );
     } else {
       // Criar novo
       this.municipioService.criar(this.municipioEdicao).subscribe(
         () => {
-          this.mostrarMensagem('Municipio criado com sucesso', 'sucesso');
-          this.fecharFormulario();
-          this.carregarMunicipios();
-          this.carregandoSalvar = false;
+          this.finalizarSalvarComSucesso();
         },
         erro => {
           this.mostrarMensagem('Erro ao criar: ' + erro.message, 'erro');
-          this.carregandoSalvar = false;
         }
       );
     }
@@ -136,7 +172,7 @@ export class MunicipioCadastroComponent implements OnInit {
     this.municipioService.deletar(id).subscribe(
       () => {
         this.mostrarMensagem('Municipio deletado com sucesso', 'sucesso');
-        this.filtrar();
+        this.carregarMunicipios();
         this.municipioSelecionado = null;
         this.carregandoDeletar = false;
       },
