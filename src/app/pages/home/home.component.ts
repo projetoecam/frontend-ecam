@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MunicipioCadastroComponent } from './components/municipio-cadastro.component';
+import { UsuarioCadastroComponent } from './components/usuario-cadastro.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, MunicipioCadastroComponent],
+  imports: [CommonModule, MunicipioCadastroComponent, UsuarioCadastroComponent],
   templateUrl: './home.component.html'
 })
 export class HomeComponent {
@@ -53,6 +54,10 @@ export class HomeComponent {
 
   abrirMunicipios() {
     this.cadastroAtivo = 'municipios';
+  }
+
+  abrirUsuarios() {
+    this.cadastroAtivo = 'usuarios';
   }
 
   voltarDashboard() {
