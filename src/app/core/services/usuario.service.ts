@@ -16,7 +16,7 @@ export interface Usuario {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UsuarioService {
   private apiUrl = `${environment.apiUrl}/usuarios`;
@@ -26,17 +26,17 @@ export class UsuarioService {
   constructor(private http: HttpClient) {}
 
   private logResposta(operacao: string, payload: any) {
-    console.log(`[UsuarioService] ${operacao}:`, payload);
+    
   }
 
   obterTodos(): Observable<Usuario[]> {
     return this.http.get<any>(this.apiUrl).pipe(
-      map(response => this.extrairListaUsuarios(response)),
-      tap(usuarios => {
+      map((response) => this.extrairListaUsuarios(response)),
+      tap((usuarios) => {
         this.logResposta('GET usuarios', usuarios);
         this.usuariosSubject.next(usuarios);
       }),
-      catchError(this.handleError)
+      catchError(this.handleError),
     );
   }
 
@@ -61,17 +61,14 @@ export class UsuarioService {
   }
 
   obterPorId(id: number): Observable<Usuario> {
-    return this.http.get<Usuario>(`${this.apiUrl}/${id}`).pipe(
-      catchError(this.handleError)
-    );
+    return this.http.get<Usuario>(`${this.apiUrl}/${id}`).pipe(catchError(this.handleError));
   }
 
-  criar(usuario: Usuario): Observable<Usuario> {
-    return this.http.post<Usuario>(this.apiUrl, usuario).pipe(
-      tap(novoUsuario => {
-        this.logResposta('POST usuario', novoUsuario);
-        const atual = this.usuariosSubject.value;
-        this.usuariosSubject.next([...atual, novoUsuario]);
+  criar(usuario: Usuario): Observable<any> {
+    const urlRegistro = `${environment.apiUrl}/login/registrar`;
+    return this.http.post(urlRegistro, usuario, { responseType: 'text' }).pipe(
+      tap(resposta => {
+        this.logResposta('POST usuario (registro)', resposta);
       }),
       catchError(this.handleError)
     );
@@ -79,17 +76,17 @@ export class UsuarioService {
 
   atualizar(id: number, usuario: Usuario): Observable<Usuario> {
     return this.http.put<Usuario>(`${this.apiUrl}/${id}`, usuario).pipe(
-      tap(usuarioAtualizado => {
+      tap((usuarioAtualizado) => {
         this.logResposta('PUT usuario', usuarioAtualizado);
         const atual = this.usuariosSubject.value;
-        const indice = atual.findIndex(u => u.id === id);
+        const indice = atual.findIndex((u) => u.id === id);
         if (indice !== -1) {
           const novaLista = [...atual];
           novaLista[indice] = usuarioAtualizado;
           this.usuariosSubject.next(novaLista);
         }
       }),
-      catchError(this.handleError)
+      catchError(this.handleError),
     );
   }
 
@@ -98,10 +95,10 @@ export class UsuarioService {
       tap(() => {
         this.logResposta('DELETE usuario', { id });
         const atual = this.usuariosSubject.value;
-        const novaLista = atual.filter(u => u.id !== id);
+        const novaLista = atual.filter((u) => u.id !== id);
         this.usuariosSubject.next(novaLista);
       }),
-      catchError(this.handleError)
+      catchError(this.handleError),
     );
   }
 
@@ -112,7 +109,8 @@ export class UsuarioService {
       mensagem = error.error.message;
     } else {
       if (error.status === 409) {
-        mensagem = error.error?.mensagem || error.error?.message || 'Conflito: usuário já cadastrado';
+        mensagem =
+          error.error?.mensagem || error.error?.message || 'Conflito: usuário já cadastrado';
       } else {
         mensagem = error.error?.mensagem || error.error?.message || error.statusText || mensagem;
       }
