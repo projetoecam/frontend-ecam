@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UsuarioService, Usuario } from '../../../core/services/usuario.service';
@@ -8,21 +8,16 @@ import { UsuarioService, Usuario } from '../../../core/services/usuario.service'
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './usuario-cadastro.component.html',
-  styleUrls: ['./usuario-cadastro.component.css']
+  styleUrls: ['./usuario-cadastro.component.css'],
 })
 export class UsuarioCadastroComponent implements OnInit {
-  
-  // Variáveis de controle de dados
   usuarios: Usuario[] = [];
-  usuariosFiltrados: Usuario[] = []; // Esta variável é a que o HTML usa para desenhar
-  usuarioSelecionado: Usuario | null = null;
+  usuariosFiltrados: Usuario[] = [];
   usuarioEdicao: Partial<Usuario> = {};
 
   searchTerm: string = '';
   perfisDisponiveis: string[] = ['ADMIN', 'COORDENADOR', 'OPERADOR'];
 
-  // Variáveis de controle de tela
-  modalSucessoAberto = false;
   formularioAberto = false;
   mensagem = '';
   tipoMensagem = '';
@@ -31,7 +26,10 @@ export class UsuarioCadastroComponent implements OnInit {
   carregandoSalvar = false;
   carregandoDeletar = false;
 
-  constructor(private usuarioService: UsuarioService) {}
+  constructor(
+    private usuarioService: UsuarioService,
+    private cdr: ChangeDetectorRef,
+  ) {}
 
   ngOnInit(): void {
     this.carregarUsuarios();
@@ -39,39 +37,46 @@ export class UsuarioCadastroComponent implements OnInit {
 
   carregarUsuarios(): void {
     this.carregandoLista = true;
+    this.cdr.detectChanges();
+
     this.usuarioService.obterTodos().subscribe({
       next: (dados) => {
         this.usuarios = dados;
-        this.usuariosFiltrados = dados; // O SEGREDO ESTAVA AQUI: Alimentar o filtro!
+        this.usuariosFiltrados = dados;
         this.carregandoLista = false;
+        this.cdr.detectChanges();
       },
-      error: (erro) => {
-        this.exibirMensagem('Falha ao carregar a lista de usuários do backend.', 'erro');
+      error: () => {
+        this.exibirMensagem('Falha ao carregar a lista de usuários.', 'erro');
         this.carregandoLista = false;
-      }
+        this.cdr.detectChanges();
+      },
     });
   }
 
   onSearchChange(): void {
     const termo = this.searchTerm.toLowerCase().trim();
+
     if (!termo) {
       this.usuariosFiltrados = this.usuarios;
     } else {
-      this.usuariosFiltrados = this.usuarios.filter(u =>
-        (u.nome?.toLowerCase().includes(termo)) ||
-        (u.login_usuario?.toLowerCase().includes(termo)) ||
-        (u.perfil?.toLowerCase().includes(termo))
+      this.usuariosFiltrados = this.usuarios.filter(
+        (u) =>
+          u.nome?.toLowerCase().includes(termo) ||
+          u.login_usuario?.toLowerCase().includes(termo) ||
+          u.perfil?.toLowerCase().includes(termo),
       );
     }
+    this.cdr.detectChanges();
   }
 
   abrirFormulario(usuario?: Usuario): void {
-    this.formularioAberto = true;
     if (usuario) {
-      this.usuarioEdicao = { ...usuario };
+      this.usuarioEdicao = { ...usuario, senha_hash: '' };
     } else {
-      this.usuarioEdicao = { ativo: true, perfil: '' }; // Valores default no novo
+      this.usuarioEdicao = { ativo: true, perfil: '' };
     }
+    this.formularioAberto = true;
   }
 
   fecharFormulario(): void {
@@ -79,52 +84,101 @@ export class UsuarioCadastroComponent implements OnInit {
     this.usuarioEdicao = {};
   }
 
-  selecionarUsuario(usuario: Usuario): void {
-    this.usuarioSelecionado = usuario;
-  }
-
   salvar(): void {
+    if (
+      !this.usuarioEdicao.nome ||
+      !this.usuarioEdicao.login_usuario ||
+      !this.usuarioEdicao.perfil
+    ) {
+      this.exibirMensagem('Preencha os campos obrigatórios.', 'erro');
+      return;
+    }
+
     this.carregandoSalvar = true;
-    
+
     if (this.usuarioEdicao.id) {
-      // Editar (Caso futuramente implemente edição de usuário)
-      this.carregandoSalvar = false;
+      this.usuarioService
+        .atualizar(this.usuarioEdicao.id, this.usuarioEdicao as Usuario)
+        .subscribe({
+          next: () => {
+            this.exibirMensagem('Usuário atualizado com sucesso.', 'sucesso');
+            this.fecharFormulario();
+            this.carregarUsuarios();
+            this.carregandoSalvar = false;
+          },
+          error: (erro) => {
+            this.exibirMensagem('Erro ao atualizar. ' + erro.message, 'erro');
+            this.carregandoSalvar = false;
+            this.cdr.detectChanges();
+          },
+        });
     } else {
-      // Criar novo usuário via endpoint registrar
+      if (!this.usuarioEdicao.senha_hash) {
+        this.exibirMensagem('A senha é obrigatória para novos usuários.', 'erro');
+        this.carregandoSalvar = false;
+        return;
+      }
+
       this.usuarioService.criar(this.usuarioEdicao as Usuario).subscribe({
         next: () => {
-          this.modalSucessoAberto = true;
-          setTimeout(() => this.modalSucessoAberto = false, 3000);
+          this.exibirMensagem('Usuário cadastrado com sucesso.', 'sucesso');
           this.fecharFormulario();
-          this.carregarUsuarios(); // Atualiza a lista na tela imediatamente
+          this.carregarUsuarios();
           this.carregandoSalvar = false;
         },
         error: (erro) => {
-          this.exibirMensagem('Erro ao salvar o usuário. ' + erro.message, 'erro');
+          this.exibirMensagem('Erro ao salvar. ' + erro.message, 'erro');
           this.carregandoSalvar = false;
-        }
+          this.cdr.detectChanges();
+        },
       });
     }
   }
+  deletar(alvo: any): void {
+    // 1. Descobre de forma inteligente qual é o ID, seja recebendo um número solto ou um objeto (verificando 'id' ou 'id_usuario')
+    const idParaDeletar = typeof alvo === 'number' ? alvo : alvo?.id || alvo?.id_usuario;
 
-  deletar(id?: number): void {
-    if (!id) return;
+    if (!idParaDeletar) {
+      this.exibirMensagem('Erro: Não foi possível identificar o ID do usuário.', 'erro');
+      console.error('Payload recebido no botão deletar:', alvo); // Irá printar no F12 para ajudar caso a API esteja sem ID
+      return;
+    }
+
+    // 2. Tenta pegar o nome se for um objeto, senão usa um texto genérico
+    const nomeUsuario = typeof alvo === 'object' && alvo?.nome ? alvo.nome : 'este usuário';
+
+    // 3. Executa a confirmação
+    const confirmacao = window.confirm(
+      `Atenção: Tem certeza que deseja excluir ${nomeUsuario}? Esta ação não poderá ser desfeita.`,
+    );
+    if (!confirmacao) return;
+
     this.carregandoDeletar = true;
-    this.usuarioService.deletar(id).subscribe({
+    this.cdr.detectChanges(); // Atualiza a interface visualmente
+
+    // 4. Dispara a deleção
+    this.usuarioService.deletar(idParaDeletar).subscribe({
       next: () => {
         this.carregarUsuarios();
         this.carregandoDeletar = false;
+        this.exibirMensagem('Usuário excluído com sucesso.', 'sucesso');
       },
       error: () => {
-        this.exibirMensagem('Erro ao deletar o usuário.', 'erro');
+        this.exibirMensagem('Erro ao excluir usuário.', 'erro');
         this.carregandoDeletar = false;
-      }
+        this.cdr.detectChanges();
+      },
     });
   }
 
   exibirMensagem(msg: string, tipo: string) {
     this.mensagem = msg;
     this.tipoMensagem = tipo;
-    setTimeout(() => this.mensagem = '', 4000);
+    this.cdr.detectChanges();
+
+    setTimeout(() => {
+      this.mensagem = '';
+      this.cdr.detectChanges();
+    }, 4000);
   }
 }
