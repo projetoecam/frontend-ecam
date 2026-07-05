@@ -26,7 +26,7 @@ export class UsuarioService {
   constructor(private http: HttpClient) {}
 
   private logResposta(operacao: string, payload: any) {
-    
+    // Mantido vazio conforme sua solicitação anterior para não sujar o console
   }
 
   obterTodos(): Observable<Usuario[]> {
@@ -36,7 +36,7 @@ export class UsuarioService {
         this.logResposta('GET usuarios', usuarios);
         this.usuariosSubject.next(usuarios);
       }),
-      catchError(this.handleError),
+      catchError(err => this.handleError(err))
     );
   }
 
@@ -44,24 +44,22 @@ export class UsuarioService {
     if (Array.isArray(response)) {
       return response;
     }
-
     if (Array.isArray(response?.content)) {
       return response.content;
     }
-
     if (Array.isArray(response?.data)) {
       return response.data;
     }
-
     if (Array.isArray(response?.usuarios)) {
       return response.usuarios;
     }
-
     return [];
   }
 
   obterPorId(id: number): Observable<Usuario> {
-    return this.http.get<Usuario>(`${this.apiUrl}/${id}`).pipe(catchError(this.handleError));
+    return this.http.get<Usuario>(`${this.apiUrl}/${id}`).pipe(
+      catchError(err => this.handleError(err))
+    );
   }
 
   criar(usuario: Usuario): Observable<any> {
@@ -70,11 +68,11 @@ export class UsuarioService {
       tap(resposta => {
         this.logResposta('POST usuario (registro)', resposta);
       }),
-      catchError(this.handleError)
+      catchError(err => this.handleError(err))
     );
   }
 
-  atualizar(id: number, usuario: Usuario): Observable<Usuario> {
+  atualizar(id: number, usuario: Partial<Usuario>): Observable<Usuario> {
     return this.http.put<Usuario>(`${this.apiUrl}/${id}`, usuario).pipe(
       tap((usuarioAtualizado) => {
         this.logResposta('PUT usuario', usuarioAtualizado);
@@ -86,7 +84,7 @@ export class UsuarioService {
           this.usuariosSubject.next(novaLista);
         }
       }),
-      catchError(this.handleError),
+      catchError(err => this.handleError(err))
     );
   }
 
@@ -98,7 +96,7 @@ export class UsuarioService {
         const novaLista = atual.filter((u) => u.id !== id);
         this.usuariosSubject.next(novaLista);
       }),
-      catchError(this.handleError),
+      catchError(err => this.handleError(err))
     );
   }
 
@@ -109,8 +107,7 @@ export class UsuarioService {
       mensagem = error.error.message;
     } else {
       if (error.status === 409) {
-        mensagem =
-          error.error?.mensagem || error.error?.message || 'Conflito: usuário já cadastrado';
+        mensagem = error.error?.mensagem || error.error?.message || 'Conflito: usuário já cadastrado';
       } else {
         mensagem = error.error?.mensagem || error.error?.message || error.statusText || mensagem;
       }
