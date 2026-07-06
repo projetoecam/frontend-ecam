@@ -27,12 +27,13 @@ export class HomeComponent {
   isCadastrosOpen = true;
   isMobileMenuOpen = false;
   isDesktopMenuOpen = true;
+  isModalDesenvolvimentoOpen: boolean = false;
   
   cadastroAtivo: string | null = null;
   
-  // DADOS ESTRATÉGICOS FICTÍCIOS PARA IMPRESSIONAR O CLIENTE
+  
   dashboard = {
-    // Top Métricas
+    
     kpis: {
       totalBase: '12.450',
       liderancasAtivas: '342',
@@ -40,28 +41,28 @@ export class HomeComponent {
       alertasPendentes: '14'
     },
     
-    // 1. Ranking de Força (Termômetro)
+    
     rankingLiderancas: [
       { nome: 'Pr. Carlos Silva', territorio: 'Curado', segmento: 'Religioso', base: 345, classe: 'A' },
       { nome: 'Maria de Fátima', territorio: 'Jab. Histórico', segmento: 'Comunitário', base: 210, classe: 'B' },
       { nome: 'Prof. Roberto', territorio: 'Praias', segmento: 'Educação', base: 130, classe: 'C' }
     ],
 
-    // 2. Eficiência de Demandas (Barras de progresso)
+    
     eficienciaDemandas: [
       { categoria: 'Iluminação Pública', recebidas: 145, resolvidas: 115, percentual: 79, cor: 'bg-emerald-500' },
       { categoria: 'Saúde (Marcação)', recebidas: 67, resolvidas: 45, percentual: 67, cor: 'bg-blue-500' },
       { categoria: 'Calçamento', recebidas: 89, resolvidas: 24, percentual: 26, cor: 'bg-amber-500' }
     ],
 
-    // 3. Radar de Alertas (Gestão de Crise)
+    
     alertas: [
       { nome: 'José Alfredo', motivo: 'Demanda parada há 45 dias', status: 'Crítico' },
       { nome: 'Assoc. Muribeca', motivo: 'Liderança sem visita há 30 dias', status: 'Atenção' },
       { nome: 'Lúcia Maria', motivo: 'Aniversariante do dia (Falta ligar)', status: 'Ação Rápida' }
     ],
     
-    // 4. Raio-X de Expansão
+    
     expansao: [
       { territorio: 'Praias', status: 'Consolidada', novos: '+215' },
       { territorio: 'Cavaleiro', status: 'Em Expansão', novos: '+305' }
@@ -107,5 +108,13 @@ export class HomeComponent {
 
   voltarDashboard() {
     this.cadastroAtivo = null;
+  }
+
+  mostrarMensagemDesenvolvimento(): void {
+    this.isModalDesenvolvimentoOpen = true;
+  }
+
+  fecharModalDesenvolvimento(): void {
+    this.isModalDesenvolvimentoOpen = false;
   }
 }
