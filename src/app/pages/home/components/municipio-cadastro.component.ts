@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Output, EventEmitter, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MunicipioService, Municipio } from '../../../core/services/municipio.service';
@@ -17,62 +17,64 @@ export class MunicipioCadastroComponent implements OnInit {
   municipiosFiltrados: Municipio[] = [];
 
   formularioAberto = false;
-  municipioEdicao: Municipio = { nome: '', uf: '' };
-  municipioSelecionado: Municipio | null = null;
-  searchTerm = '';
+  municipioEdicao: Partial<Municipio> = {};
+  searchTerm: string = '';
   mensagem = '';
   tipoMensagem: 'sucesso' | 'erro' = 'sucesso';
-  modalSucessoAberto = false;
-  
-  // Estados de carregamento
+
   carregandoLista = false;
   carregandoSalvar = false;
   carregandoDeletar = false;
-  
+
   estadosBrasileiros = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
 
-  constructor(private municipioService: MunicipioService) {}
+  constructor(
+    private municipioService: MunicipioService,
+    private cdr: ChangeDetectorRef,
+  ) {}
 
-  ngOnInit() {
-    this.municipioService.municipios$.subscribe(municipios => {
-      this.municipios = municipios;
-      this.filtrar();
-    });
-
+  ngOnInit(): void {
     this.carregarMunicipios();
   }
 
-  carregarMunicipios() {
+  carregarMunicipios(): void {
     this.carregandoLista = true;
-    this.municipioService.obterTodos().subscribe(
-      municipios => {
+    this.cdr.detectChanges();
+
+    this.municipioService.obterTodos().subscribe({
+      next: (municipios) => {
         this.municipios = municipios;
         this.filtrar();
         this.carregandoLista = false;
+        this.cdr.detectChanges();
       },
-      erro => {
-        this.mostrarMensagem('Erro ao carregar municipios: ' + erro.message, 'erro');
+      error: (erro) => {
+        this.exibirMensagem('Falha ao carregar a lista de municípios. ' + erro.message, 'erro');
         this.carregandoLista = false;
-      }
-    );
+        this.cdr.detectChanges();
+      },
+    });
   }
 
-  filtrar() {
-    if (!this.searchTerm) {
+  filtrar(): void {
+    const termo = this.searchTerm.toLowerCase().trim();
+
+    if (!termo) {
       this.municipiosFiltrados = [...this.municipios];
     } else {
-      this.municipiosFiltrados = this.municipios.filter(m =>
-        m.nome.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        m.uf.toLowerCase().includes(this.searchTerm.toLowerCase())
+      this.municipiosFiltrados = this.municipios.filter((m) =>
+        m.nome?.toLowerCase().includes(termo) ||
+        m.uf?.toLowerCase().includes(termo)
       );
     }
+    this.cdr.detectChanges();
   }
 
-  onSearchChange() {
+  onSearchChange(): void {
     this.filtrar();
   }
 
-  abrirFormulario(municipio?: Municipio) {
+  abrirFormulario(municipio?: Municipio): void {
     if (municipio) {
       this.municipioEdicao = { ...municipio };
     } else {
@@ -81,33 +83,14 @@ export class MunicipioCadastroComponent implements OnInit {
     this.formularioAberto = true;
   }
 
-  fecharFormulario() {
+  fecharFormulario(): void {
     this.formularioAberto = false;
-    this.municipioEdicao = { nome: '', uf: '' };
+    this.municipioEdicao = {};
   }
 
-  limparFormulario() {
-    this.municipioEdicao = { nome: '', uf: '' };
-  }
-
-  private mostrarSucessoSalvo() {
-    this.modalSucessoAberto = true;
-    setTimeout(() => {
-      this.modalSucessoAberto = false;
-    }, 1000);
-  }
-
-  private finalizarSalvarComSucesso() {
-    this.mostrarSucessoSalvo();
-    this.limparFormulario();
-    this.formularioAberto = true;
-    this.municipioSelecionado = null;
-    this.carregarMunicipios();
-  }
-
-  salvar() {
+  salvar(): void {
     if (!this.municipioEdicao.nome || !this.municipioEdicao.uf) {
-      this.mostrarMensagem('Preencha todos os campos', 'erro');
+      this.exibirMensagem('Preencha os campos obrigatórios.', 'erro');
       return;
     }
 
@@ -115,7 +98,7 @@ export class MunicipioCadastroComponent implements OnInit {
     const ufNormalizada = this.municipioEdicao.uf.trim().toUpperCase();
 
     if (!nomeNormalizado || !ufNormalizada) {
-      this.mostrarMensagem('Preencha todos os campos', 'erro');
+      this.exibirMensagem('Preencha os campos obrigatórios.', 'erro');
       return;
     }
 
@@ -128,9 +111,12 @@ export class MunicipioCadastroComponent implements OnInit {
     );
 
     if (jaExiste) {
-      this.mostrarMensagem('Este município já está cadastrado para a UF informada', 'erro');
+      this.exibirMensagem('Este município já está cadastrado para a UF informada.', 'erro');
       return;
     }
+
+    this.carregandoSalvar = true;
+    this.cdr.detectChanges();
 
     this.municipioEdicao = {
       ...this.municipioEdicao,
@@ -139,63 +125,80 @@ export class MunicipioCadastroComponent implements OnInit {
     };
 
     if (this.municipioEdicao.id) {
-      // Atualizar
-      this.municipioService.atualizar(this.municipioEdicao.id, this.municipioEdicao).subscribe(
-        () => {
-          this.finalizarSalvarComSucesso();
+      this.municipioService.atualizar(this.municipioEdicao.id, this.municipioEdicao as Municipio).subscribe({
+        next: () => {
+          this.exibirMensagem('Município atualizado com sucesso.', 'sucesso');
+          this.fecharFormulario();
+          this.carregarMunicipios();
+          this.carregandoSalvar = false;
         },
-        erro => {
-          this.mostrarMensagem('Erro ao atualizar: ' + erro.message, 'erro');
-        }
-      );
+        error: (erro) => {
+          this.exibirMensagem('Erro ao atualizar. ' + erro.message, 'erro');
+          this.carregandoSalvar = false;
+          this.cdr.detectChanges();
+        },
+      });
     } else {
-      // Criar novo
-      this.municipioService.criar(this.municipioEdicao).subscribe(
-        () => {
-          this.finalizarSalvarComSucesso();
+      this.municipioService.criar(this.municipioEdicao as Municipio).subscribe({
+        next: () => {
+          this.exibirMensagem('Município cadastrado com sucesso.', 'sucesso');
+          this.fecharFormulario();
+          this.carregarMunicipios();
+          this.carregandoSalvar = false;
         },
-        erro => {
-          this.mostrarMensagem('Erro ao criar: ' + erro.message, 'erro');
-        }
-      );
+        error: (erro) => {
+          this.exibirMensagem('Erro ao salvar. ' + erro.message, 'erro');
+          this.carregandoSalvar = false;
+          this.cdr.detectChanges();
+        },
+      });
     }
   }
 
-  deletar(id?: number) {
-    if (!id) return;
+  deletar(alvo: any): void {
+    const idParaDeletar = typeof alvo === 'number' ? alvo : alvo?.id;
 
-    if (!confirm('Deseja realmente deletar este municipio?')) {
+    if (!idParaDeletar) {
+      this.exibirMensagem('Erro: não foi possível identificar o ID do município.', 'erro');
       return;
     }
 
-    this.carregandoDeletar = true;
-    this.municipioService.deletar(id).subscribe(
-      () => {
-        this.mostrarMensagem('Municipio deletado com sucesso', 'sucesso');
-        this.carregarMunicipios();
-        this.municipioSelecionado = null;
-        this.carregandoDeletar = false;
-      },
-      erro => {
-        this.mostrarMensagem('Erro ao deletar: ' + erro.message, 'erro');
-        this.carregandoDeletar = false;
-      }
+    const nomeMunicipio = typeof alvo === 'object' && alvo?.nome ? alvo.nome : 'este município';
+
+    const confirmacao = window.confirm(
+      `Atenção: tem certeza que deseja excluir ${nomeMunicipio}? Esta ação não poderá ser desfeita.`,
     );
+    if (!confirmacao) return;
+
+    this.carregandoDeletar = true;
+    this.cdr.detectChanges();
+
+    this.municipioService.deletar(idParaDeletar).subscribe({
+      next: () => {
+        this.carregarMunicipios();
+        this.carregandoDeletar = false;
+        this.exibirMensagem('Município excluído com sucesso.', 'sucesso');
+      },
+      error: () => {
+        this.exibirMensagem('Erro ao excluir município.', 'erro');
+        this.carregandoDeletar = false;
+        this.cdr.detectChanges();
+      },
+    });
   }
 
-  selecionarMunicipio(municipio: Municipio) {
-    this.municipioSelecionado = municipio;
-  }
-
-  mostrarMensagem(texto: string, tipo: 'sucesso' | 'erro') {
-    this.mensagem = texto;
+  exibirMensagem(msg: string, tipo: 'sucesso' | 'erro'): void {
+    this.mensagem = msg;
     this.tipoMensagem = tipo;
+    this.cdr.detectChanges();
+
     setTimeout(() => {
       this.mensagem = '';
-    }, 3000);
+      this.cdr.detectChanges();
+    }, 4000);
   }
 
-  fecharPainel() {
+  fecharPainel(): void {
     this.voltar.emit();
   }
 }
