@@ -1,10 +1,6 @@
 <div class="min-h-screen bg-slate-100 text-slate-900 flex overflow-hidden">
   
-  <div 
-    *ngIf="isMobileMenuOpen" 
-    (click)="toggleMobileMenu()" 
-    class="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm transition-opacity lg:hidden"
-  ></div>
+  <div *ngIf="isMobileMenuOpen" (click)="toggleMobileMenu()" class="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm transition-opacity lg:hidden"></div>
 
   <aside 
     [ngClass]="{
@@ -16,210 +12,200 @@
     class="fixed lg:static inset-y-0 left-0 z-50 w-72 shrink-0 bg-slate-900 text-slate-100 transition-all duration-300 ease-in-out flex flex-col overflow-y-auto"
   >
     <div class="flex flex-col items-center justify-center gap-2 px-6 py-8 text-center border-b border-slate-700 relative shrink-0">
-      
-      <button 
-        (click)="toggleMobileMenu()" 
-        class="absolute top-4 right-4 p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg lg:hidden"
-      >
-        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
+      <button (click)="toggleMobileMenu()" class="absolute top-4 right-4 p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg lg:hidden">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
       </button>
-
-      <div class="flex h-16 w-16 items-center justify-center rounded-3xl bg-indigo-500 text-2xl font-semibold shadow-xl shadow-indigo-500/20">
-        E
-      </div>
+      <div class="flex h-16 w-16 items-center justify-center rounded-3xl bg-indigo-500 text-2xl font-semibold shadow-xl shadow-indigo-500/20">E</div>
       <div>
         <p class="text-lg font-semibold">ECAM</p>
-        <p class="text-xs text-slate-400">Painel principal</p>
+        <p class="text-xs text-slate-400">Inteligência Territorial</p>
       </div>
     </div>
 
     <nav class="space-y-1 px-4 py-6 flex-1">
       <button type="button" (click)="goHome()" class="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium text-slate-200 transition hover:bg-slate-700 hover:text-white">
         <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-800 text-slate-300">🏠</span>
-        Início
+        Painel Central
       </button>
 
       <div class="rounded-3xl border border-slate-800 overflow-hidden">
         <button type="button" class="flex w-full items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-slate-800" (click)="isCadastrosOpen = !isCadastrosOpen">
           <span class="flex items-center gap-3">
             <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-800 text-slate-300">🗂️</span>
-            Cadastros
+            Base de Dados
           </span>
           <span class="text-slate-400">{{ isCadastrosOpen ? '−' : '+' }}</span>
         </button>
 
         <div *ngIf="isCadastrosOpen" class="mt-2 mb-2 space-y-1 px-2">
-          <button type="button" (click)="abrirUsuarios()" [ngClass]="{'bg-slate-800 text-white': cadastroAtivo === 'usuarios'}" class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Usuários</button>
+          <button type="button" (click)="abrirUsuarios()" [ngClass]="{'bg-slate-800 text-white': cadastroAtivo === 'usuarios'}" class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Equipe (Usuários)</button>
           <button type="button" (click)="abrirMunicipios()" [ngClass]="{'bg-slate-800 text-white': cadastroAtivo === 'municipios'}" class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Municípios</button>
-          <button type="button" (click)="abrirMacroRegioes()" [ngClass]="{'bg-slate-800 text-white': cadastroAtivo === 'macro-regioes'}" class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Macro Região</button>
-          <button type="button" (click)="abrirComunidades()" [ngClass]="{'bg-slate-800 text-white': cadastroAtivo === 'comunidades'}" class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Comunidade</button>
-          <button type="button" (click)="abrirBairros()" [ngClass]="{'bg-slate-800 text-white': cadastroAtivo === 'bairros'}" class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Bairro</button>
+          <button type="button" (click)="abrirMacroRegioes()" [ngClass]="{'bg-slate-800 text-white': cadastroAtivo === 'macro-regioes'}" class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Macroterritórios</button>
+          <button type="button" (click)="abrirComunidades()" [ngClass]="{'bg-slate-800 text-white': cadastroAtivo === 'comunidades'}" class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Comunidades</button>
+          <button type="button" (click)="abrirBairros()" [ngClass]="{'bg-slate-800 text-white': cadastroAtivo === 'bairros'}" class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Bairros</button>
         </div>
       </div>
 
-      <a href="#" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-slate-700 hover:text-white">
+      <a href="#" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-slate-700 hover:text-white opacity-50 cursor-not-allowed">
         <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-800 text-slate-300">📊</span>
-        Relatórios
-      </a>
-
-      <a href="#" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-slate-700 hover:text-white">
-        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-800 text-slate-300">⚙️</span>
-        Configurações
+        Relatórios Gerais
       </a>
     </nav>
 
-    <div class="shrink-0 px-6 py-6 border-t border-slate-700 text-slate-400 text-xs text-center">
-      Versão 1.0
-    </div>
+    <div class="shrink-0 px-6 py-6 border-t border-slate-700 text-slate-400 text-xs text-center">Versão 1.0</div>
   </aside>
 
   <main class="flex-1 flex flex-col min-w-0 min-h-screen overflow-y-auto">
     <header class="flex flex-col gap-4 border-b border-slate-200 bg-white px-4 py-4 lg:px-6 lg:py-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sticky top-0 z-30">
-      
       <div class="flex items-center gap-3">
-        <button 
-          type="button" 
-          (click)="toggleMobileMenu()" 
-          class="lg:hidden p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-xl transition"
-        >
-          <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
+        <button type="button" (click)="toggleMobileMenu()" class="lg:hidden p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-xl transition">
+          <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
         </button>
-
-        <button 
-          type="button" 
-          (click)="toggleDesktopMenu()" 
-          class="hidden lg:block p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-xl transition"
-        >
-          <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
+        <button type="button" (click)="toggleDesktopMenu()" class="hidden lg:block p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-xl transition">
+          <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
         </button>
-
         <div>
-          <p class="text-xs sm:text-sm uppercase tracking-[0.3em] text-slate-400 hidden sm:block">Painel de controle</p>
-          <h1 class="text-xl sm:text-3xl font-semibold text-slate-900">Bem-vindo ao ECAM</h1>
+          <p class="text-xs sm:text-sm uppercase tracking-[0.3em] text-slate-400 hidden sm:block">Centro de Inteligência</p>
+          <h1 class="text-xl sm:text-3xl font-semibold text-slate-900">Visão Estratégica</h1>
           <p class="mt-1 sm:mt-2 text-xs sm:text-sm text-slate-500">Última atualização: {{ lastRefresh | date:'HH:mm:ss' }}</p>
         </div>
       </div>
 
       <div class="flex flex-row items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
         <div class="flex items-center gap-3 rounded-2xl bg-slate-100 px-3 py-2 sm:px-4 sm:py-3 flex-1 sm:flex-none">
-          <div class="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl bg-indigo-600 text-white text-base sm:text-lg font-semibold">
-            {{ usuarioInicial }}
-          </div>
+          <div class="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl bg-indigo-600 text-white text-base sm:text-lg font-semibold">{{ usuarioInicial }}</div>
           <div class="min-w-0">
-            <p class="text-sm font-semibold text-slate-900 truncate">{{ usuario || 'Usuário' }}</p>
+            <p class="text-sm font-semibold text-slate-900 truncate">{{ usuario || 'Operador' }}</p>
             <p class="text-xs text-slate-500">Logado</p>
           </div>
         </div>
-
-        <button type="button" (click)="logout()" class="rounded-xl sm:rounded-2xl bg-indigo-600 px-4 py-3 sm:px-5 sm:py-3 text-sm font-semibold text-white transition hover:bg-indigo-500 whitespace-nowrap shadow-sm">
-          Sair
-        </button>
+        <button type="button" (click)="logout()" class="rounded-xl sm:rounded-2xl bg-indigo-600 px-4 py-3 sm:px-5 sm:py-3 text-sm font-semibold text-white transition hover:bg-indigo-500 whitespace-nowrap shadow-sm">Sair</button>
       </div>
     </header>
 
     <section class="p-4 lg:p-6">
-      <div *ngIf="cadastroAtivo === null" class="grid gap-6 xl:grid-cols-[1.4fr_0.9fr]">
+      <div *ngIf="cadastroAtivo === null" class="grid gap-6 xl:grid-cols-[1.5fr_0.9fr]">
+        
         <div class="space-y-6">
-          <div class="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
-            <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-              <p class="text-sm uppercase tracking-[0.3em] text-slate-400">Relatórios abertos</p>
-              <p class="mt-4 text-3xl font-semibold text-slate-900">{{ dashboard.openReports }}</p>
+          
+          <div class="grid gap-4 sm:gap-6 grid-cols-2 lg:grid-cols-4">
+            <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm flex flex-col justify-between">
+              <p class="text-xs sm:text-sm uppercase tracking-[0.2em] text-slate-400">Base Cadastrada</p>
+              <p class="mt-4 text-3xl sm:text-4xl font-semibold text-slate-900">{{ dashboard.kpis.totalBase }}</p>
             </div>
-            <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-              <p class="text-sm uppercase tracking-[0.3em] text-slate-400">Receita do mês</p>
-              <p class="mt-4 text-3xl font-semibold text-slate-900">{{ dashboard.monthlyRevenue }}</p>
+            <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm flex flex-col justify-between">
+              <p class="text-xs sm:text-sm uppercase tracking-[0.2em] text-slate-400">Líderes Ativos</p>
+              <p class="mt-4 text-3xl sm:text-4xl font-semibold text-indigo-600">{{ dashboard.kpis.liderancasAtivas }}</p>
             </div>
-            <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:col-span-2 xl:col-span-1">
-              <p class="text-sm uppercase tracking-[0.3em] text-slate-400">Saúde do sistema</p>
-              <p class="mt-4 text-3xl font-semibold text-slate-900">{{ dashboard.systemHealth }}</p>
+            <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm flex flex-col justify-between">
+              <p class="text-xs sm:text-sm uppercase tracking-[0.2em] text-slate-400">Resolução Geral</p>
+              <p class="mt-4 text-3xl sm:text-4xl font-semibold text-emerald-600">{{ dashboard.kpis.taxaResolucao }}</p>
             </div>
-          </div>
-
-          <div class="rounded-[2rem] border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h2 class="text-xl sm:text-2xl font-semibold text-slate-900">Relatórios do sistema</h2>
-                <p class="mt-2 text-sm sm:text-base text-slate-500">Resumo das informações mais recentes geradas pelo seu sistema.</p>
-              </div>
-              <span class="rounded-2xl bg-slate-100 px-4 py-2 text-sm font-medium text-slate-600 self-start sm:self-auto">Atualizado há pouco</span>
-            </div>
-
-            <div class="mt-6 grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-3">
-              <div class="rounded-[1.75rem] bg-slate-50 p-6">
-                <p class="text-xs sm:text-sm uppercase tracking-[0.3em] text-slate-400">Financeiro</p>
-                <p class="mt-4 text-2xl sm:text-3xl font-semibold text-slate-900">12 relatórios</p>
-                <p class="mt-2 text-sm text-slate-500">Receitas e despesas consolidadas.</p>
-              </div>
-              <div class="rounded-[1.75rem] bg-slate-50 p-6">
-                <p class="text-xs sm:text-sm uppercase tracking-[0.3em] text-slate-400">Operações</p>
-                <p class="mt-4 text-2xl sm:text-3xl font-semibold text-slate-900">8 ativos</p>
-                <p class="mt-2 text-sm text-slate-500">Relatórios processados em tempo real.</p>
-              </div>
-              <div class="rounded-[1.75rem] bg-slate-50 p-6">
-                <p class="text-xs sm:text-sm uppercase tracking-[0.3em] text-slate-400">Auditoria</p>
-                <p class="mt-4 text-2xl sm:text-3xl font-semibold text-slate-900">4 novos</p>
-                <p class="mt-2 text-sm text-slate-500">Entradas recentes para revisão.</p>
-              </div>
+            <div class="rounded-[2rem] border border-red-100 bg-red-50 p-6 shadow-sm flex flex-col justify-between">
+              <p class="text-xs sm:text-sm uppercase tracking-[0.2em] text-red-500">Alertas / Crise</p>
+              <p class="mt-4 text-3xl sm:text-4xl font-semibold text-red-600">{{ dashboard.kpis.alertasPendentes }}</p>
             </div>
           </div>
 
           <div class="rounded-[2rem] border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <div>
-                <h2 class="text-xl sm:text-2xl font-semibold text-slate-900">Principais relatórios</h2>
-                <p class="mt-2 text-sm sm:text-base text-slate-500">Visão rápida dos relatórios previstos para este mês.</p>
+                <h2 class="text-xl sm:text-2xl font-semibold text-slate-900">Balanço de Demandas</h2>
+                <p class="mt-1 text-sm text-slate-500">O que o mandato recebeu vs. O que entregou</p>
               </div>
-              <button type="button" class="rounded-2xl border border-slate-200 bg-slate-100 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-200 self-start sm:self-auto">Ver todos</button>
             </div>
+            <div class="space-y-5">
+              <div *ngFor="let dem of dashboard.eficienciaDemandas">
+                <div class="flex justify-between text-sm font-medium mb-1.5">
+                  <span class="text-slate-700">{{ dem.categoria }}</span>
+                  <span class="text-slate-900">{{ dem.resolvidas }} de {{ dem.recebidas }} ({{ dem.percentual }}%)</span>
+                </div>
+                <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200">
+                  <div [class]="dem.cor" class="h-3 rounded-full transition-all duration-1000" [style.width.%]="dem.percentual"></div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-            <div class="mt-6 space-y-4">
-              <div class="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5">
-                <p class="text-sm font-semibold text-slate-900">Relatório de desempenho mensal</p>
-                <p class="mt-2 text-sm text-slate-500">Indicadores de produtividade, tempo e resultados por área.</p>
-              </div>
-              <div class="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5">
-                <p class="text-sm font-semibold text-slate-900">Nível de satisfação do cliente</p>
-                <p class="mt-2 text-sm text-slate-500">Resumo de relatórios de feedback e atendimento.</p>
-              </div>
-              <div class="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5">
-                <p class="text-sm font-semibold text-slate-900">Análise de riscos</p>
-                <p class="mt-2 text-sm text-slate-500">Mapeamento de alertas e oportunidades.</p>
-              </div>
+          <div class="rounded-[2rem] border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+            <h2 class="text-xl sm:text-2xl font-semibold text-slate-900">Termômetro de Lideranças</h2>
+            <p class="mt-1 text-sm text-slate-500 mb-6">Ranking dos que mais mobilizam a base</p>
+            
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="border-b border-slate-200 text-sm text-slate-400 uppercase tracking-wider">
+                    <th class="pb-3 font-medium">Liderança</th>
+                    <th class="pb-3 font-medium hidden sm:table-cell">Território</th>
+                    <th class="pb-3 font-medium">Mobilização</th>
+                    <th class="pb-3 font-medium text-center">Classe</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  <tr *ngFor="let lider of dashboard.rankingLiderancas" class="hover:bg-slate-50 transition">
+                    <td class="py-4">
+                      <p class="font-semibold text-slate-900">{{ lider.nome }}</p>
+                      <p class="text-xs text-slate-500">{{ lider.segmento }}</p>
+                    </td>
+                    <td class="py-4 hidden sm:table-cell text-sm text-slate-600">{{ lider.territorio }}</td>
+                    <td class="py-4 text-sm font-medium text-slate-700">{{ lider.base }} pessoas</td>
+                    <td class="py-4 text-center">
+                      <span [ngClass]="{'bg-emerald-100 text-emerald-700': lider.classe === 'A', 'bg-blue-100 text-blue-700': lider.classe === 'B', 'bg-slate-100 text-slate-700': lider.classe === 'C'}" 
+                            class="px-3 py-1 rounded-full text-xs font-bold inline-block w-8 text-center">
+                        {{ lider.classe }}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
 
         <aside class="space-y-6">
-          <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-xs sm:text-sm uppercase tracking-[0.3em] text-slate-400">Resumo rápido</p>
-                <h3 class="mt-2 sm:mt-3 text-lg sm:text-xl font-semibold text-slate-900">Painel de relatórios</h3>
-              </div>
-              <span class="rounded-2xl bg-slate-100 px-3 py-2 text-xs sm:text-sm font-medium text-slate-600 hidden sm:block">Últimas 24h</span>
+          
+          <div class="rounded-[2rem] border border-slate-200 bg-white p-6 sm:p-8 shadow-sm relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-6 opacity-10">
+              <span class="text-6xl">⚠️</span>
             </div>
-            <div class="mt-6 space-y-4">
-              <div class="rounded-[1.75rem] bg-slate-50 p-5">
-                <p class="text-sm font-semibold text-slate-900">Relatório de vendas</p>
-                <p class="mt-2 text-sm text-slate-500">Gerado automaticamente para análise da diretoria.</p>
-              </div>
-              <div class="rounded-[1.75rem] bg-slate-50 p-5">
-                <p class="text-sm font-semibold text-slate-900">Controle de estoque</p>
-                <p class="mt-2 text-sm text-slate-500">Prévia dos cadastros e movimentações recentes.</p>
+            <h3 class="text-lg font-semibold text-slate-900 relative">Radar de Engajamento</h3>
+            <p class="mt-1 text-sm text-slate-500 relative mb-6">Prevenção de perdas e crise</p>
+            
+            <div class="space-y-4 relative">
+              <div *ngFor="let alerta of dashboard.alertas" class="p-4 rounded-2xl border bg-slate-50" 
+                   [ngClass]="{'border-red-200': alerta.status === 'Crítico', 'border-amber-200': alerta.status === 'Atenção', 'border-blue-200': alerta.status === 'Ação Rápida'}">
+                <div class="flex justify-between items-start mb-1">
+                  <p class="font-semibold text-sm" 
+                     [ngClass]="{'text-red-700': alerta.status === 'Crítico', 'text-amber-700': alerta.status === 'Atenção', 'text-blue-700': alerta.status === 'Ação Rápida'}">
+                    {{ alerta.nome }}
+                  </p>
+                  <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full"
+                        [ngClass]="{'bg-red-100 text-red-700': alerta.status === 'Crítico', 'bg-amber-100 text-amber-700': alerta.status === 'Atenção', 'bg-blue-100 text-blue-700': alerta.status === 'Ação Rápida'}">
+                    {{ alerta.status }}
+                  </span>
+                </div>
+                <p class="text-xs text-slate-600">{{ alerta.motivo }}</p>
               </div>
             </div>
           </div>
 
-          <div class="rounded-[2rem] border border-slate-200 bg-gradient-to-br from-indigo-600 to-violet-600 p-6 sm:p-8 text-white shadow-lg shadow-indigo-500/20">
-            <h3 class="text-lg sm:text-xl font-semibold">Cadastros</h3>
-            <p class="mt-2 sm:mt-3 text-sm sm:text-base text-indigo-100">Use o menu lateral para gerenciar os cadastros do sistema.</p>
+          <div class="rounded-[2rem] border border-slate-200 bg-gradient-to-br from-slate-900 to-indigo-950 p-6 sm:p-8 text-white shadow-xl shadow-indigo-900/10">
+            <h3 class="text-lg font-semibold text-white">Raio-X de Expansão</h3>
+            <p class="mt-1 text-sm text-indigo-200 mb-6">Desempenho territorial recente</p>
+            
+            <div class="space-y-4">
+              <div *ngFor="let exp of dashboard.expansao" class="flex items-center justify-between border-b border-slate-700 pb-3 last:border-0 last:pb-0">
+                <div>
+                  <p class="font-medium text-white">{{ exp.territorio }}</p>
+                  <p class="text-xs text-indigo-300">{{ exp.status }}</p>
+                </div>
+                <div class="text-right">
+                  <span class="bg-emerald-500/20 text-emerald-300 font-bold px-2 py-1 rounded text-sm">{{ exp.novos }}</span>
+                </div>
+              </div>
+            </div>
           </div>
+
         </aside>
       </div>
 

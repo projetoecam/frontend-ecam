@@ -26,14 +26,46 @@ export class HomeComponent {
   
   isCadastrosOpen = true;
   isMobileMenuOpen = false;
-  isDesktopMenuOpen = true; 
+  isDesktopMenuOpen = true;
+  
   cadastroAtivo: string | null = null;
   
+  // DADOS ESTRATÉGICOS FICTÍCIOS PARA IMPRESSIONAR O CLIENTE
   dashboard = {
-    totalUsers: 1240,
-    openReports: 18,
-    monthlyRevenue: 'R$ 76.300',
-    systemHealth: 'Excelente'
+    // Top Métricas
+    kpis: {
+      totalBase: '12.450',
+      liderancasAtivas: '342',
+      taxaResolucao: '78%',
+      alertasPendentes: '14'
+    },
+    
+    // 1. Ranking de Força (Termômetro)
+    rankingLiderancas: [
+      { nome: 'Pr. Carlos Silva', territorio: 'Curado', segmento: 'Religioso', base: 345, classe: 'A' },
+      { nome: 'Maria de Fátima', territorio: 'Jab. Histórico', segmento: 'Comunitário', base: 210, classe: 'B' },
+      { nome: 'Prof. Roberto', territorio: 'Praias', segmento: 'Educação', base: 130, classe: 'C' }
+    ],
+
+    // 2. Eficiência de Demandas (Barras de progresso)
+    eficienciaDemandas: [
+      { categoria: 'Iluminação Pública', recebidas: 145, resolvidas: 115, percentual: 79, cor: 'bg-emerald-500' },
+      { categoria: 'Saúde (Marcação)', recebidas: 67, resolvidas: 45, percentual: 67, cor: 'bg-blue-500' },
+      { categoria: 'Calçamento', recebidas: 89, resolvidas: 24, percentual: 26, cor: 'bg-amber-500' }
+    ],
+
+    // 3. Radar de Alertas (Gestão de Crise)
+    alertas: [
+      { nome: 'José Alfredo', motivo: 'Demanda parada há 45 dias', status: 'Crítico' },
+      { nome: 'Assoc. Muribeca', motivo: 'Liderança sem visita há 30 dias', status: 'Atenção' },
+      { nome: 'Lúcia Maria', motivo: 'Aniversariante do dia (Falta ligar)', status: 'Ação Rápida' }
+    ],
+    
+    // 4. Raio-X de Expansão
+    expansao: [
+      { territorio: 'Praias', status: 'Consolidada', novos: '+215' },
+      { territorio: 'Cavaleiro', status: 'Em Expansão', novos: '+305' }
+    ]
   };
   
   cadastrosOptions = ['Usuários', 'Municipios', 'Macro Região', 'Comunidade', 'Bairro'];
@@ -60,41 +92,18 @@ export class HomeComponent {
 
   goHome() {
     this.isMobileMenuOpen = false; 
-    this.router.navigate(['/home']).then(() => {
-      window.location.reload();
-    });
+    this.router.navigate(['/home']).then(() => window.location.reload());
   }
 
   refreshData() {
     this.lastRefresh = new Date();
-    this.dashboard.openReports += 1;
-    this.dashboard.totalUsers += 2;
   }
 
-  abrirMunicipios() {
-    this.cadastroAtivo = 'municipios';
-    this.isMobileMenuOpen = false; 
-  }
-
-  abrirMacroRegioes() {
-    this.cadastroAtivo = 'macro-regioes';
-    this.isMobileMenuOpen = false; 
-  }
-
-  abrirBairros() {
-    this.cadastroAtivo = 'bairros';
-    this.isMobileMenuOpen = false; 
-  }
-
-  abrirComunidades() {
-    this.cadastroAtivo = 'comunidades';
-    this.isMobileMenuOpen = false; 
-  }
-
-  abrirUsuarios() {
-    this.cadastroAtivo = 'usuarios';
-    this.isMobileMenuOpen = false; 
-  }
+  abrirMunicipios() { this.cadastroAtivo = 'municipios'; this.isMobileMenuOpen = false; }
+  abrirMacroRegioes() { this.cadastroAtivo = 'macro-regioes'; this.isMobileMenuOpen = false; }
+  abrirBairros() { this.cadastroAtivo = 'bairros'; this.isMobileMenuOpen = false; }
+  abrirComunidades() { this.cadastroAtivo = 'comunidades'; this.isMobileMenuOpen = false; }
+  abrirUsuarios() { this.cadastroAtivo = 'usuarios'; this.isMobileMenuOpen = false; }
 
   voltarDashboard() {
     this.cadastroAtivo = null;
