@@ -10,21 +10,32 @@ import { UsuarioCadastroComponent } from './components/usuario-cadastro.componen
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, BairroCadastroComponent, MunicipioCadastroComponent, MacroRegiaoCadastroComponent, ComunidadeCadastroComponent, UsuarioCadastroComponent],
+  imports: [
+    CommonModule, 
+    BairroCadastroComponent, 
+    MunicipioCadastroComponent, 
+    MacroRegiaoCadastroComponent, 
+    ComunidadeCadastroComponent, 
+    UsuarioCadastroComponent
+  ],
   templateUrl: './home.component.html'
 })
 export class HomeComponent {
   usuario = localStorage.getItem('usuario') ?? '';
   lastRefresh = new Date();
+  
   isCadastrosOpen = true;
   isMobileMenuOpen = false;
+  isDesktopMenuOpen = true; 
   cadastroAtivo: string | null = null;
+  
   dashboard = {
     totalUsers: 1240,
     openReports: 18,
     monthlyRevenue: 'R$ 76.300',
     systemHealth: 'Excelente'
   };
+  
   cadastrosOptions = ['Usuários', 'Municipios', 'Macro Região', 'Comunidade', 'Bairro'];
 
   constructor(private router: Router) {}
@@ -43,7 +54,12 @@ export class HomeComponent {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
   }
 
+  toggleDesktopMenu() {
+    this.isDesktopMenuOpen = !this.isDesktopMenuOpen;
+  }
+
   goHome() {
+    this.isMobileMenuOpen = false; 
     this.router.navigate(['/home']).then(() => {
       window.location.reload();
     });
@@ -57,22 +73,27 @@ export class HomeComponent {
 
   abrirMunicipios() {
     this.cadastroAtivo = 'municipios';
+    this.isMobileMenuOpen = false; 
   }
 
   abrirMacroRegioes() {
     this.cadastroAtivo = 'macro-regioes';
+    this.isMobileMenuOpen = false; 
   }
 
   abrirBairros() {
     this.cadastroAtivo = 'bairros';
+    this.isMobileMenuOpen = false; 
   }
 
   abrirComunidades() {
     this.cadastroAtivo = 'comunidades';
+    this.isMobileMenuOpen = false; 
   }
 
   abrirUsuarios() {
     this.cadastroAtivo = 'usuarios';
+    this.isMobileMenuOpen = false; 
   }
 
   voltarDashboard() {
