@@ -29,8 +29,9 @@
           <div *ngIf="isCadastrosOpen" class="mt-3 space-y-2 px-2">
             <button type="button" (click)="abrirUsuarios()" class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Usuários</button>
             <button type="button" (click)="abrirMunicipios()" class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Municipios</button>
-            <a href="#" class="block rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Produtos</a>
-            <a href="#" class="block rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Fornecedores</a>
+            <button type="button" (click)="abrirMacroRegioes()" class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Macro Região</button>
+            <button type="button" (click)="abrirComunidades()" class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Comunidade</button>
+            <button type="button" (click)="abrirBairros()" class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Bairro</button>
           </div>
         </div>
 
@@ -180,6 +181,15 @@
 
         <!-- Cadastro de Municipios -->
         <app-municipio-cadastro *ngIf="cadastroAtivo === 'municipios'" (voltar)="voltarDashboard()"></app-municipio-cadastro>
+
+        <!-- Cadastro de Macro Região -->
+        <app-macro-regiao-cadastro *ngIf="cadastroAtivo === 'macro-regioes'" (voltar)="voltarDashboard()"></app-macro-regiao-cadastro>
+
+        <!-- Cadastro de Comunidade -->
+        <app-comunidade-cadastro *ngIf="cadastroAtivo === 'comunidades'" (voltar)="voltarDashboard()"></app-comunidade-cadastro>
+
+        <!-- Cadastro de Bairro -->
+        <app-bairro-cadastro *ngIf="cadastroAtivo === 'bairros'" (voltar)="voltarDashboard()"></app-bairro-cadastro>
 
         <!-- Cadastro de Usuários -->
         <app-usuario-cadastro *ngIf="cadastroAtivo === 'usuarios'" (voltar)="voltarDashboard()"></app-usuario-cadastro>

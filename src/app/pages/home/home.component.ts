@@ -1,13 +1,16 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { BairroCadastroComponent } from './components/bairro-cadastro.component';
 import { MunicipioCadastroComponent } from './components/municipio-cadastro.component';
+import { MacroRegiaoCadastroComponent } from './components/macro-regiao-cadastro.component';
+import { ComunidadeCadastroComponent } from './components/comunidade-cadastro.component';
 import { UsuarioCadastroComponent } from './components/usuario-cadastro.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, MunicipioCadastroComponent, UsuarioCadastroComponent],
+  imports: [CommonModule, BairroCadastroComponent, MunicipioCadastroComponent, MacroRegiaoCadastroComponent, ComunidadeCadastroComponent, UsuarioCadastroComponent],
   templateUrl: './home.component.html'
 })
 export class HomeComponent {
@@ -22,7 +25,7 @@ export class HomeComponent {
     monthlyRevenue: 'R$ 76.300',
     systemHealth: 'Excelente'
   };
-  cadastrosOptions = ['Usuários', 'Municipios', 'Produtos', 'Fornecedores'];
+  cadastrosOptions = ['Usuários', 'Municipios', 'Macro Região', 'Comunidade', 'Bairro'];
 
   constructor(private router: Router) {}
 
@@ -54,6 +57,18 @@ export class HomeComponent {
 
   abrirMunicipios() {
     this.cadastroAtivo = 'municipios';
+  }
+
+  abrirMacroRegioes() {
+    this.cadastroAtivo = 'macro-regioes';
+  }
+
+  abrirBairros() {
+    this.cadastroAtivo = 'bairros';
+  }
+
+  abrirComunidades() {
+    this.cadastroAtivo = 'comunidades';
   }
 
   abrirUsuarios() {
