@@ -14,12 +14,14 @@ import { MacroRegiao, MacroRegiaoService } from '../../../core/services/macro-re
 export class MacroRegiaoCadastroComponent implements OnInit {
   @Output() voltar = new EventEmitter<void>();
 
-  macroRegioes: MacroRegiao[] = [];
-  macroRegioesFiltradas: MacroRegiao[] = [];
+  // Nota: Garante que a interface MacroRegiao no teu macro-regiao.service.ts tem os campos:
+  // id?: number; nome: string; regiaoApelido?: string; idMunicipio?: number; nomeMunicipio?: string;
+  macroRegioes: any[] = []; // Usando any[] para evitar erros de tipagem caso a interface não esteja atualizada
+  macroRegioesFiltradas: any[] = [];
   municipios: Municipio[] = [];
 
   formularioAberto = false;
-  macroRegiaoEdicao: Partial<MacroRegiao> = {};
+  macroRegiaoEdicao: any = {};
   municipioSelecionadoId: number | '' = '';
   searchTerm: string = '';
   mensagem = '';
@@ -85,13 +87,13 @@ export class MacroRegiaoCadastroComponent implements OnInit {
       this.macroRegioesFiltradas = [...this.macroRegioes];
     } else {
       this.macroRegioesFiltradas = this.macroRegioes.filter((item) => {
-        const municipioNome = item.municipio?.nome?.toLowerCase() ?? '';
-        const municipioUf = item.municipio?.uf?.toLowerCase() ?? '';
+        // Agora usamos os dados planos que vêm do DTO
+        const municipioNome = item.nomeMunicipio?.toLowerCase() ?? '';
+        
         return (
           item.nome?.toLowerCase().includes(termo) ||
-          item.regiao_apelido?.toLowerCase().includes(termo) ||
-          municipioNome.includes(termo) ||
-          municipioUf.includes(termo)
+          item.regiaoApelido?.toLowerCase().includes(termo) ||
+          municipioNome.includes(termo)
         );
       });
     }
@@ -103,15 +105,12 @@ export class MacroRegiaoCadastroComponent implements OnInit {
     this.filtrar();
   }
 
-  abrirFormulario(macroRegiao?: MacroRegiao): void {
+  abrirFormulario(macroRegiao?: any): void {
     if (macroRegiao) {
-      this.macroRegiaoEdicao = {
-        ...macroRegiao,
-        municipio: macroRegiao.municipio ? { ...macroRegiao.municipio } : undefined,
-      };
-      this.municipioSelecionadoId = macroRegiao.municipio?.id ?? '';
+      this.macroRegiaoEdicao = { ...macroRegiao };
+      this.municipioSelecionadoId = macroRegiao.idMunicipio ?? '';
     } else {
-      this.macroRegiaoEdicao = { nome: '', regiao_apelido: '', municipio: undefined };
+      this.macroRegiaoEdicao = { nome: '', regiaoApelido: '' };
       this.municipioSelecionadoId = '';
     }
 
@@ -125,28 +124,28 @@ export class MacroRegiaoCadastroComponent implements OnInit {
   }
 
   salvar(): void {
-    if (!this.macroRegiaoEdicao.nome || !this.macroRegiaoEdicao.regiao_apelido || !this.municipioSelecionadoId) {
+    if (!this.macroRegiaoEdicao.nome || !this.macroRegiaoEdicao.regiaoApelido || !this.municipioSelecionadoId) {
       this.exibirMensagem('Preencha os campos obrigatórios.', 'erro');
       return;
     }
 
     const nomeNormalizado = this.macroRegiaoEdicao.nome.trim();
-    const apelidoNormalizado = this.macroRegiaoEdicao.regiao_apelido.trim();
-    const municipio = this.municipios.find((item) => item.id === this.municipioSelecionadoId) || null;
+    const apelidoNormalizado = this.macroRegiaoEdicao.regiaoApelido.trim();
 
-    if (!nomeNormalizado || !apelidoNormalizado || !municipio) {
-      this.exibirMensagem('Selecione um município válido e preencha os campos obrigatórios.', 'erro');
+    if (!nomeNormalizado || !apelidoNormalizado) {
+      this.exibirMensagem('Preencha os campos obrigatórios.', 'erro');
       return;
     }
 
     this.carregandoSalvar = true;
     this.cdr.detectChanges();
 
-    const payload: MacroRegiao = {
+    // Novo payload de acordo com o DTO do backend
+    const payload: any = {
       id: this.macroRegiaoEdicao.id,
       nome: nomeNormalizado,
-      regiao_apelido: apelidoNormalizado,
-      municipio: { ...municipio },
+      regiaoApelido: apelidoNormalizado,
+      idMunicipio: this.municipioSelecionadoId,
     };
 
     if (payload.id) {
