@@ -115,6 +115,22 @@
           >
             Comunidades
           </button>
+          <button
+            type="button"
+            (click)="abrirPessoas()"
+            [ngClass]="{ 'bg-slate-800 text-white': cadastroAtivo === 'pessoas' }"
+            class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
+          >
+            Pessoas
+          </button>
+          <button
+            type="button"
+            (click)="abrirSegmentos()"
+            [ngClass]="{ 'bg-slate-800 text-white': cadastroAtivo === 'segmentos' }"
+            class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
+          >
+            Segmentos
+          </button>
         </div>
       </div>
       <button
@@ -131,8 +147,9 @@
 
       <button
         type="button"
-        (click)="mostrarMensagemDesenvolvimento()"
-        class="w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium text-slate-200 transition hover:bg-slate-700 hover:text-white opacity-50 group"
+        (click)="abrirOperacoes()"
+        [ngClass]="{ 'bg-slate-700 text-white': cadastroAtivo === 'operacoes' }"
+        class="w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium text-slate-200 transition hover:bg-slate-700 hover:text-white group"
       >
         <span
           class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-800 text-slate-300 transition-transform duration-200 group-hover:scale-110"
@@ -463,6 +480,18 @@
         *ngIf="cadastroAtivo === 'usuarios'"
         (voltar)="voltarDashboard()"
       ></app-usuario-cadastro>
+      <app-pessoa-cadastro
+        *ngIf="cadastroAtivo === 'pessoas'"
+        (voltar)="voltarDashboard()"
+      ></app-pessoa-cadastro>
+      <app-segmento-cadastro
+        *ngIf="cadastroAtivo === 'segmentos'"
+        (voltar)="voltarDashboard()"
+      ></app-segmento-cadastro>
+      <app-ficha-cadastro
+        *ngIf="cadastroAtivo === 'operacoes'"
+        (voltar)="voltarDashboard()"
+      ></app-ficha-cadastro>
     </section>
   </main>
   <div

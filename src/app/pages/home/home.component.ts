@@ -6,6 +6,9 @@ import { MunicipioCadastroComponent } from './components/municipio-cadastro.comp
 import { MacroRegiaoCadastroComponent } from './components/macro-regiao-cadastro.component';
 import { ComunidadeCadastroComponent } from './components/comunidade-cadastro.component';
 import { UsuarioCadastroComponent } from './components/usuario-cadastro.component';
+import { FichaCadastroComponent } from './components/ficha-cadastro.component';
+import { PessoaCadastroComponent } from './components/pessoa-cadastro.component';
+import { SegmentoCadastroComponent } from './components/segmento-cadastro.component';
 
 @Component({
   selector: 'app-home',
@@ -16,7 +19,10 @@ import { UsuarioCadastroComponent } from './components/usuario-cadastro.componen
     MunicipioCadastroComponent, 
     MacroRegiaoCadastroComponent, 
     ComunidadeCadastroComponent, 
-    UsuarioCadastroComponent
+    UsuarioCadastroComponent,
+    FichaCadastroComponent,
+    PessoaCadastroComponent,
+    SegmentoCadastroComponent,
   ],
   templateUrl: './home.component.html'
 })
@@ -105,6 +111,9 @@ export class HomeComponent {
   abrirBairros() { this.cadastroAtivo = 'bairros'; this.isMobileMenuOpen = false; }
   abrirComunidades() { this.cadastroAtivo = 'comunidades'; this.isMobileMenuOpen = false; }
   abrirUsuarios() { this.cadastroAtivo = 'usuarios'; this.isMobileMenuOpen = false; }
+  abrirPessoas() { this.cadastroAtivo = 'pessoas'; this.isMobileMenuOpen = false; }
+  abrirSegmentos() { this.cadastroAtivo = 'segmentos'; this.isMobileMenuOpen = false; }
+  abrirOperacoes() { this.cadastroAtivo = 'operacoes'; this.isMobileMenuOpen = false; }
 
   voltarDashboard() {
     this.cadastroAtivo = null;

@@ -1,0 +1,326 @@
+<div class="space-y-6 relative">
+  <div *ngIf="mensagem" [ngClass]="tipoMensagem === 'erro' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-green-50 text-green-700 border-green-200'" class="px-4 py-3 rounded-lg border flex items-center gap-3">
+    <div class="font-bold">{{ tipoMensagem === 'erro' ? '!' : '✓' }}</div>
+    <div>
+      <p class="font-semibold">{{ tipoMensagem === 'erro' ? 'Atenção' : 'Sucesso' }}</p>
+      <p class="text-sm">{{ mensagem }}</p>
+    </div>
+  </div>
+
+  <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+    <div class="w-full">
+      <h2 class="text-2xl font-semibold text-slate-900">Ficha de Cadastro</h2>
+      <p class="mt-1 text-sm text-slate-500">Cadastro de Demandas da Comunidade</p>
+
+      <div class="mt-4 flex flex-col sm:flex-row gap-3">
+        <input
+          type="text"
+          placeholder="Buscar por nome, CPF, comunidade, telefone ou endereço..."
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearchChange()"
+          class="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+        <button
+          type="button"
+          (click)="abrirFormulario()"
+          class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition whitespace-nowrap"
+        >
+          + Nova Ficha
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="formularioAberto" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-5xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+        <h3 class="font-semibold text-slate-900 text-lg">{{ pessoaEdicao.id ? 'Cadastro de Demandas da Comunidade (Edição)' : 'Cadastro de Demandas da Comunidade' }}</h3>
+        <button (click)="fecharFormulario()" class="text-slate-400 hover:text-slate-600 text-2xl font-light leading-none">&times;</button>
+      </div>
+
+      <div class="p-6 space-y-5 overflow-y-auto">
+        <fieldset class="group-box">
+          <legend class="group-box-title">Seção 1 - Identificação da Comunidade</legend>
+          <div class="table-layout-panel">
+            <div class="field-cell md:col-span-2">
+              <label class="form-label">Nome da Comunidade</label>
+              <select [(ngModel)]="fichaForm.comunidadeId" class="form-input">
+                <option [ngValue]="''">Selecione a comunidade</option>
+                <option *ngFor="let comunidade of comunidades" [ngValue]="comunidade.id">
+                  {{ comunidade.nome }}
+                </option>
+              </select>
+              <p *ngIf="carregandoComunidades" class="text-xs text-slate-400">
+                Carregando comunidades...
+              </p>
+            </div>
+
+            <div class="field-cell">
+              <label class="form-label">Município</label>
+              <select [(ngModel)]="fichaForm.municipioId" class="form-input">
+                <option [ngValue]="''">Selecione o município</option>
+                <option *ngFor="let municipio of municipios" [ngValue]="municipio.id">
+                  {{ municipio.nome }}
+                </option>
+              </select>
+              <p *ngIf="carregandoMunicipios" class="text-xs text-slate-400">Carregando municípios...</p>
+            </div>
+
+            <div class="field-cell">
+              <label class="form-label">Bairro</label>
+              <select [(ngModel)]="fichaForm.bairroId" class="form-input">
+                <option [ngValue]="''">Selecione o bairro</option>
+                <option *ngFor="let bairro of bairros" [ngValue]="bairro.id">
+                  {{ bairro.nome }}
+                </option>
+              </select>
+              <p *ngIf="carregandoBairros" class="text-xs text-slate-400">Carregando bairros...</p>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="group-box">
+          <legend class="group-box-title">Seção 2 - Representante(s) da Comunidade</legend>
+          <div class="table-layout-panel">
+            <div class="field-cell md:col-span-2">
+              <label class="form-label">Nome</label>
+              <input
+                type="text"
+                [(ngModel)]="fichaForm.nomeRepresentante"
+                placeholder="Nome do representante"
+                class="form-input"
+              />
+            </div>
+
+            <div class="field-cell">
+              <label class="form-label">Telefone</label>
+              <input
+                type="text"
+                [(ngModel)]="fichaForm.telefone"
+                (ngModelChange)="formatarTelefone()"
+                placeholder="(00) 00000-0000"
+                inputmode="numeric"
+                class="form-input"
+              />
+            </div>
+
+            <div class="field-cell">
+              <label class="form-label">CPF</label>
+              <input
+                type="text"
+                [(ngModel)]="fichaForm.cpf"
+                (ngModelChange)="formatarCpf()"
+                placeholder="000.000.000-00"
+                inputmode="numeric"
+                class="form-input"
+              />
+            </div>
+
+            <div class="field-cell md:col-span-2">
+              <label class="form-label">Endereço</label>
+              <input
+                type="text"
+                [(ngModel)]="fichaForm.endereco"
+                placeholder="Rua, número, complemento"
+                class="form-input"
+              />
+            </div>
+
+            <div class="field-cell">
+              <label class="form-label">CEP</label>
+              <input
+                type="text"
+                [(ngModel)]="fichaForm.cep"
+                (ngModelChange)="formatarCep()"
+                placeholder="00000-000"
+                inputmode="numeric"
+                class="form-input"
+              />
+            </div>
+
+            <div class="field-cell md:col-span-2">
+              <label class="form-label">Nome da Mãe</label>
+              <input
+                type="text"
+                [(ngModel)]="fichaForm.nomeMae"
+                placeholder="Nome da mãe"
+                class="form-input"
+              />
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="group-box">
+          <legend class="group-box-title">Seção 3 - Principais Demandas da Comunidade</legend>
+          <div class="table-layout-panel">
+            <div class="field-cell md:col-span-2 demanda-item">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="fichaForm.demandas.infraestrutura.selecionado" />
+                Infraestrutura (calçamento, saneamento, iluminação etc.)
+              </label>
+              <textarea
+                [(ngModel)]="fichaForm.demandas.infraestrutura.descricao"
+                rows="3"
+                class="form-input"
+                placeholder="Descreva a necessidade de infraestrutura"
+              ></textarea>
+            </div>
+
+            <div class="field-cell demanda-item">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="fichaForm.demandas.saude.selecionado" />
+                Saúde
+              </label>
+              <textarea
+                [(ngModel)]="fichaForm.demandas.saude.descricao"
+                rows="3"
+                class="form-input"
+                placeholder="Descreva a necessidade de saúde"
+              ></textarea>
+            </div>
+
+            <div class="field-cell demanda-item">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="fichaForm.demandas.educacao.selecionado" />
+                Educação
+              </label>
+              <textarea
+                [(ngModel)]="fichaForm.demandas.educacao.descricao"
+                rows="3"
+                class="form-input"
+                placeholder="Descreva a necessidade de educação"
+              ></textarea>
+            </div>
+
+            <div class="field-cell demanda-item">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="fichaForm.demandas.seguranca.selecionado" />
+                Segurança
+              </label>
+              <textarea
+                [(ngModel)]="fichaForm.demandas.seguranca.descricao"
+                rows="3"
+                class="form-input"
+                placeholder="Descreva a necessidade de segurança"
+              ></textarea>
+            </div>
+
+            <div class="field-cell demanda-item">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="fichaForm.demandas.outros.selecionado" />
+                Outros
+              </label>
+              <textarea
+                [(ngModel)]="fichaForm.demandas.outros.descricao"
+                rows="3"
+                class="form-input"
+                placeholder="Descreva outras necessidades"
+              ></textarea>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="group-box">
+          <legend class="group-box-title">Rodapé</legend>
+          <div class="table-layout-panel">
+            <div class="field-cell">
+              <label class="form-label">Supervisão</label>
+              <input type="text" [(ngModel)]="fichaForm.supervisao" class="form-input" placeholder="Nome da supervisão" />
+            </div>
+
+            <div class="field-cell">
+              <label class="form-label">Coordenação</label>
+              <input type="text" [(ngModel)]="fichaForm.coordenacao" class="form-input" placeholder="Nome da coordenação" />
+            </div>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex gap-3 justify-end">
+        <button
+          type="button"
+          (click)="limparFormulario()"
+          class="px-4 py-2 bg-amber-50 border border-amber-300 text-amber-800 text-sm font-semibold rounded-lg hover:bg-amber-100 transition"
+        >
+          Limpar
+        </button>
+        <button
+          type="button"
+          (click)="fecharFormulario()"
+          class="px-4 py-2 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition"
+        >
+          Fechar
+        </button>
+        <button
+          type="button"
+          (click)="salvar()"
+          [disabled]="carregandoSalvar"
+          class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition disabled:opacity-50 flex items-center gap-2"
+        >
+          {{ carregandoSalvar ? 'Salvando...' : 'Salvar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-semibold text-slate-900">
+        <span *ngIf="carregandoLista">⏳ Carregando...</span>
+        <span *ngIf="!carregandoLista">Total: {{ pessoasFiltradas.length }} registro(s)</span>
+      </h3>
+    </div>
+
+    <div *ngIf="!carregandoLista && pessoasFiltradas.length === 0" class="py-8 text-center text-slate-500 bg-slate-50 rounded-lg border border-dashed border-slate-200">
+      <p>Nenhuma pessoa encontrada com os filtros atuais.</p>
+    </div>
+
+    <div class="divide-y divide-slate-100" *ngIf="!carregandoLista">
+      <div
+        *ngFor="let pessoa of pessoasFiltradas"
+        class="py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-slate-50 transition px-2 rounded-lg"
+      >
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2">
+            <p class="font-medium text-slate-900">{{ pessoa.nomeCompleto }}</p>
+            <span class="px-2 py-0.5 text-xs rounded-full font-medium bg-slate-100 text-slate-700">
+              {{ pessoa.status }}
+            </span>
+          </div>
+          <p class="text-sm text-slate-500 mt-1">
+            CPF: <strong>{{ pessoa.cpf }}</strong> &bull;
+            Título: <strong>{{ pessoa.tituloEleitor }}</strong> &bull;
+            Comunidade: <strong>{{ pessoa.comunidade?.nome || '-' }}</strong>
+          </p>
+          <p class="text-sm text-slate-500 mt-1">
+            Telefone: <strong>{{ pessoa.telefone }}</strong> &bull;
+            WhatsApp: <strong>{{ pessoa.whatsapp }}</strong> &bull;
+            Origem: <strong>{{ pessoa.origemCadastro }}</strong>
+          </p>
+          <p class="text-sm text-slate-500 mt-1">
+            Líder Resp.: <strong>{{ pessoa.liderResponsavel?.nomeCompleto || '-' }}</strong> &bull;
+            Líder Reg.: <strong>{{ pessoa.liderRegional?.nomeCompleto || '-' }}</strong>
+          </p>
+        </div>
+
+        <div class="flex gap-2 w-full sm:w-auto">
+          <button
+            type="button"
+            (click)="abrirFormulario(pessoa)"
+            class="flex-1 sm:flex-none px-3 py-1.5 text-sm bg-indigo-50 text-indigo-700 rounded-md hover:bg-indigo-100 transition font-medium border border-indigo-200"
+          >
+            Editar
+          </button>
+          <button
+            type="button"
+            (click)="deletar(pessoa)"
+            [disabled]="carregandoDeletar"
+            class="flex-1 sm:flex-none px-3 py-1.5 text-sm bg-red-50 text-red-700 rounded-md hover:bg-red-100 transition font-medium border border-red-200 disabled:opacity-50"
+          >
+            Excluir
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

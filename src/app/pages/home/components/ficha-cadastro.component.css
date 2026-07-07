@@ -1,0 +1,75 @@
+.group-box {
+	border: 1px solid #cbd5e1;
+	border-radius: 1rem;
+	background: #ffffff;
+	padding: 1rem;
+}
+
+.group-box-title {
+	padding: 0 0.5rem;
+	font-size: 0.95rem;
+	font-weight: 700;
+	color: #0f172a;
+}
+
+.table-layout-panel {
+	display: grid;
+	grid-template-columns: repeat(1, minmax(0, 1fr));
+	gap: 0.85rem;
+}
+
+.field-cell {
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+}
+
+.form-label {
+	font-size: 0.86rem;
+	font-weight: 700;
+	color: #334155;
+}
+
+.form-input {
+	width: 100%;
+	border: 1px solid #cbd5e1;
+	border-radius: 0.65rem;
+	background: #fff;
+	font-size: 0.88rem;
+	color: #0f172a;
+	padding: 0.6rem 0.75rem;
+	transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-input:focus {
+	outline: none;
+	border-color: #4f46e5;
+	box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+.checkbox-label {
+	display: flex;
+	align-items: center;
+	gap: 0.55rem;
+	font-size: 0.88rem;
+	font-weight: 700;
+	color: #1e293b;
+}
+
+.checkbox-label input[type='checkbox'] {
+	width: 1rem;
+	height: 1rem;
+}
+
+.demanda-item {
+	border: 1px solid #e2e8f0;
+	border-radius: 0.75rem;
+	background: #f8fafc;
+	padding: 0.75rem;
+}
+
+@media (min-width: 768px) {
+	.table-layout-panel {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
