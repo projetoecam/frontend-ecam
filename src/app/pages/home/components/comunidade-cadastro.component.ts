@@ -105,6 +105,28 @@ export class ComunidadeCadastroComponent implements OnInit {
     });
   }
 
+  getNomeBairro(comunidade: Comunidade): string {
+    if (comunidade.bairro && comunidade.bairro.nome) {
+      return comunidade.bairro.nome;
+    }
+    if (comunidade.idBairro) {
+      const bairro = this.bairros.find(b => b.id === comunidade.idBairro);
+      return bairro ? bairro.nome : '';
+    }
+    return '';
+  }
+
+  getNomeMacroRegiao(comunidade: Comunidade): string {
+    if (comunidade.macroRegiao && comunidade.macroRegiao.nome) {
+      return comunidade.macroRegiao.nome;
+    }
+    if (comunidade.idMacroRegiao) {
+      const macro = this.macroRegioes.find(m => m.id === comunidade.idMacroRegiao);
+      return macro ? macro.nome : '';
+    }
+    return '';
+  }
+
   filtrar(): void {
     const termo = this.searchTerm.toLowerCase().trim();
 
@@ -112,14 +134,13 @@ export class ComunidadeCadastroComponent implements OnInit {
       this.comunidadesFiltradas = [...this.comunidades];
     } else {
       this.comunidadesFiltradas = this.comunidades.filter((item) => {
-        const bairroNome = item.bairro?.nome?.toLowerCase() ?? '';
-        const macroNome = item.macroRegiao?.nome?.toLowerCase() ?? '';
-        const macroApelido = item.macroRegiao?.regiao_apelido?.toLowerCase() ?? '';
+        const bairroNome = this.getNomeBairro(item).toLowerCase();
+        const macroNome = this.getNomeMacroRegiao(item).toLowerCase();
+        
         return (
           item.nome?.toLowerCase().includes(termo) ||
           bairroNome.includes(termo) ||
           macroNome.includes(termo) ||
-          macroApelido.includes(termo) ||
           item.cep?.toLowerCase().includes(termo) ||
           item.classificacao?.toLowerCase().includes(termo) ||
           item.grauPrioridade?.toLowerCase().includes(termo)
@@ -136,18 +157,12 @@ export class ComunidadeCadastroComponent implements OnInit {
 
   abrirFormulario(comunidade?: Comunidade): void {
     if (comunidade) {
-      this.comunidadeEdicao = {
-        ...comunidade,
-        bairro: comunidade.bairro ? { ...comunidade.bairro } : undefined,
-        macroRegiao: comunidade.macroRegiao ? { ...comunidade.macroRegiao } : undefined,
-      };
-      this.bairroSelecionadoId = comunidade.bairro?.id ?? '';
-      this.macroRegiaoSelecionadaId = comunidade.macroRegiao?.id ?? '';
+      this.comunidadeEdicao = { ...comunidade };
+      this.bairroSelecionadoId = comunidade.idBairro ?? (comunidade.bairro?.id ?? '');
+      this.macroRegiaoSelecionadaId = comunidade.idMacroRegiao ?? (comunidade.macroRegiao?.id ?? '');
     } else {
       this.comunidadeEdicao = {
         nome: '',
-        bairro: undefined,
-        macroRegiao: undefined,
         cep: '',
         enderecoPrincipal: '',
         pontoReferencia: '',
@@ -176,20 +191,11 @@ export class ComunidadeCadastroComponent implements OnInit {
     }
 
     const nomeNormalizado = this.comunidadeEdicao.nome.trim();
-    const bairro = this.bairros.find((item) => item.id === this.bairroSelecionadoId) || null;
-    const macroRegiao = this.macroRegiaoSelecionadaId
-      ? this.macroRegioes.find((item) => item.id === this.macroRegiaoSelecionadaId) || null
-      : null;
     const cepNormalizado = this.comunidadeEdicao.cep?.trim() || '';
     const enderecoNormalizado = this.comunidadeEdicao.enderecoPrincipal?.trim() || '';
     const pontoReferenciaNormalizado = this.comunidadeEdicao.pontoReferencia?.trim() || '';
     const grauPrioridadeNormalizado = this.comunidadeEdicao.grauPrioridade?.trim() || '';
     const classificacaoNormalizada = this.comunidadeEdicao.classificacao?.trim() || '';
-
-    if (!nomeNormalizado || !bairro) {
-      this.exibirMensagem('Selecione um bairro válido e preencha o nome.', 'erro');
-      return;
-    }
 
     this.carregandoSalvar = true;
     this.cdr.detectChanges();
@@ -197,8 +203,8 @@ export class ComunidadeCadastroComponent implements OnInit {
     const payload: Comunidade = {
       id: this.comunidadeEdicao.id,
       nome: nomeNormalizado,
-      bairro: { ...bairro },
-      macroRegiao: macroRegiao ? { ...macroRegiao } : null,
+      idBairro: Number(this.bairroSelecionadoId),
+      idMacroRegiao: this.macroRegiaoSelecionadaId ? Number(this.macroRegiaoSelecionadaId) : null,
       cep: cepNormalizado || undefined,
       enderecoPrincipal: enderecoNormalizado || undefined,
       pontoReferencia: pontoReferenciaNormalizado || undefined,

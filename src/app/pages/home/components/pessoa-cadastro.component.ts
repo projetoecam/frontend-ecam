@@ -1,7 +1,7 @@
 import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { FichaService, Pessoa, PessoaReferencia } from '../../../core/services/ficha.service';
+import { FichaService, Pessoa } from '../../../core/services/ficha.service';
 import { Comunidade, ComunidadeService } from '../../../core/services/comunidade.service';
 import { Usuario, UsuarioService } from '../../../core/services/usuario.service';
 
@@ -109,6 +109,12 @@ export class PessoaCadastroComponent implements OnInit {
     });
   }
 
+  getComunidadeNome(id?: number): string {
+    if (!id) return '-';
+    const comunidade = this.comunidades.find(c => c.id === id);
+    return comunidade ? comunidade.nome : '-';
+  }
+
   filtrar(): void {
     const termo = this.searchTerm.toLowerCase().trim();
 
@@ -116,7 +122,7 @@ export class PessoaCadastroComponent implements OnInit {
       this.pessoasFiltradas = [...this.pessoas];
     } else {
       this.pessoasFiltradas = this.pessoas.filter((item) => {
-        const comunidadeNome = item.comunidade?.nome?.toLowerCase() ?? '';
+        const comunidadeNome = this.getComunidadeNome(item.idComunidade).toLowerCase();
         return (
           item.nomeCompleto?.toLowerCase().includes(termo) ||
           item.cpf?.toLowerCase().includes(termo) ||
@@ -139,18 +145,11 @@ export class PessoaCadastroComponent implements OnInit {
 
   abrirFormulario(pessoa?: Pessoa): void {
     if (pessoa) {
-      this.pessoaEdicao = {
-        ...pessoa,
-        comunidade: pessoa.comunidade ? { ...pessoa.comunidade } : undefined,
-        usuarioCadastro: pessoa.usuarioCadastro ? { ...pessoa.usuarioCadastro } : undefined,
-        liderResponsavel: pessoa.liderResponsavel ? { ...pessoa.liderResponsavel } : undefined,
-        liderRegional: pessoa.liderRegional ? { ...pessoa.liderRegional } : undefined,
-      };
-
-      this.comunidadeSelecionadaId = pessoa.comunidade?.id ?? '';
-      this.usuarioCadastroSelecionadoId = pessoa.usuarioCadastro?.id ?? '';
-      this.liderResponsavelSelecionadoId = pessoa.liderResponsavel?.id ?? '';
-      this.liderRegionalSelecionadoId = pessoa.liderRegional?.id ?? '';
+      this.pessoaEdicao = { ...pessoa };
+      this.comunidadeSelecionadaId = pessoa.idComunidade ?? '';
+      this.usuarioCadastroSelecionadoId = pessoa.idUsuarioCadastro ?? '';
+      this.liderResponsavelSelecionadoId = pessoa.idLiderResponsavel ?? '';
+      this.liderRegionalSelecionadoId = pessoa.idLiderRegional ?? '';
     } else {
       this.pessoaEdicao = {
         nomeCompleto: '',
@@ -160,15 +159,11 @@ export class PessoaCadastroComponent implements OnInit {
         dataNascimento: '',
         telefone: '',
         whatsapp: '',
-        comunidade: undefined,
         enderecoCompleto: '',
         cep: '',
         origemCadastro: '',
-        liderResponsavel: null,
-        liderRegional: null,
         status: '',
-        observacoes: '',
-        usuarioCadastro: undefined,
+        observacoes: ''
       };
 
       this.comunidadeSelecionadaId = '';
@@ -209,16 +204,6 @@ export class PessoaCadastroComponent implements OnInit {
       return;
     }
 
-    const comunidadeSelecionada =
-      this.comunidades.find((item) => item.id === this.comunidadeSelecionadaId) || null;
-    const usuarioCadastroSelecionado =
-      this.usuarios.find((item) => item.id === this.usuarioCadastroSelecionadoId) || null;
-
-    if (!comunidadeSelecionada || !usuarioCadastroSelecionado) {
-      this.exibirMensagem('Selecione uma comunidade e um usuário de cadastro válidos.', 'erro');
-      return;
-    }
-
     this.carregandoSalvar = true;
     this.cdr.detectChanges();
 
@@ -231,15 +216,15 @@ export class PessoaCadastroComponent implements OnInit {
       dataNascimento: this.pessoaEdicao.dataNascimento,
       telefone: this.pessoaEdicao.telefone.trim(),
       whatsapp: this.pessoaEdicao.whatsapp.trim(),
-      comunidade: { ...comunidadeSelecionada },
+      idComunidade: Number(this.comunidadeSelecionadaId),
       enderecoCompleto: this.pessoaEdicao.enderecoCompleto.trim(),
       cep: this.pessoaEdicao.cep.trim(),
       origemCadastro: this.pessoaEdicao.origemCadastro.trim(),
-      liderResponsavel: this.buscarReferenciaPessoa(this.liderResponsavelSelecionadoId),
-      liderRegional: this.buscarReferenciaPessoa(this.liderRegionalSelecionadoId),
+      idLiderResponsavel: this.liderResponsavelSelecionadoId ? Number(this.liderResponsavelSelecionadoId) : null,
+      idLiderRegional: this.liderRegionalSelecionadoId ? Number(this.liderRegionalSelecionadoId) : null,
       status: this.pessoaEdicao.status.trim(),
       observacoes: this.pessoaEdicao.observacoes?.trim() || undefined,
-      usuarioCadastro: { ...usuarioCadastroSelecionado },
+      idUsuarioCadastro: Number(this.usuarioCadastroSelecionadoId),
       dataCadastro: this.pessoaEdicao.dataCadastro,
     };
 
@@ -315,22 +300,6 @@ export class PessoaCadastroComponent implements OnInit {
       this.mensagem = '';
       this.cdr.detectChanges();
     }, 4000);
-  }
-
-  private buscarReferenciaPessoa(id: number | ''): PessoaReferencia | null {
-    if (!id) {
-      return null;
-    }
-
-    const pessoa = this.pessoas.find((item) => item.id === id);
-    if (!pessoa) {
-      return null;
-    }
-
-    return {
-      id: pessoa.id,
-      nomeCompleto: pessoa.nomeCompleto,
-    };
   }
 
   fecharPainel(): void {
