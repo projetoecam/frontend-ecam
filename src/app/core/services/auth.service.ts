@@ -12,8 +12,10 @@ export class AuthService {
   constructor(private http: HttpClient) { }
 
   login(dadosLogin: { login: string, senha: string }): Observable<any> {
-    const url = `${environment.apiUrl}/login`;
+    const url = `${environment.apiUrl}/api/login`; 
+    
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    
     
     return this.http.post<any>(url, dadosLogin, { headers }).pipe(
       tap(response => {
