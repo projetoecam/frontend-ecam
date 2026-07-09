@@ -3,20 +3,24 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { Bairro } from './bairro.service';
-import { MacroRegiao } from './macro-regiao.service';
 
 export interface Comunidade {
   id?: number;
   nome: string;
-  bairro: Bairro;
-  macroRegiao?: MacroRegiao | null;
   cep?: string;
   enderecoPrincipal?: string;
   pontoReferencia?: string;
   qtdAproximadaMoradores?: number | null;
   grauPrioridade?: string;
   classificacao?: string;
+
+  // IDs para escrita (POST/PUT)
+  idBairro?: number;
+  idMacroRegiao?: number | null;
+
+  // Objetos para leitura (GET)
+  bairro?: any;
+  macroRegiao?: any;
 }
 
 @Injectable({
@@ -106,6 +110,8 @@ export class ComunidadeService {
     } else {
       if (error.status === 409) {
         mensagem = error.error?.mensagem || error.error?.message || 'Conflito: comunidade já cadastrada';
+      } else if (error.status === 403) {
+        mensagem = 'Acesso negado (403). Verifique se você está logado, se seu token não expirou e se tem permissão de ADMIN.';
       } else {
         mensagem = error.error?.mensagem || error.error?.message || error.statusText || mensagem;
       }

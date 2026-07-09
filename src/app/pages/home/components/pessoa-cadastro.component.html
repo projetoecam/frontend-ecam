@@ -176,7 +176,7 @@
           <p class="text-sm text-slate-500 mt-1">
             CPF: <strong>{{ pessoa.cpf }}</strong> &bull;
             Título: <strong>{{ pessoa.tituloEleitor }}</strong> &bull;
-            Comunidade: <strong>{{ pessoa.comunidade?.nome || '-' }}</strong>
+            Comunidade: <strong>{{ getComunidadeNome(pessoa.idComunidade) }}</strong>
           </p>
           <p class="text-sm text-slate-500 mt-1">
             Telefone: <strong>{{ pessoa.telefone }}</strong> &bull;

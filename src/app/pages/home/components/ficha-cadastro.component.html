@@ -9,13 +9,13 @@
 
   <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
     <div class="w-full">
-      <h2 class="text-2xl font-semibold text-slate-900">Ficha de Cadastro</h2>
+      <h2 class="text-2xl font-semibold text-slate-900">Ficha de Cadastro e Demandas</h2>
       <p class="mt-1 text-sm text-slate-500">Cadastro de Demandas da Comunidade</p>
 
       <div class="mt-4 flex flex-col sm:flex-row gap-3">
         <input
           type="text"
-          placeholder="Buscar por nome, CPF, comunidade, telefone ou endereço..."
+          placeholder="Buscar por nome, CPF, comunidade ou telefone..."
           [(ngModel)]="searchTerm"
           (ngModelChange)="onSearchChange()"
           class="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -34,7 +34,7 @@
   <div *ngIf="formularioAberto" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
     <div class="bg-white rounded-2xl shadow-xl w-full max-w-5xl overflow-hidden flex flex-col max-h-[90vh]">
       <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-        <h3 class="font-semibold text-slate-900 text-lg">{{ pessoaEdicao.id ? 'Cadastro de Demandas da Comunidade (Edição)' : 'Cadastro de Demandas da Comunidade' }}</h3>
+        <h3 class="font-semibold text-slate-900 text-lg">{{ pessoaEdicao.id ? 'Ficha de Cadastro e Demandas (Nova Demanda)' : 'Ficha de Cadastro e Demandas' }}</h3>
         <button (click)="fecharFormulario()" class="text-slate-400 hover:text-slate-600 text-2xl font-light leading-none">&times;</button>
       </div>
 
@@ -44,7 +44,7 @@
           <div class="table-layout-panel">
             <div class="field-cell md:col-span-2">
               <label class="form-label">Nome da Comunidade</label>
-              <select [(ngModel)]="fichaForm.comunidadeId" class="form-input">
+              <select [(ngModel)]="fichaForm.comunidadeId" (change)="onComunidadeChange()" class="form-input">
                 <option [ngValue]="''">Selecione a comunidade</option>
                 <option *ngFor="let comunidade of comunidades" [ngValue]="comunidade.id">
                   {{ comunidade.nome }}
@@ -56,7 +56,7 @@
             </div>
 
             <div class="field-cell">
-              <label class="form-label">Município</label>
+              <label class="form-label">Município (Preenchimento Automático)</label>
               <select [(ngModel)]="fichaForm.municipioId" class="form-input">
                 <option [ngValue]="''">Selecione o município</option>
                 <option *ngFor="let municipio of municipios" [ngValue]="municipio.id">
@@ -67,7 +67,7 @@
             </div>
 
             <div class="field-cell">
-              <label class="form-label">Bairro</label>
+              <label class="form-label">Bairro (Preenchimento Automático)</label>
               <select [(ngModel)]="fichaForm.bairroId" class="form-input">
                 <option [ngValue]="''">Selecione o bairro</option>
                 <option *ngFor="let bairro of bairros" [ngValue]="bairro.id">
@@ -83,7 +83,7 @@
           <legend class="group-box-title">Seção 2 - Representante(s) da Comunidade</legend>
           <div class="table-layout-panel">
             <div class="field-cell md:col-span-2">
-              <label class="form-label">Nome</label>
+              <label class="form-label">Nome do Solicitante/Representante</label>
               <input
                 type="text"
                 [(ngModel)]="fichaForm.nomeRepresentante"
@@ -154,7 +154,7 @@
           <legend class="group-box-title">Seção 3 - Principais Demandas da Comunidade</legend>
           <div class="table-layout-panel">
             <div class="field-cell md:col-span-2 demanda-item">
-              <label class="checkbox-label">
+              <label class="checkbox-label font-medium text-slate-800">
                 <input type="checkbox" [(ngModel)]="fichaForm.demandas.infraestrutura.selecionado" />
                 Infraestrutura (calçamento, saneamento, iluminação etc.)
               </label>
@@ -167,7 +167,7 @@
             </div>
 
             <div class="field-cell demanda-item">
-              <label class="checkbox-label">
+              <label class="checkbox-label font-medium text-slate-800">
                 <input type="checkbox" [(ngModel)]="fichaForm.demandas.saude.selecionado" />
                 Saúde
               </label>
@@ -180,7 +180,7 @@
             </div>
 
             <div class="field-cell demanda-item">
-              <label class="checkbox-label">
+              <label class="checkbox-label font-medium text-slate-800">
                 <input type="checkbox" [(ngModel)]="fichaForm.demandas.educacao.selecionado" />
                 Educação
               </label>
@@ -193,7 +193,7 @@
             </div>
 
             <div class="field-cell demanda-item">
-              <label class="checkbox-label">
+              <label class="checkbox-label font-medium text-slate-800">
                 <input type="checkbox" [(ngModel)]="fichaForm.demandas.seguranca.selecionado" />
                 Segurança
               </label>
@@ -206,7 +206,7 @@
             </div>
 
             <div class="field-cell demanda-item">
-              <label class="checkbox-label">
+              <label class="checkbox-label font-medium text-slate-800">
                 <input type="checkbox" [(ngModel)]="fichaForm.demandas.outros.selecionado" />
                 Outros
               </label>
@@ -221,7 +221,7 @@
         </fieldset>
 
         <fieldset class="group-box">
-          <legend class="group-box-title">Rodapé</legend>
+          <legend class="group-box-title">Rodapé - Órgão / Encaminhamento</legend>
           <div class="table-layout-panel">
             <div class="field-cell">
               <label class="form-label">Supervisão</label>
@@ -257,7 +257,7 @@
           [disabled]="carregandoSalvar"
           class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition disabled:opacity-50 flex items-center gap-2"
         >
-          {{ carregandoSalvar ? 'Salvando...' : 'Salvar' }}
+          {{ carregandoSalvar ? 'Salvando...' : 'Salvar Ficha Completa' }}
         </button>
       </div>
     </div>
@@ -267,7 +267,7 @@
     <div class="flex items-center justify-between mb-4">
       <h3 class="font-semibold text-slate-900">
         <span *ngIf="carregandoLista">⏳ Carregando...</span>
-        <span *ngIf="!carregandoLista">Total: {{ pessoasFiltradas.length }} registro(s)</span>
+        <span *ngIf="!carregandoLista">Representantes com Fichas: {{ pessoasFiltradas.length }}</span>
       </h3>
     </div>
 
@@ -284,22 +284,15 @@
           <div class="flex items-center gap-2">
             <p class="font-medium text-slate-900">{{ pessoa.nomeCompleto }}</p>
             <span class="px-2 py-0.5 text-xs rounded-full font-medium bg-slate-100 text-slate-700">
-              {{ pessoa.status }}
+              Solicitante
             </span>
           </div>
           <p class="text-sm text-slate-500 mt-1">
             CPF: <strong>{{ pessoa.cpf }}</strong> &bull;
-            Título: <strong>{{ pessoa.tituloEleitor }}</strong> &bull;
-            Comunidade: <strong>{{ pessoa.comunidade?.nome || '-' }}</strong>
+            Comunidade: <strong>{{ getComunidadeNome(pessoa.idComunidade) }}</strong>
           </p>
           <p class="text-sm text-slate-500 mt-1">
-            Telefone: <strong>{{ pessoa.telefone }}</strong> &bull;
-            WhatsApp: <strong>{{ pessoa.whatsapp }}</strong> &bull;
-            Origem: <strong>{{ pessoa.origemCadastro }}</strong>
-          </p>
-          <p class="text-sm text-slate-500 mt-1">
-            Líder Resp.: <strong>{{ pessoa.liderResponsavel?.nomeCompleto || '-' }}</strong> &bull;
-            Líder Reg.: <strong>{{ pessoa.liderRegional?.nomeCompleto || '-' }}</strong>
+            Telefone: <strong>{{ pessoa.telefone }}</strong>
           </p>
         </div>
 
@@ -309,15 +302,7 @@
             (click)="abrirFormulario(pessoa)"
             class="flex-1 sm:flex-none px-3 py-1.5 text-sm bg-indigo-50 text-indigo-700 rounded-md hover:bg-indigo-100 transition font-medium border border-indigo-200"
           >
-            Editar
-          </button>
-          <button
-            type="button"
-            (click)="deletar(pessoa)"
-            [disabled]="carregandoDeletar"
-            class="flex-1 sm:flex-none px-3 py-1.5 text-sm bg-red-50 text-red-700 rounded-md hover:bg-red-100 transition font-medium border border-red-200 disabled:opacity-50"
-          >
-            Excluir
+            Nova Demanda / Editar
           </button>
         </div>
       </div>

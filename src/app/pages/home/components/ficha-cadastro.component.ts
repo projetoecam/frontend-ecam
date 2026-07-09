@@ -1,11 +1,14 @@
 import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { concatMap } from 'rxjs/operators';
 import { Pessoa, FichaService } from '../../../core/services/ficha.service';
 import { Comunidade, ComunidadeService } from '../../../core/services/comunidade.service';
 import { Usuario, UsuarioService } from '../../../core/services/usuario.service';
 import { Municipio, MunicipioService } from '../../../core/services/municipio.service';
 import { Bairro, BairroService } from '../../../core/services/bairro.service';
+import { Demanda, DemandaService } from '../../../core/services/demanda.service';
+import { DemandaTipo, DemandaTipoService } from '../../../core/services/demanda-tipo.service';
 
 interface DemandaItem {
   selecionado: boolean;
@@ -74,6 +77,8 @@ export class FichaCadastroComponent implements OnInit {
     private municipioService: MunicipioService,
     private bairroService: BairroService,
     private usuarioService: UsuarioService,
+    private demandaService: DemandaService,
+    private demandaTipoService: DemandaTipoService,
     private cdr: ChangeDetectorRef,
   ) {}
 
@@ -176,6 +181,18 @@ export class FichaCadastroComponent implements OnInit {
     });
   }
 
+  getComunidadeNome(id?: number): string {
+    if (!id) return '-';
+    const comunidade = this.comunidades.find(c => c.id === id);
+    return comunidade ? comunidade.nome : '-';
+  }
+
+  getLiderNome(id?: number | null): string {
+    if (!id) return '-';
+    const lider = this.pessoas.find(p => p.id === id);
+    return lider ? lider.nomeCompleto : '-';
+  }
+
   filtrar(): void {
     const termo = this.searchTerm.toLowerCase().trim();
 
@@ -183,20 +200,15 @@ export class FichaCadastroComponent implements OnInit {
       this.pessoasFiltradas = [...this.pessoas];
     } else {
       this.pessoasFiltradas = this.pessoas.filter((item) => {
-        const comunidadeNome = item.comunidade?.nome?.toLowerCase() ?? '';
+        const comunidadeNome = this.getComunidadeNome(item.idComunidade).toLowerCase();
         return (
           item.nomeCompleto?.toLowerCase().includes(termo) ||
           item.cpf?.toLowerCase().includes(termo) ||
-          item.tituloEleitor?.toLowerCase().includes(termo) ||
           item.telefone?.toLowerCase().includes(termo) ||
-          item.whatsapp?.toLowerCase().includes(termo) ||
-          item.status?.toLowerCase().includes(termo) ||
-          item.origemCadastro?.toLowerCase().includes(termo) ||
           comunidadeNome.includes(termo)
         );
       });
     }
-
     this.cdr.detectChanges();
   }
 
@@ -204,25 +216,39 @@ export class FichaCadastroComponent implements OnInit {
     this.filtrar();
   }
 
+  // --- NOVA LÓGICA DE AUTO-PREENCHIMENTO ---
+  onComunidadeChange(): void {
+    if (!this.fichaForm.comunidadeId) return;
+
+    const comunidade = this.comunidades.find(c => c.id === this.fichaForm.comunidadeId);
+    
+    if (comunidade && comunidade.idBairro) {
+      this.fichaForm.bairroId = comunidade.idBairro;
+      
+      // Auto-selecionar município para facilitar (se houver pelo menos um na lista)
+      if (this.municipios.length > 0 && !this.fichaForm.municipioId) {
+        this.fichaForm.municipioId = this.municipios[0].id || '';
+      }
+    }
+    this.cdr.detectChanges();
+  }
+
   abrirFormulario(pessoa?: Pessoa): void {
     if (pessoa) {
-      this.pessoaEdicao = {
-        ...pessoa,
-        comunidade: pessoa.comunidade ? { ...pessoa.comunidade } : undefined,
-        usuarioCadastro: pessoa.usuarioCadastro ? { ...pessoa.usuarioCadastro } : undefined,
-      };
-      this.comunidadeSelecionadaId = pessoa.comunidade?.id ?? '';
+      this.pessoaEdicao = { ...pessoa };
+      this.comunidadeSelecionadaId = pessoa.idComunidade ?? '';
 
       this.fichaForm = this.criarFormularioVazio();
-      this.fichaForm.comunidadeId = pessoa.comunidade?.id ?? '';
+      this.fichaForm.comunidadeId = pessoa.idComunidade ?? '';
       this.fichaForm.nomeRepresentante = pessoa.nomeCompleto ?? '';
       this.fichaForm.telefone = pessoa.telefone ?? '';
       this.fichaForm.cpf = pessoa.cpf ?? '';
       this.fichaForm.endereco = pessoa.enderecoCompleto ?? '';
       this.fichaForm.cep = pessoa.cep ?? '';
       this.fichaForm.nomeMae = pessoa.nomeMae ?? '';
-
-      this.hidratarFormularioAPartirObservacoes(pessoa.observacoes);
+      
+      // Ao abrir para edição, force a atualização dos campos dependentes (Bairro e Municipio)
+      this.onComunidadeChange();
     } else {
       this.pessoaEdicao = {};
       this.fichaForm = this.criarFormularioVazio();
@@ -252,28 +278,23 @@ export class FichaCadastroComponent implements OnInit {
       !this.fichaForm.bairroId ||
       !this.fichaForm.nomeRepresentante.trim() ||
       !this.fichaForm.telefone.trim() ||
-      !this.fichaForm.cpf.trim() ||
-      !this.fichaForm.endereco.trim() ||
-      !this.fichaForm.cep.trim() ||
-      !this.fichaForm.nomeMae.trim()
+      !this.fichaForm.cpf.trim()
     ) {
-      this.exibirMensagem('Preencha os campos obrigatórios.', 'erro');
+      this.exibirMensagem('Preencha os campos obrigatórios (Comunidade, Bairro, Município, Nome, Telefone e CPF).', 'erro');
       return;
     }
 
-    const comunidadeSelecionada =
-      this.comunidades.find((item) => item.id === this.fichaForm.comunidadeId) || null;
     const usuarioCadastroSelecionado = this.buscarUsuarioCadastro();
-
-    if (!comunidadeSelecionada || !usuarioCadastroSelecionado) {
-      this.exibirMensagem('Comunidade ou usuário de cadastro não encontrado para salvar.', 'erro');
+    if (!usuarioCadastroSelecionado) {
+      this.exibirMensagem('Usuário de cadastro não encontrado.', 'erro');
       return;
     }
 
     this.carregandoSalvar = true;
     this.cdr.detectChanges();
 
-    const payload: Pessoa = {
+    // 1. DTO DA PESSOA
+    const pessoaPayload: Pessoa = {
       id: this.pessoaEdicao.id,
       nomeCompleto: this.fichaForm.nomeRepresentante.trim(),
       cpf: this.fichaForm.cpf.trim(),
@@ -282,62 +303,75 @@ export class FichaCadastroComponent implements OnInit {
       dataNascimento: this.pessoaEdicao.dataNascimento || '1900-01-01',
       telefone: this.fichaForm.telefone.trim(),
       whatsapp: this.fichaForm.telefone.trim(),
-      comunidade: { ...comunidadeSelecionada },
+      idComunidade: Number(this.fichaForm.comunidadeId),
       enderecoCompleto: this.fichaForm.endereco.trim(),
       cep: this.fichaForm.cep.trim(),
-      origemCadastro: this.pessoaEdicao.origemCadastro?.trim() || 'CADASTRO_COMUNIDADE',
-      liderResponsavel: null,
-      liderRegional: null,
-      status: this.pessoaEdicao.status?.trim() || 'ATIVO',
-      observacoes: this.montarObservacoesFicha(),
-      usuarioCadastro: { ...usuarioCadastroSelecionado },
+      origemCadastro: 'CADASTRO_FICHA_DEMANDA',
+      idLiderResponsavel: null,
+      idLiderRegional: null,
+      status: 'ATIVO',
+      idUsuarioCadastro: Number(usuarioCadastroSelecionado.id),
       dataCadastro: this.pessoaEdicao.dataCadastro,
     };
 
-    if (payload.id) {
-      this.fichaService.atualizar(payload.id, payload).subscribe({
-        next: () => {
-          this.exibirMensagem('Ficha atualizada com sucesso.', 'sucesso');
-          this.fecharFormulario();
-          this.carregarPessoas();
-          this.carregandoSalvar = false;
-        },
-        error: (erro) => {
-          this.exibirMensagem('Erro ao atualizar. ' + erro.message, 'erro');
-          this.carregandoSalvar = false;
-          this.cdr.detectChanges();
-        },
-      });
-    } else {
-      this.fichaService.criar(payload).subscribe({
-        next: () => {
-          this.exibirMensagem('Ficha cadastrada com sucesso.', 'sucesso');
-          this.fecharFormulario();
-          this.carregarPessoas();
-          this.carregandoSalvar = false;
-        },
-        error: (erro) => {
-          this.exibirMensagem('Erro ao salvar. ' + erro.message, 'erro');
-          this.carregandoSalvar = false;
-          this.cdr.detectChanges();
-        },
-      });
-    }
+    // Chamada encadeada RxJS para garantir a ordem exata de gravação
+    const salvarPessoa$ = pessoaPayload.id
+      ? this.fichaService.atualizar(pessoaPayload.id, pessoaPayload)
+      : this.fichaService.criar(pessoaPayload);
+
+    salvarPessoa$.pipe(
+      concatMap((pessoaSalva) => {
+        // 2. DTO DA DEMANDA
+        const orgao = [this.fichaForm.supervisao.trim(), this.fichaForm.coordenacao.trim()].filter(Boolean).join(' / ');
+        const demandaPayload: Demanda = {
+          idSolicitante: pessoaSalva.id,
+          idComunidade: Number(this.fichaForm.comunidadeId),
+          idLiderResponsavel: null,
+          orgaoResponsavel: orgao || 'NÃO INFORMADO',
+          status: 'NOVO',
+          dataSolicitacao: new Date().toISOString().split('T')[0],
+          idOperador: Number(usuarioCadastroSelecionado.id)
+        };
+        return this.demandaService.criar(demandaPayload);
+      }),
+      concatMap((demandaSalva) => {
+        // 3. DTO DO TIPO DE DEMANDA (Detalhes da Ficha)
+        const demandaTipoPayload: DemandaTipo = {
+          idDemanda: demandaSalva.id,
+          tipoSaude: this.fichaForm.demandas.saude.selecionado,
+          descricaoTipoSaude: this.fichaForm.demandas.saude.descricao || undefined,
+          tipoInfraestrutura: this.fichaForm.demandas.infraestrutura.selecionado,
+          descricaoTipoInfraestrutura: this.fichaForm.demandas.infraestrutura.descricao || undefined,
+          tipoEducacao: this.fichaForm.demandas.educacao.selecionado,
+          descricaoTipoEducacao: this.fichaForm.demandas.educacao.descricao || undefined,
+          tipoSeguranca: this.fichaForm.demandas.seguranca.selecionado,
+          descricaoTipoSeguranca: this.fichaForm.demandas.seguranca.descricao || undefined,
+          tipoOutros: this.fichaForm.demandas.outros.selecionado,
+          descricaoTipoOutros: this.fichaForm.demandas.outros.descricao || undefined,
+        };
+        return this.demandaTipoService.criar(demandaTipoPayload);
+      })
+    ).subscribe({
+      next: () => {
+        this.exibirMensagem('Ficha processada com sucesso (Pessoa, Demanda e Tipos de Demanda criados)!', 'sucesso');
+        this.fecharFormulario();
+        this.carregarPessoas(); 
+        this.carregandoSalvar = false;
+        this.cdr.detectChanges();
+      },
+      error: (erro) => {
+        this.exibirMensagem('Erro ao processar as integrações. ' + erro.message, 'erro');
+        this.carregandoSalvar = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   deletar(alvo: any): void {
     const idParaDeletar = typeof alvo === 'number' ? alvo : alvo?.id;
+    if (!idParaDeletar) return;
 
-    if (!idParaDeletar) {
-      this.exibirMensagem('Erro: não foi possível identificar o ID da pessoa.', 'erro');
-      return;
-    }
-
-    const nomePessoa = typeof alvo === 'object' && alvo?.nomeCompleto ? alvo.nomeCompleto : 'esta pessoa';
-    const confirmacao = window.confirm(
-      `Atenção: tem certeza que deseja excluir ${nomePessoa}? Esta ação não poderá ser desfeita.`,
-    );
-
+    const confirmacao = window.confirm(`Atenção: tem certeza que deseja excluir?`);
     if (!confirmacao) return;
 
     this.carregandoDeletar = true;
@@ -347,10 +381,10 @@ export class FichaCadastroComponent implements OnInit {
       next: () => {
         this.carregarPessoas();
         this.carregandoDeletar = false;
-        this.exibirMensagem('Pessoa excluída com sucesso.', 'sucesso');
+        this.exibirMensagem('Excluído com sucesso.', 'sucesso');
       },
       error: (erro) => {
-        this.exibirMensagem('Erro ao excluir pessoa. ' + erro.message, 'erro');
+        this.exibirMensagem('Erro ao excluir. ' + erro.message, 'erro');
         this.carregandoDeletar = false;
         this.cdr.detectChanges();
       },
@@ -361,39 +395,26 @@ export class FichaCadastroComponent implements OnInit {
     this.mensagem = msg;
     this.tipoMensagem = tipo;
     this.cdr.detectChanges();
-
-    setTimeout(() => {
-      this.mensagem = '';
-      this.cdr.detectChanges();
-    }, 4000);
+    setTimeout(() => { this.mensagem = ''; this.cdr.detectChanges(); }, 4000);
   }
 
   formatarTelefone(): void {
     const digitos = this.fichaForm.telefone.replace(/\D/g, '').slice(0, 11);
     if (digitos.length <= 10) {
-      this.fichaForm.telefone = digitos.replace(/(\d{2})(\d{4})(\d{0,4})/, (_m, d1, d2, d3) =>
-        d3 ? `(${d1}) ${d2}-${d3}` : `(${d1}) ${d2}`,
-      );
+      this.fichaForm.telefone = digitos.replace(/(\d{2})(\d{4})(\d{0,4})/, (_m, d1, d2, d3) => d3 ? `(${d1}) ${d2}-${d3}` : `(${d1}) ${d2}`);
       return;
     }
-
-    this.fichaForm.telefone = digitos.replace(/(\d{2})(\d{5})(\d{0,4})/, (_m, d1, d2, d3) =>
-      d3 ? `(${d1}) ${d2}-${d3}` : `(${d1}) ${d2}`,
-    );
+    this.fichaForm.telefone = digitos.replace(/(\d{2})(\d{5})(\d{0,4})/, (_m, d1, d2, d3) => d3 ? `(${d1}) ${d2}-${d3}` : `(${d1}) ${d2}`);
   }
 
   formatarCpf(): void {
     const digitos = this.fichaForm.cpf.replace(/\D/g, '').slice(0, 11);
-    this.fichaForm.cpf = digitos.replace(/(\d{3})(\d{3})(\d{3})(\d{0,2})/, (_m, d1, d2, d3, d4) =>
-      d4 ? `${d1}.${d2}.${d3}-${d4}` : `${d1}.${d2}.${d3}`,
-    );
+    this.fichaForm.cpf = digitos.replace(/(\d{3})(\d{3})(\d{3})(\d{0,2})/, (_m, d1, d2, d3, d4) => d4 ? `${d1}.${d2}.${d3}-${d4}` : `${d1}.${d2}.${d3}`);
   }
 
   formatarCep(): void {
     const digitos = this.fichaForm.cep.replace(/\D/g, '').slice(0, 8);
-    this.fichaForm.cep = digitos.replace(/(\d{5})(\d{0,3})/, (_m, d1, d2) =>
-      d2 ? `${d1}-${d2}` : d1,
-    );
+    this.fichaForm.cep = digitos.replace(/(\d{5})(\d{0,3})/, (_m, d1, d2) => d2 ? `${d1}-${d2}` : d1);
   }
 
   private criarFormularioVazio(): FichaCadastroForm {
@@ -420,93 +441,18 @@ export class FichaCadastroComponent implements OnInit {
   }
 
   private buscarUsuarioCadastro(): Usuario | null {
-    if (this.pessoaEdicao.usuarioCadastro?.id) {
-      const usuarioAtual = this.usuarios.find((u) => u.id === this.pessoaEdicao.usuarioCadastro?.id);
-      if (usuarioAtual) {
-        return usuarioAtual;
-      }
+    if (this.pessoaEdicao.idUsuarioCadastro) {
+      const usuarioAtual = this.usuarios.find((u) => u.id === this.pessoaEdicao.idUsuarioCadastro);
+      if (usuarioAtual) return usuarioAtual;
     }
-
     const loginLocal = (localStorage.getItem('usuario') || '').toLowerCase().trim();
     if (loginLocal) {
       const usuarioLogado = this.usuarios.find(
         (u) => u.login_usuario?.toLowerCase().trim() === loginLocal || u.nome?.toLowerCase().trim() === loginLocal,
       );
-      if (usuarioLogado) {
-        return usuarioLogado;
-      }
+      if (usuarioLogado) return usuarioLogado;
     }
-
     return this.usuarios[0] || null;
-  }
-
-  private montarObservacoesFicha(): string {
-    const municipioSelecionado =
-      this.municipios.find((item) => item.id === this.fichaForm.municipioId)?.nome || '-';
-    const bairroSelecionado = this.bairros.find((item) => item.id === this.fichaForm.bairroId)?.nome || '-';
-
-    const linhasDemandas = [
-      { chave: 'Infraestrutura', item: this.fichaForm.demandas.infraestrutura },
-      { chave: 'Saúde', item: this.fichaForm.demandas.saude },
-      { chave: 'Educação', item: this.fichaForm.demandas.educacao },
-      { chave: 'Segurança', item: this.fichaForm.demandas.seguranca },
-      { chave: 'Outros', item: this.fichaForm.demandas.outros },
-    ]
-      .filter((d) => d.item.selecionado)
-      .map((d) => `- ${d.chave}: ${d.item.descricao?.trim() || 'Sem descrição informada'}`);
-
-    const linhas = [
-      '[FICHA_CADASTRO_COMUNIDADE]',
-      `Municipio: ${municipioSelecionado}`,
-      `Bairro: ${bairroSelecionado}`,
-      `Supervisao: ${this.fichaForm.supervisao.trim() || '-'}`,
-      `Coordenacao: ${this.fichaForm.coordenacao.trim() || '-'}`,
-      'Demandas:',
-      ...(linhasDemandas.length ? linhasDemandas : ['- Nenhuma demanda marcada']),
-    ];
-
-    return linhas.join('\n');
-  }
-
-  private hidratarFormularioAPartirObservacoes(observacoes?: string): void {
-    if (!observacoes?.includes('[FICHA_CADASTRO_COMUNIDADE]')) {
-      return;
-    }
-
-    const lerValor = (prefixo: string) => {
-      const linha = observacoes
-        .split('\n')
-        .find((item) => item.toLowerCase().startsWith(prefixo.toLowerCase()));
-
-      return linha ? linha.substring(prefixo.length).trim() : '';
-    };
-
-    const nomeMunicipio = lerValor('Municipio:');
-    const nomeBairro = lerValor('Bairro:');
-
-    this.fichaForm.municipioId =
-      this.municipios.find((item) => item.nome.toLowerCase().trim() === nomeMunicipio.toLowerCase().trim())?.id ||
-      '';
-    this.fichaForm.bairroId =
-      this.bairros.find((item) => item.nome.toLowerCase().trim() === nomeBairro.toLowerCase().trim())?.id || '';
-    this.fichaForm.supervisao = lerValor('Supervisao:');
-    this.fichaForm.coordenacao = lerValor('Coordenacao:');
-
-    this.aplicarDemandaPorNome(observacoes, 'Infraestrutura', this.fichaForm.demandas.infraestrutura);
-    this.aplicarDemandaPorNome(observacoes, 'Saúde', this.fichaForm.demandas.saude);
-    this.aplicarDemandaPorNome(observacoes, 'Educação', this.fichaForm.demandas.educacao);
-    this.aplicarDemandaPorNome(observacoes, 'Segurança', this.fichaForm.demandas.seguranca);
-    this.aplicarDemandaPorNome(observacoes, 'Outros', this.fichaForm.demandas.outros);
-  }
-
-  private aplicarDemandaPorNome(texto: string, nome: string, destino: DemandaItem): void {
-    const linha = texto.split('\n').find((item) => item.startsWith(`- ${nome}:`));
-    if (!linha) {
-      return;
-    }
-
-    destino.selecionado = true;
-    destino.descricao = linha.replace(`- ${nome}:`, '').trim();
   }
 
   fecharPainel(): void {

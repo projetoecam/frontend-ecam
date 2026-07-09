@@ -3,13 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { Comunidade } from './comunidade.service';
-import { Usuario } from './usuario.service';
-
-export interface PessoaReferencia {
-  id?: number;
-  nomeCompleto: string;
-}
 
 export interface Pessoa {
   id?: number;
@@ -20,16 +13,24 @@ export interface Pessoa {
   dataNascimento: string;
   telefone: string;
   whatsapp: string;
-  comunidade: Comunidade;
   enderecoCompleto: string;
   cep: string;
   origemCadastro: string;
-  liderResponsavel?: PessoaReferencia | null;
-  liderRegional?: PessoaReferencia | null;
   status: string;
   observacoes?: string;
-  usuarioCadastro: Usuario;
   dataCadastro?: string;
+
+  // IDs para escrita plana (API recebe esses dados, sem objetos)
+  idComunidade?: number;
+  idLiderResponsavel?: number | null;
+  idLiderRegional?: number | null;
+  idUsuarioCadastro?: number;
+
+  // Propriedades opcionais para caso o DTO de retorno contenha dados aninhados
+  comunidade?: any;
+  usuarioCadastro?: any;
+  liderResponsavel?: any;
+  liderRegional?: any;
 }
 
 @Injectable({
@@ -54,19 +55,15 @@ export class FichaService {
     if (Array.isArray(response)) {
       return response;
     }
-
     if (Array.isArray(response?.content)) {
       return response.content;
     }
-
     if (Array.isArray(response?.data)) {
       return response.data;
     }
-
     if (Array.isArray(response?.pessoas)) {
       return response.pessoas;
     }
-
     return [];
   }
 
@@ -120,6 +117,8 @@ export class FichaService {
     } else {
       if (error.status === 409) {
         mensagem = error.error?.mensagem || error.error?.message || 'Conflito: pessoa já cadastrada';
+      } else if (error.status === 403) {
+        mensagem = error.error?.mensagem || 'Usuário não possui permissão para realizar a operação.';
       } else {
         mensagem = error.error?.mensagem || error.error?.message || error.statusText || mensagem;
       }
