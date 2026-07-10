@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { FichaService, Pessoa } from '../../../../../core/services/ficha.service';
 import { Comunidade, ComunidadeService } from '../../../../../core/services/comunidade.service';
 import { Usuario, UsuarioService } from '../../../../../core/services/usuario.service';
+import { OperationFeedbackService } from '../../../../../shared/services/operation-feedback.service';
+import { OperationConfirmService } from '../../../../../shared/services/operation-confirm.service';
 
 @Component({
   selector: 'app-pessoa-cadastro',
@@ -46,6 +48,8 @@ export class PessoaCadastroComponent implements OnInit {
     private comunidadeService: ComunidadeService,
     private usuarioService: UsuarioService,
     private cdr: ChangeDetectorRef,
+    private operationFeedback: OperationFeedbackService,
+    private operationConfirm: OperationConfirmService,
   ) {}
 
   ngOnInit(): void {
@@ -83,7 +87,7 @@ export class PessoaCadastroComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (erro) => {
-        this.exibirMensagem('Falha ao carregar a lista de usuÃ¡rios. ' + erro.message, 'erro');
+        this.exibirMensagem('Falha ao carregar a lista de usuários. ' + erro.message, 'erro');
         this.carregandoUsuarios = false;
         this.cdr.detectChanges();
       },
@@ -200,7 +204,7 @@ export class PessoaCadastroComponent implements OnInit {
       !this.pessoaEdicao.status ||
       !this.usuarioCadastroSelecionadoId
     ) {
-      this.exibirMensagem('Preencha os campos obrigatÃ³rios.', 'erro');
+      this.exibirMensagem('Preencha os campos obrigatórios.', 'erro');
       return;
     }
 
@@ -231,9 +235,10 @@ export class PessoaCadastroComponent implements OnInit {
     if (payload.id) {
       this.fichaService.atualizar(payload.id, payload).subscribe({
         next: () => {
-          this.exibirMensagem('Pessoa atualizada com sucesso.', 'sucesso');
-          this.fecharFormulario();
-          this.carregarPessoas();
+          this.exibirMensagem('Pessoa atualizada com sucesso.', 'sucesso', () => {
+            this.fecharFormulario();
+            this.carregarPessoas();
+          });
           this.carregandoSalvar = false;
         },
         error: (erro) => {
@@ -245,9 +250,10 @@ export class PessoaCadastroComponent implements OnInit {
     } else {
       this.fichaService.criar(payload).subscribe({
         next: () => {
-          this.exibirMensagem('Pessoa cadastrada com sucesso.', 'sucesso');
-          this.fecharFormulario();
-          this.carregarPessoas();
+          this.exibirMensagem('Pessoa cadastrada com sucesso.', 'sucesso', () => {
+            this.fecharFormulario();
+            this.carregarPessoas();
+          });
           this.carregandoSalvar = false;
         },
         error: (erro) => {
@@ -259,18 +265,21 @@ export class PessoaCadastroComponent implements OnInit {
     }
   }
 
-  deletar(alvo: any): void {
+  async deletar(alvo: any): Promise<void> {
     const idParaDeletar = typeof alvo === 'number' ? alvo : alvo?.id;
 
     if (!idParaDeletar) {
-      this.exibirMensagem('Erro: nÃ£o foi possÃ­vel identificar o ID da pessoa.', 'erro');
+      this.exibirMensagem('Erro: não foi possível identificar o ID da pessoa.', 'erro');
       return;
     }
 
     const nomePessoa = typeof alvo === 'object' && alvo?.nomeCompleto ? alvo.nomeCompleto : 'esta pessoa';
-    const confirmacao = window.confirm(
-      `AtenÃ§Ã£o: tem certeza que deseja excluir ${nomePessoa}? Esta aÃ§Ã£o nÃ£o poderÃ¡ ser desfeita.`,
-    );
+    const confirmacao = await this.operationConfirm.confirm({
+      title: 'Excluir pessoa',
+      message: `Tem certeza que deseja excluir ${nomePessoa}? Esta ação não poderá ser desfeita.`,
+      confirmText: 'Sim, excluir',
+      cancelText: 'Voltar',
+    });
 
     if (!confirmacao) return;
 
@@ -281,7 +290,7 @@ export class PessoaCadastroComponent implements OnInit {
       next: () => {
         this.carregarPessoas();
         this.carregandoDeletar = false;
-        this.exibirMensagem('Pessoa excluÃ­da com sucesso.', 'sucesso');
+        this.exibirMensagem('Pessoa excluída com sucesso.', 'sucesso');
       },
       error: (erro) => {
         this.exibirMensagem('Erro ao excluir pessoa. ' + erro.message, 'erro');
@@ -291,19 +300,20 @@ export class PessoaCadastroComponent implements OnInit {
     });
   }
 
-  exibirMensagem(msg: string, tipo: 'sucesso' | 'erro'): void {
-    this.mensagem = msg;
-    this.tipoMensagem = tipo;
-    this.cdr.detectChanges();
+  exibirMensagem(msg: string, tipo: 'sucesso' | 'erro', onClose?: () => void): void {
+    this.operationFeedback.show(msg, tipo, 1000);
 
-    setTimeout(() => {
-      this.mensagem = '';
-      this.cdr.detectChanges();
-    }, 4000);
+    if (onClose) {
+      setTimeout(() => {
+        onClose();
+        this.cdr.detectChanges();
+      }, 1000);
+    }
   }
 
   fecharPainel(): void {
     this.voltar.emit();
   }
 }
+
 

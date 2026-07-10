@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-slate-100 text-slate-900 flex overflow-hidden">
+﻿<div class="min-h-screen bg-slate-100 text-slate-900 flex overflow-hidden">
   <div
     *ngIf="isMobileMenuOpen"
     (click)="toggleMobileMenu()"
@@ -49,7 +49,7 @@
       >
         <span
           class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-800 text-slate-300 transition-transform duration-200 group-hover:scale-110"
-          >🏠</span
+          >&#127968;</span
         >
         Painel Central
       </button>
@@ -63,14 +63,14 @@
           <span class="flex items-center gap-3">
             <span
               class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-800 text-slate-300 transition-transform duration-200 group-hover:scale-110"
-              >🗂️</span
+              >&#128450;&#65039;</span
             >
             Cadastros
           </span>
           <span
             class="text-slate-400 transition-transform duration-200"
             [ngClass]="{ 'rotate-180': isCadastrosOpen }"
-            >{{ isCadastrosOpen ? '−' : '+' }}</span
+            >{{ isCadastrosOpen ? '-' : '+' }}</span
           >
         </button>
 
@@ -148,7 +148,7 @@
       >
         <span
           class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-800 text-slate-300 transition-transform duration-200 group-hover:scale-110"
-          >👥</span
+          >&#128101;</span
         >
         Pessoas e Lideranças
       </button>
@@ -161,7 +161,7 @@
       >
         <span
           class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-800 text-slate-300 transition-transform duration-200 group-hover:scale-110"
-          >🎯</span
+          >&#127919;</span
         >
         Operações
       </button>
@@ -173,7 +173,7 @@
       >
         <span
           class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-800 text-slate-300 transition-transform duration-200 group-hover:scale-110"
-          >📈</span
+          >&#128200;</span
         >
         Relatórios
       </button>
@@ -185,7 +185,7 @@
       >
         <span
           class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-800 text-slate-300 transition-transform duration-200 group-hover:scale-110"
-          >⚙️</span
+          >&#9881;&#65039;</span
         >
         Configurações
       </button>
@@ -399,7 +399,7 @@
             class="rounded-[2rem] border border-slate-200 bg-white p-6 sm:p-8 shadow-sm relative overflow-hidden"
           >
             <div class="absolute top-0 right-0 p-6 opacity-10">
-              <span class="text-6xl">⚠️</span>
+              <span class="text-6xl">&#9888;&#65039;</span>
             </div>
             <h3 class="text-lg font-semibold text-slate-900 relative">Radar de Engajamento</h3>
             <p class="mt-1 text-sm text-slate-500 relative mb-6">Prevenção de perdas e crise</p>
@@ -496,7 +496,7 @@
         </svg>
       </div>
 
-      <h3 class="text-xl font-bold text-slate-900 mb-2">Área em Construção</h3>
+      <h3 class="text-xl font-bold text-slate-900 mb-2">Ãrea em Construção</h3>
       <p class="text-sm text-slate-500 mb-8">
         Este módulo ainda está a ser desenvolvido pela nossa equipa técnica. Assim que estiver
         disponível, poderá ver todas as novas funcionalidades!
@@ -511,4 +511,7 @@
       </button>
     </div>
   </div>
+  <app-operation-toast></app-operation-toast>
+  <app-operation-confirm></app-operation-confirm>
 </div>
+

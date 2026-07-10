@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+﻿import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { OperationToastComponent } from '../../shared/components/operation-toast/operation-toast.component';
+import { OperationConfirmComponent } from '../../shared/components/operation-confirm/operation-confirm.component';
 
 @Component({
   selector: 'app-home',
@@ -8,6 +10,8 @@ import { Router, RouterModule } from '@angular/router';
   imports: [
     CommonModule,
     RouterModule,
+    OperationToastComponent,
+    OperationConfirmComponent,
   ],
   templateUrl: './home.component.html'
 })

@@ -9,6 +9,8 @@ import { Municipio, MunicipioService } from '../../../../../core/services/munici
 import { Bairro, BairroService } from '../../../../../core/services/bairro.service';
 import { Demanda, DemandaService } from '../../../../../core/services/demanda.service';
 import { DemandaTipo, DemandaTipoService } from '../../../../../core/services/demanda-tipo.service';
+import { OperationFeedbackService } from '../../../../../shared/services/operation-feedback.service';
+import { OperationConfirmService } from '../../../../../shared/services/operation-confirm.service';
 
 interface DemandaItem {
   selecionado: boolean;
@@ -80,6 +82,8 @@ export class FichaCadastroComponent implements OnInit {
     private demandaService: DemandaService,
     private demandaTipoService: DemandaTipoService,
     private cdr: ChangeDetectorRef,
+    private operationFeedback: OperationFeedbackService,
+    private operationConfirm: OperationConfirmService,
   ) {}
 
   ngOnInit(): void {
@@ -119,7 +123,7 @@ export class FichaCadastroComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (erro) => {
-        this.exibirMensagem('Falha ao carregar a lista de usuÃ¡rios. ' + erro.message, 'erro');
+        this.exibirMensagem('Falha ao carregar a lista de usuários. ' + erro.message, 'erro');
         this.carregandoUsuarios = false;
         this.cdr.detectChanges();
       },
@@ -137,7 +141,7 @@ export class FichaCadastroComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (erro) => {
-        this.exibirMensagem('Falha ao carregar a lista de municÃ­pios. ' + erro.message, 'erro');
+        this.exibirMensagem('Falha ao carregar a lista de municípios. ' + erro.message, 'erro');
         this.carregandoMunicipios = false;
         this.cdr.detectChanges();
       },
@@ -216,7 +220,7 @@ export class FichaCadastroComponent implements OnInit {
     this.filtrar();
   }
 
-  // --- NOVA LÃ“GICA DE AUTO-PREENCHIMENTO ---
+  // --- NOVA LÓGICA DE AUTO-PREENCHIMENTO ---
   onComunidadeChange(): void {
     if (!this.fichaForm.comunidadeId) return;
 
@@ -225,7 +229,7 @@ export class FichaCadastroComponent implements OnInit {
     if (comunidade && comunidade.idBairro) {
       this.fichaForm.bairroId = comunidade.idBairro;
       
-      // Auto-selecionar municÃ­pio para facilitar (se houver pelo menos um na lista)
+      // Auto-selecionar município para facilitar (se houver pelo menos um na lista)
       if (this.municipios.length > 0 && !this.fichaForm.municipioId) {
         this.fichaForm.municipioId = this.municipios[0].id || '';
       }
@@ -247,7 +251,7 @@ export class FichaCadastroComponent implements OnInit {
       this.fichaForm.cep = pessoa.cep ?? '';
       this.fichaForm.nomeMae = pessoa.nomeMae ?? '';
       
-      // Ao abrir para ediÃ§Ã£o, force a atualizaÃ§Ã£o dos campos dependentes (Bairro e Municipio)
+      // Ao abrir para edição, force a atualização dos campos dependentes (Bairro e Municipio)
       this.onComunidadeChange();
     } else {
       this.pessoaEdicao = {};
@@ -280,13 +284,13 @@ export class FichaCadastroComponent implements OnInit {
       !this.fichaForm.telefone.trim() ||
       !this.fichaForm.cpf.trim()
     ) {
-      this.exibirMensagem('Preencha os campos obrigatÃ³rios (Comunidade, Bairro, MunicÃ­pio, Nome, Telefone e CPF).', 'erro');
+      this.exibirMensagem('Preencha os campos obrigatórios (Comunidade, Bairro, Município, Nome, Telefone e CPF).', 'erro');
       return;
     }
 
     const usuarioCadastroSelecionado = this.buscarUsuarioCadastro();
     if (!usuarioCadastroSelecionado) {
-      this.exibirMensagem('UsuÃ¡rio de cadastro nÃ£o encontrado.', 'erro');
+      this.exibirMensagem('Usuário de cadastro não encontrado.', 'erro');
       return;
     }
 
@@ -314,7 +318,7 @@ export class FichaCadastroComponent implements OnInit {
       dataCadastro: this.pessoaEdicao.dataCadastro,
     };
 
-    // Chamada encadeada RxJS para garantir a ordem exata de gravaÃ§Ã£o
+    // Chamada encadeada RxJS para garantir a ordem exata de gravação
     const salvarPessoa$ = pessoaPayload.id
       ? this.fichaService.atualizar(pessoaPayload.id, pessoaPayload)
       : this.fichaService.criar(pessoaPayload);
@@ -327,7 +331,7 @@ export class FichaCadastroComponent implements OnInit {
           idSolicitante: pessoaSalva.id,
           idComunidade: Number(this.fichaForm.comunidadeId),
           idLiderResponsavel: null,
-          orgaoResponsavel: orgao || 'NÃƒO INFORMADO',
+          orgaoResponsavel: orgao || 'NÃO INFORMADO',
           status: 'NOVO',
           dataSolicitacao: new Date().toISOString().split('T')[0],
           idOperador: Number(usuarioCadastroSelecionado.id)
@@ -353,25 +357,31 @@ export class FichaCadastroComponent implements OnInit {
       })
     ).subscribe({
       next: () => {
-        this.exibirMensagem('Ficha processada com sucesso (Pessoa, Demanda e Tipos de Demanda criados)!', 'sucesso');
-        this.fecharFormulario();
-        this.carregarPessoas(); 
+        this.exibirMensagem('Ficha processada com sucesso (Pessoa, Demanda e Tipos de Demanda criados)!', 'sucesso', () => {
+          this.fecharFormulario();
+          this.carregarPessoas();
+        });
         this.carregandoSalvar = false;
         this.cdr.detectChanges();
       },
       error: (erro) => {
-        this.exibirMensagem('Erro ao processar as integraÃ§Ãµes. ' + erro.message, 'erro');
+        this.exibirMensagem('Erro ao processar as integrações. ' + erro.message, 'erro');
         this.carregandoSalvar = false;
         this.cdr.detectChanges();
       }
     });
   }
 
-  deletar(alvo: any): void {
+  async deletar(alvo: any): Promise<void> {
     const idParaDeletar = typeof alvo === 'number' ? alvo : alvo?.id;
     if (!idParaDeletar) return;
 
-    const confirmacao = window.confirm(`AtenÃ§Ã£o: tem certeza que deseja excluir?`);
+    const confirmacao = await this.operationConfirm.confirm({
+      title: 'Excluir registro',
+      message: 'Tem certeza que deseja excluir este registro? Esta ação não poderá ser desfeita.',
+      confirmText: 'Sim, excluir',
+      cancelText: 'Voltar',
+    });
     if (!confirmacao) return;
 
     this.carregandoDeletar = true;
@@ -381,7 +391,7 @@ export class FichaCadastroComponent implements OnInit {
       next: () => {
         this.carregarPessoas();
         this.carregandoDeletar = false;
-        this.exibirMensagem('ExcluÃ­do com sucesso.', 'sucesso');
+        this.exibirMensagem('Excluído com sucesso.', 'sucesso');
       },
       error: (erro) => {
         this.exibirMensagem('Erro ao excluir. ' + erro.message, 'erro');
@@ -391,11 +401,15 @@ export class FichaCadastroComponent implements OnInit {
     });
   }
 
-  exibirMensagem(msg: string, tipo: 'sucesso' | 'erro'): void {
-    this.mensagem = msg;
-    this.tipoMensagem = tipo;
-    this.cdr.detectChanges();
-    setTimeout(() => { this.mensagem = ''; this.cdr.detectChanges(); }, 4000);
+  exibirMensagem(msg: string, tipo: 'sucesso' | 'erro', onClose?: () => void): void {
+    this.operationFeedback.show(msg, tipo, 1000);
+
+    if (onClose) {
+      setTimeout(() => {
+        onClose();
+        this.cdr.detectChanges();
+      }, 1000);
+    }
   }
 
   formatarTelefone(): void {
@@ -459,4 +473,5 @@ export class FichaCadastroComponent implements OnInit {
     this.voltar.emit();
   }
 }
+
 
