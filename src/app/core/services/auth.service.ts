@@ -12,10 +12,16 @@ export class AuthService {
   constructor(private http: HttpClient) { }
 
   login(dadosLogin: { login: string, senha: string }): Observable<any> {
-    const url = `${environment.apiUrl}/login`; 
+    let baseUrl = environment.apiUrl.replace(/\/$/, ""); 
+    if (!baseUrl.endsWith('/api')) {
+      baseUrl += '/api';
+    }
+    
+    const url = `${baseUrl}/login`; 
+  
+    console.log('[AuthService] Disparando POST de login para:', url);
     
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    
     
     return this.http.post<any>(url, dadosLogin, { headers }).pipe(
       tap(response => {
