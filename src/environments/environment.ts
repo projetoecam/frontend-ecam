@@ -1,5 +1,5 @@
 
 export const environment = {
   production: true,
-  apiUrl: 'https://ecam.onrender.com/api'
+  apiUrl: 'https://ecam.onrender.com'
 };
