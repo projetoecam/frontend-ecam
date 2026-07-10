@@ -9,6 +9,7 @@ import { UsuarioCadastroComponent } from './components/usuario-cadastro.componen
 import { FichaCadastroComponent } from './components/ficha-cadastro.component';
 import { PessoaCadastroComponent } from './components/pessoa-cadastro.component';
 import { SegmentoCadastroComponent } from './components/segmento-cadastro.component';
+import { LiderancaCadastroComponent } from './components/lideranca-cadastro.component';
 
 @Component({
   selector: 'app-home',
@@ -23,6 +24,7 @@ import { SegmentoCadastroComponent } from './components/segmento-cadastro.compon
     FichaCadastroComponent,
     PessoaCadastroComponent,
     SegmentoCadastroComponent,
+    LiderancaCadastroComponent,
   ],
   templateUrl: './home.component.html'
 })
@@ -113,6 +115,7 @@ export class HomeComponent {
   abrirUsuarios() { this.cadastroAtivo = 'usuarios'; this.isMobileMenuOpen = false; }
   abrirPessoas() { this.cadastroAtivo = 'pessoas'; this.isMobileMenuOpen = false; }
   abrirSegmentos() { this.cadastroAtivo = 'segmentos'; this.isMobileMenuOpen = false; }
+  abrirLiderancas() { this.cadastroAtivo = 'liderancas'; this.isMobileMenuOpen = false; }
   abrirOperacoes() { this.cadastroAtivo = 'operacoes'; this.isMobileMenuOpen = false; }
 
   voltarDashboard() {

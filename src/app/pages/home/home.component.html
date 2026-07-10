@@ -131,6 +131,14 @@
           >
             Segmentos
           </button>
+          <button
+            type="button"
+            (click)="abrirLiderancas()"
+            [ngClass]="{ 'bg-slate-800 text-white': cadastroAtivo === 'liderancas' }"
+            class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
+          >
+            Lideranças
+          </button>
         </div>
       </div>
       <button
@@ -488,6 +496,10 @@
         *ngIf="cadastroAtivo === 'segmentos'"
         (voltar)="voltarDashboard()"
       ></app-segmento-cadastro>
+      <app-lideranca-cadastro
+        *ngIf="cadastroAtivo === 'liderancas'"
+        (voltar)="voltarDashboard()"
+      ></app-lideranca-cadastro>
       <app-ficha-cadastro
         *ngIf="cadastroAtivo === 'operacoes'"
         (voltar)="voltarDashboard()"
