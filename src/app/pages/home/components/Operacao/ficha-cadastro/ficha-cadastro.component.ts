@@ -73,6 +73,10 @@ export class FichaCadastroComponent implements OnInit {
   carregandoBairros = false;
   carregandoUsuarios = false;
 
+  secao1Concluida = false;
+  secao2Concluida = false;
+  fichaConcluidaSalva = false;
+
   constructor(
     private fichaService: FichaService,
     private comunidadeService: ComunidadeService,
@@ -253,10 +257,16 @@ export class FichaCadastroComponent implements OnInit {
       
       // Ao abrir para edição, force a atualização dos campos dependentes (Bairro e Municipio)
       this.onComunidadeChange();
+      this.secao1Concluida = true;
+      this.secao2Concluida = true;
+      this.fichaConcluidaSalva = false;
     } else {
       this.pessoaEdicao = {};
       this.fichaForm = this.criarFormularioVazio();
       this.comunidadeSelecionadaId = '';
+      this.secao1Concluida = false;
+      this.secao2Concluida = false;
+      this.fichaConcluidaSalva = false;
     }
 
     this.formularioAberto = true;
@@ -267,15 +277,72 @@ export class FichaCadastroComponent implements OnInit {
     this.pessoaEdicao = {};
     this.fichaForm = this.criarFormularioVazio();
     this.comunidadeSelecionadaId = '';
+    this.secao1Concluida = false;
+    this.secao2Concluida = false;
+    this.fichaConcluidaSalva = false;
   }
 
   limparFormulario(): void {
     this.fichaForm = this.criarFormularioVazio();
     this.comunidadeSelecionadaId = '';
+    this.secao1Concluida = false;
+    this.secao2Concluida = false;
+    this.fichaConcluidaSalva = false;
     this.cdr.detectChanges();
   }
 
+  salvarSecao1(): void {
+    if (!this.validarSecao1()) return;
+
+    this.secao1Concluida = true;
+    this.exibirMensagem('Seção 1 salva. Agora você pode preencher a Seção 2.', 'sucesso');
+    this.cdr.detectChanges();
+  }
+
+  salvarSecao2(): void {
+    if (!this.secao1Concluida) {
+      this.exibirMensagem('Salve primeiro a Seção 1.', 'erro');
+      return;
+    }
+
+    if (!this.validarSecao2()) return;
+
+    this.secao2Concluida = true;
+    this.exibirMensagem('Seção 2 salva. A Seção 3 foi liberada.', 'sucesso');
+    this.cdr.detectChanges();
+  }
+
+  private validarSecao1(): boolean {
+    if (
+      !this.fichaForm.nomeRepresentante.trim() ||
+      !this.fichaForm.telefone.trim() ||
+      !this.fichaForm.cpf.trim() ||
+      !this.fichaForm.endereco.trim() ||
+      !this.fichaForm.cep.trim() ||
+      !this.fichaForm.nomeMae.trim()
+    ) {
+      this.exibirMensagem('Preencha os campos obrigatórios da Seção 1 (CPF, Telefone, Nome, Endereço, CEP e Nome da Mãe).', 'erro');
+      return false;
+    }
+
+    return true;
+  }
+
+  private validarSecao2(): boolean {
+    if (!this.fichaForm.comunidadeId || !this.fichaForm.municipioId || !this.fichaForm.bairroId) {
+      this.exibirMensagem('Preencha os campos obrigatórios da Seção 2 (Comunidade, Município e Bairro).', 'erro');
+      return false;
+    }
+
+    return true;
+  }
+
   salvar(): void {
+    if (!this.secao1Concluida || !this.secao2Concluida) {
+      this.exibirMensagem('Salve as Seções 1 e 2 antes de finalizar a ficha.', 'erro');
+      return;
+    }
+
     if (
       !this.fichaForm.comunidadeId ||
       !this.fichaForm.municipioId ||
@@ -295,6 +362,7 @@ export class FichaCadastroComponent implements OnInit {
     }
 
     this.carregandoSalvar = true;
+    this.fichaConcluidaSalva = false;
     this.cdr.detectChanges();
 
     // 1. DTO DA PESSOA
@@ -357,6 +425,7 @@ export class FichaCadastroComponent implements OnInit {
       })
     ).subscribe({
       next: () => {
+        this.fichaConcluidaSalva = true;
         this.exibirMensagem('Ficha processada com sucesso (Pessoa, Demanda e Tipos de Demanda criados)!', 'sucesso', () => {
           this.fecharFormulario();
           this.carregarPessoas();
