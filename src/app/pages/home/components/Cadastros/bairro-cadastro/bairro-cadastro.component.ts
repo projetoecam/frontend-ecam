@@ -1,8 +1,8 @@
-import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
+﻿import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MacroRegiao, MacroRegiaoService } from '../../../core/services/macro-regiao.service';
-import { Bairro, BairroService } from '../../../core/services/bairro.service';
+import { MacroRegiao, MacroRegiaoService } from '../../../../../core/services/macro-regiao.service';
+import { Bairro, BairroService } from '../../../../../core/services/bairro.service';
 
 @Component({
   selector: 'app-bairro-cadastro',
@@ -52,7 +52,7 @@ export class BairroCadastroComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (erro) => {
-        this.exibirMensagem('Falha ao carregar a lista de macro regiões. ' + erro.message, 'erro');
+        this.exibirMensagem('Falha ao carregar a lista de macro regiÃµes. ' + erro.message, 'erro');
         this.carregandoMacroRegioes = false;
         this.cdr.detectChanges();
       },
@@ -125,7 +125,7 @@ export class BairroCadastroComponent implements OnInit {
 
   salvar(): void {
     if (!this.bairroEdicao.nome || !this.macroRegiaoSelecionadaId) {
-      this.exibirMensagem('Preencha os campos obrigatórios.', 'erro');
+      this.exibirMensagem('Preencha os campos obrigatÃ³rios.', 'erro');
       return;
     }
 
@@ -133,7 +133,7 @@ export class BairroCadastroComponent implements OnInit {
     const macroRegiao = this.macroRegioes.find((item) => item.id === this.macroRegiaoSelecionadaId) || null;
 
     if (!nomeNormalizado || !macroRegiao) {
-      this.exibirMensagem('Selecione uma macro região válida e preencha o nome.', 'erro');
+      this.exibirMensagem('Selecione uma macro regiÃ£o vÃ¡lida e preencha o nome.', 'erro');
       return;
     }
 
@@ -181,13 +181,13 @@ export class BairroCadastroComponent implements OnInit {
     const idParaDeletar = typeof alvo === 'number' ? alvo : alvo?.id;
 
     if (!idParaDeletar) {
-      this.exibirMensagem('Erro: não foi possível identificar o ID do bairro.', 'erro');
+      this.exibirMensagem('Erro: nÃ£o foi possÃ­vel identificar o ID do bairro.', 'erro');
       return;
     }
 
     const nomeBairro = typeof alvo === 'object' && alvo?.nome ? alvo.nome : 'este bairro';
     const confirmacao = window.confirm(
-      `Atenção: tem certeza que deseja excluir ${nomeBairro}? Esta ação não poderá ser desfeita.`,
+      `AtenÃ§Ã£o: tem certeza que deseja excluir ${nomeBairro}? Esta aÃ§Ã£o nÃ£o poderÃ¡ ser desfeita.`,
     );
 
     if (!confirmacao) return;
@@ -199,7 +199,7 @@ export class BairroCadastroComponent implements OnInit {
       next: () => {
         this.carregarBairros();
         this.carregandoDeletar = false;
-        this.exibirMensagem('Bairro excluído com sucesso.', 'sucesso');
+        this.exibirMensagem('Bairro excluÃ­do com sucesso.', 'sucesso');
       },
       error: (erro) => {
         this.exibirMensagem('Erro ao excluir bairro. ' + erro.message, 'erro');
@@ -229,3 +229,4 @@ export class BairroCadastroComponent implements OnInit {
     this.voltar.emit();
   }
 }
+

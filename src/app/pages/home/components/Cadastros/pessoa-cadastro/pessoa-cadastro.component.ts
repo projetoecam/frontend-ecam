@@ -1,9 +1,9 @@
-import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
+﻿import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { FichaService, Pessoa } from '../../../core/services/ficha.service';
-import { Comunidade, ComunidadeService } from '../../../core/services/comunidade.service';
-import { Usuario, UsuarioService } from '../../../core/services/usuario.service';
+import { FichaService, Pessoa } from '../../../../../core/services/ficha.service';
+import { Comunidade, ComunidadeService } from '../../../../../core/services/comunidade.service';
+import { Usuario, UsuarioService } from '../../../../../core/services/usuario.service';
 
 @Component({
   selector: 'app-pessoa-cadastro',
@@ -83,7 +83,7 @@ export class PessoaCadastroComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (erro) => {
-        this.exibirMensagem('Falha ao carregar a lista de usuários. ' + erro.message, 'erro');
+        this.exibirMensagem('Falha ao carregar a lista de usuÃ¡rios. ' + erro.message, 'erro');
         this.carregandoUsuarios = false;
         this.cdr.detectChanges();
       },
@@ -200,7 +200,7 @@ export class PessoaCadastroComponent implements OnInit {
       !this.pessoaEdicao.status ||
       !this.usuarioCadastroSelecionadoId
     ) {
-      this.exibirMensagem('Preencha os campos obrigatórios.', 'erro');
+      this.exibirMensagem('Preencha os campos obrigatÃ³rios.', 'erro');
       return;
     }
 
@@ -263,13 +263,13 @@ export class PessoaCadastroComponent implements OnInit {
     const idParaDeletar = typeof alvo === 'number' ? alvo : alvo?.id;
 
     if (!idParaDeletar) {
-      this.exibirMensagem('Erro: não foi possível identificar o ID da pessoa.', 'erro');
+      this.exibirMensagem('Erro: nÃ£o foi possÃ­vel identificar o ID da pessoa.', 'erro');
       return;
     }
 
     const nomePessoa = typeof alvo === 'object' && alvo?.nomeCompleto ? alvo.nomeCompleto : 'esta pessoa';
     const confirmacao = window.confirm(
-      `Atenção: tem certeza que deseja excluir ${nomePessoa}? Esta ação não poderá ser desfeita.`,
+      `AtenÃ§Ã£o: tem certeza que deseja excluir ${nomePessoa}? Esta aÃ§Ã£o nÃ£o poderÃ¡ ser desfeita.`,
     );
 
     if (!confirmacao) return;
@@ -281,7 +281,7 @@ export class PessoaCadastroComponent implements OnInit {
       next: () => {
         this.carregarPessoas();
         this.carregandoDeletar = false;
-        this.exibirMensagem('Pessoa excluída com sucesso.', 'sucesso');
+        this.exibirMensagem('Pessoa excluÃ­da com sucesso.', 'sucesso');
       },
       error: (erro) => {
         this.exibirMensagem('Erro ao excluir pessoa. ' + erro.message, 'erro');
@@ -306,3 +306,4 @@ export class PessoaCadastroComponent implements OnInit {
     this.voltar.emit();
   }
 }
+

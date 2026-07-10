@@ -1,30 +1,13 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { BairroCadastroComponent } from './components/bairro-cadastro.component';
-import { MunicipioCadastroComponent } from './components/municipio-cadastro.component';
-import { MacroRegiaoCadastroComponent } from './components/macro-regiao-cadastro.component';
-import { ComunidadeCadastroComponent } from './components/comunidade-cadastro.component';
-import { UsuarioCadastroComponent } from './components/usuario-cadastro.component';
-import { FichaCadastroComponent } from './components/ficha-cadastro.component';
-import { PessoaCadastroComponent } from './components/pessoa-cadastro.component';
-import { SegmentoCadastroComponent } from './components/segmento-cadastro.component';
-import { LiderancaCadastroComponent } from './components/lideranca-cadastro.component';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [
-    CommonModule, 
-    BairroCadastroComponent, 
-    MunicipioCadastroComponent, 
-    MacroRegiaoCadastroComponent, 
-    ComunidadeCadastroComponent, 
-    UsuarioCadastroComponent,
-    FichaCadastroComponent,
-    PessoaCadastroComponent,
-    SegmentoCadastroComponent,
-    LiderancaCadastroComponent,
+    CommonModule,
+    RouterModule,
   ],
   templateUrl: './home.component.html'
 })
@@ -36,9 +19,7 @@ export class HomeComponent {
   isMobileMenuOpen = false;
   isDesktopMenuOpen = true;
   isModalDesenvolvimentoOpen: boolean = false;
-  
-  cadastroAtivo: string | null = null;
-  
+
   
   dashboard = {
     
@@ -81,8 +62,16 @@ export class HomeComponent {
 
   constructor(private router: Router) {}
 
+  get isDashboardRoute(): boolean {
+    return this.router.url === '/home' || this.router.url === '/home/';
+  }
+
   get usuarioInicial() {
     return this.usuario ? this.usuario[0].toUpperCase() : 'U';
+  }
+
+  isActiveRoute(path: string): boolean {
+    return this.router.url === path || this.router.url.startsWith(`${path}/`);
   }
 
   logout() {
@@ -100,26 +89,30 @@ export class HomeComponent {
   }
 
   goHome() {
-    this.isMobileMenuOpen = false; 
-    this.router.navigate(['/home']).then(() => window.location.reload());
+    this.navegarPara('/home');
   }
 
   refreshData() {
     this.lastRefresh = new Date();
   }
 
-  abrirMunicipios() { this.cadastroAtivo = 'municipios'; this.isMobileMenuOpen = false; }
-  abrirMacroRegioes() { this.cadastroAtivo = 'macro-regioes'; this.isMobileMenuOpen = false; }
-  abrirBairros() { this.cadastroAtivo = 'bairros'; this.isMobileMenuOpen = false; }
-  abrirComunidades() { this.cadastroAtivo = 'comunidades'; this.isMobileMenuOpen = false; }
-  abrirUsuarios() { this.cadastroAtivo = 'usuarios'; this.isMobileMenuOpen = false; }
-  abrirPessoas() { this.cadastroAtivo = 'pessoas'; this.isMobileMenuOpen = false; }
-  abrirSegmentos() { this.cadastroAtivo = 'segmentos'; this.isMobileMenuOpen = false; }
-  abrirLiderancas() { this.cadastroAtivo = 'liderancas'; this.isMobileMenuOpen = false; }
-  abrirOperacoes() { this.cadastroAtivo = 'operacoes'; this.isMobileMenuOpen = false; }
+  abrirMunicipios() { this.navegarPara('/home/cadastro/municipios'); }
+  abrirMacroRegioes() { this.navegarPara('/home/cadastro/macro-regioes'); }
+  abrirBairros() { this.navegarPara('/home/cadastro/bairros'); }
+  abrirComunidades() { this.navegarPara('/home/cadastro/comunidades'); }
+  abrirUsuarios() { this.navegarPara('/home/cadastro/usuarios'); }
+  abrirPessoas() { this.navegarPara('/home/cadastro/pessoas'); }
+  abrirSegmentos() { this.navegarPara('/home/cadastro/segmentos'); }
+  abrirLiderancas() { this.navegarPara('/home/cadastro/liderancas'); }
+  abrirOperacoes() { this.navegarPara('/home/operacoes'); }
 
   voltarDashboard() {
-    this.cadastroAtivo = null;
+    this.navegarPara('/home');
+  }
+
+  private navegarPara(path: string): void {
+    this.isMobileMenuOpen = false;
+    this.router.navigateByUrl(path);
   }
 
   mostrarMensagemDesenvolvimento(): void {

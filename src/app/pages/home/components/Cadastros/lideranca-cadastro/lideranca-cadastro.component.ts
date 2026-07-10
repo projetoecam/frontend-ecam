@@ -1,8 +1,8 @@
-import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
+﻿import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Lideranca, LiderancaService } from '../../../core/services/lideranca.service';
-import { FichaService, Pessoa } from '../../../core/services/ficha.service';
+import { Lideranca, LiderancaService } from '../../../../../core/services/lideranca.service';
+import { FichaService, Pessoa } from '../../../../../core/services/ficha.service';
 
 @Component({
   selector: 'app-lideranca-cadastro',
@@ -72,7 +72,7 @@ export class LiderancaCadastroComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (erro) => {
-        this.exibirMensagem('Falha ao carregar a lista de lideranças. ' + erro.message, 'erro');
+        this.exibirMensagem('Falha ao carregar a lista de lideranÃ§as. ' + erro.message, 'erro');
         this.carregandoLista = false;
         this.cdr.detectChanges();
       },
@@ -146,7 +146,7 @@ export class LiderancaCadastroComponent implements OnInit {
 
   salvar(): void {
     if (!this.pessoaSelecionadaId || !this.liderancaEdicao.tipoLideranca?.trim() || !this.liderancaEdicao.classificacao?.trim()) {
-      this.exibirMensagem('Preencha os campos obrigatórios.', 'erro');
+      this.exibirMensagem('Preencha os campos obrigatÃ³rios.', 'erro');
       return;
     }
 
@@ -171,7 +171,7 @@ export class LiderancaCadastroComponent implements OnInit {
     if (idEdicao) {
       this.liderancaService.atualizar(idEdicao, payload).subscribe({
         next: () => {
-          this.exibirMensagem('Liderança atualizada com sucesso.', 'sucesso');
+          this.exibirMensagem('LideranÃ§a atualizada com sucesso.', 'sucesso');
           this.fecharFormulario();
           this.carregarLiderancas();
           this.carregandoSalvar = false;
@@ -185,7 +185,7 @@ export class LiderancaCadastroComponent implements OnInit {
     } else {
       this.liderancaService.criar(payload).subscribe({
         next: () => {
-          this.exibirMensagem('Liderança cadastrada com sucesso.', 'sucesso');
+          this.exibirMensagem('LideranÃ§a cadastrada com sucesso.', 'sucesso');
           this.fecharFormulario();
           this.carregarLiderancas();
           this.carregandoSalvar = false;
@@ -203,13 +203,13 @@ export class LiderancaCadastroComponent implements OnInit {
     const idParaDeletar = typeof alvo === 'number' ? alvo : this.getIdLideranca(alvo);
 
     if (!idParaDeletar) {
-      this.exibirMensagem('Erro: não foi possível identificar o ID da liderança.', 'erro');
+      this.exibirMensagem('Erro: nÃ£o foi possÃ­vel identificar o ID da lideranÃ§a.', 'erro');
       return;
     }
 
     const nomePessoa = this.getPessoaNome(alvo);
     const confirmacao = window.confirm(
-      `Atenção: tem certeza que deseja excluir a liderança de ${nomePessoa}? Esta ação não poderá ser desfeita.`,
+      `AtenÃ§Ã£o: tem certeza que deseja excluir a lideranÃ§a de ${nomePessoa}? Esta aÃ§Ã£o nÃ£o poderÃ¡ ser desfeita.`,
     );
 
     if (!confirmacao) return;
@@ -221,10 +221,10 @@ export class LiderancaCadastroComponent implements OnInit {
       next: () => {
         this.carregarLiderancas();
         this.carregandoDeletar = false;
-        this.exibirMensagem('Liderança excluída com sucesso.', 'sucesso');
+        this.exibirMensagem('LideranÃ§a excluÃ­da com sucesso.', 'sucesso');
       },
       error: (erro) => {
-        this.exibirMensagem('Erro ao excluir liderança. ' + erro.message, 'erro');
+        this.exibirMensagem('Erro ao excluir lideranÃ§a. ' + erro.message, 'erro');
         this.carregandoDeletar = false;
         this.cdr.detectChanges();
       },
@@ -246,3 +246,5 @@ export class LiderancaCadastroComponent implements OnInit {
     this.voltar.emit();
   }
 }
+
+

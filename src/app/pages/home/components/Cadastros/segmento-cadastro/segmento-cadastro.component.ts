@@ -1,7 +1,7 @@
-import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
+﻿import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Segmento, SegmentoService } from '../../../core/services/segmento.service';
+import { Segmento, SegmentoService } from '../../../../../core/services/segmento.service';
 
 @Component({
   selector: 'app-segmento-cadastro',
@@ -136,13 +136,13 @@ export class SegmentoCadastroComponent implements OnInit {
     const idParaDeletar = typeof alvo === 'number' ? alvo : alvo?.id;
 
     if (!idParaDeletar) {
-      this.exibirMensagem('Erro: não foi possível identificar o ID do segmento.', 'erro');
+      this.exibirMensagem('Erro: nÃ£o foi possÃ­vel identificar o ID do segmento.', 'erro');
       return;
     }
 
     const nomeSegmento = typeof alvo === 'object' && alvo?.nome ? alvo.nome : 'este segmento';
     const confirmacao = window.confirm(
-      `Atenção: tem certeza que deseja excluir ${nomeSegmento}? Esta ação não poderá ser desfeita.`,
+      `AtenÃ§Ã£o: tem certeza que deseja excluir ${nomeSegmento}? Esta aÃ§Ã£o nÃ£o poderÃ¡ ser desfeita.`,
     );
 
     if (!confirmacao) return;
@@ -154,7 +154,7 @@ export class SegmentoCadastroComponent implements OnInit {
       next: () => {
         this.carregarSegmentos();
         this.carregandoDeletar = false;
-        this.exibirMensagem('Segmento excluído com sucesso.', 'sucesso');
+        this.exibirMensagem('Segmento excluÃ­do com sucesso.', 'sucesso');
       },
       error: (erro) => {
         this.exibirMensagem('Erro ao excluir segmento. ' + erro.message, 'erro');
@@ -179,3 +179,5 @@ export class SegmentoCadastroComponent implements OnInit {
     this.voltar.emit();
   }
 }
+
+

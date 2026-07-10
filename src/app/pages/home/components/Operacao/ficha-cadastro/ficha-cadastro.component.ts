@@ -1,14 +1,14 @@
-import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
+﻿import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { concatMap } from 'rxjs/operators';
-import { Pessoa, FichaService } from '../../../core/services/ficha.service';
-import { Comunidade, ComunidadeService } from '../../../core/services/comunidade.service';
-import { Usuario, UsuarioService } from '../../../core/services/usuario.service';
-import { Municipio, MunicipioService } from '../../../core/services/municipio.service';
-import { Bairro, BairroService } from '../../../core/services/bairro.service';
-import { Demanda, DemandaService } from '../../../core/services/demanda.service';
-import { DemandaTipo, DemandaTipoService } from '../../../core/services/demanda-tipo.service';
+import { Pessoa, FichaService } from '../../../../../core/services/ficha.service';
+import { Comunidade, ComunidadeService } from '../../../../../core/services/comunidade.service';
+import { Usuario, UsuarioService } from '../../../../../core/services/usuario.service';
+import { Municipio, MunicipioService } from '../../../../../core/services/municipio.service';
+import { Bairro, BairroService } from '../../../../../core/services/bairro.service';
+import { Demanda, DemandaService } from '../../../../../core/services/demanda.service';
+import { DemandaTipo, DemandaTipoService } from '../../../../../core/services/demanda-tipo.service';
 
 interface DemandaItem {
   selecionado: boolean;
@@ -119,7 +119,7 @@ export class FichaCadastroComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (erro) => {
-        this.exibirMensagem('Falha ao carregar a lista de usuários. ' + erro.message, 'erro');
+        this.exibirMensagem('Falha ao carregar a lista de usuÃ¡rios. ' + erro.message, 'erro');
         this.carregandoUsuarios = false;
         this.cdr.detectChanges();
       },
@@ -137,7 +137,7 @@ export class FichaCadastroComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (erro) => {
-        this.exibirMensagem('Falha ao carregar a lista de municípios. ' + erro.message, 'erro');
+        this.exibirMensagem('Falha ao carregar a lista de municÃ­pios. ' + erro.message, 'erro');
         this.carregandoMunicipios = false;
         this.cdr.detectChanges();
       },
@@ -216,7 +216,7 @@ export class FichaCadastroComponent implements OnInit {
     this.filtrar();
   }
 
-  // --- NOVA LÓGICA DE AUTO-PREENCHIMENTO ---
+  // --- NOVA LÃ“GICA DE AUTO-PREENCHIMENTO ---
   onComunidadeChange(): void {
     if (!this.fichaForm.comunidadeId) return;
 
@@ -225,7 +225,7 @@ export class FichaCadastroComponent implements OnInit {
     if (comunidade && comunidade.idBairro) {
       this.fichaForm.bairroId = comunidade.idBairro;
       
-      // Auto-selecionar município para facilitar (se houver pelo menos um na lista)
+      // Auto-selecionar municÃ­pio para facilitar (se houver pelo menos um na lista)
       if (this.municipios.length > 0 && !this.fichaForm.municipioId) {
         this.fichaForm.municipioId = this.municipios[0].id || '';
       }
@@ -247,7 +247,7 @@ export class FichaCadastroComponent implements OnInit {
       this.fichaForm.cep = pessoa.cep ?? '';
       this.fichaForm.nomeMae = pessoa.nomeMae ?? '';
       
-      // Ao abrir para edição, force a atualização dos campos dependentes (Bairro e Municipio)
+      // Ao abrir para ediÃ§Ã£o, force a atualizaÃ§Ã£o dos campos dependentes (Bairro e Municipio)
       this.onComunidadeChange();
     } else {
       this.pessoaEdicao = {};
@@ -280,13 +280,13 @@ export class FichaCadastroComponent implements OnInit {
       !this.fichaForm.telefone.trim() ||
       !this.fichaForm.cpf.trim()
     ) {
-      this.exibirMensagem('Preencha os campos obrigatórios (Comunidade, Bairro, Município, Nome, Telefone e CPF).', 'erro');
+      this.exibirMensagem('Preencha os campos obrigatÃ³rios (Comunidade, Bairro, MunicÃ­pio, Nome, Telefone e CPF).', 'erro');
       return;
     }
 
     const usuarioCadastroSelecionado = this.buscarUsuarioCadastro();
     if (!usuarioCadastroSelecionado) {
-      this.exibirMensagem('Usuário de cadastro não encontrado.', 'erro');
+      this.exibirMensagem('UsuÃ¡rio de cadastro nÃ£o encontrado.', 'erro');
       return;
     }
 
@@ -314,7 +314,7 @@ export class FichaCadastroComponent implements OnInit {
       dataCadastro: this.pessoaEdicao.dataCadastro,
     };
 
-    // Chamada encadeada RxJS para garantir a ordem exata de gravação
+    // Chamada encadeada RxJS para garantir a ordem exata de gravaÃ§Ã£o
     const salvarPessoa$ = pessoaPayload.id
       ? this.fichaService.atualizar(pessoaPayload.id, pessoaPayload)
       : this.fichaService.criar(pessoaPayload);
@@ -327,7 +327,7 @@ export class FichaCadastroComponent implements OnInit {
           idSolicitante: pessoaSalva.id,
           idComunidade: Number(this.fichaForm.comunidadeId),
           idLiderResponsavel: null,
-          orgaoResponsavel: orgao || 'NÃO INFORMADO',
+          orgaoResponsavel: orgao || 'NÃƒO INFORMADO',
           status: 'NOVO',
           dataSolicitacao: new Date().toISOString().split('T')[0],
           idOperador: Number(usuarioCadastroSelecionado.id)
@@ -360,7 +360,7 @@ export class FichaCadastroComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (erro) => {
-        this.exibirMensagem('Erro ao processar as integrações. ' + erro.message, 'erro');
+        this.exibirMensagem('Erro ao processar as integraÃ§Ãµes. ' + erro.message, 'erro');
         this.carregandoSalvar = false;
         this.cdr.detectChanges();
       }
@@ -371,7 +371,7 @@ export class FichaCadastroComponent implements OnInit {
     const idParaDeletar = typeof alvo === 'number' ? alvo : alvo?.id;
     if (!idParaDeletar) return;
 
-    const confirmacao = window.confirm(`Atenção: tem certeza que deseja excluir?`);
+    const confirmacao = window.confirm(`AtenÃ§Ã£o: tem certeza que deseja excluir?`);
     if (!confirmacao) return;
 
     this.carregandoDeletar = true;
@@ -381,7 +381,7 @@ export class FichaCadastroComponent implements OnInit {
       next: () => {
         this.carregarPessoas();
         this.carregandoDeletar = false;
-        this.exibirMensagem('Excluído com sucesso.', 'sucesso');
+        this.exibirMensagem('ExcluÃ­do com sucesso.', 'sucesso');
       },
       error: (erro) => {
         this.exibirMensagem('Erro ao excluir. ' + erro.message, 'erro');
@@ -459,3 +459,4 @@ export class FichaCadastroComponent implements OnInit {
     this.voltar.emit();
   }
 }
+

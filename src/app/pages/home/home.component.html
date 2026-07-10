@@ -78,7 +78,7 @@
           <button
             type="button"
             (click)="abrirUsuarios()"
-            [ngClass]="{ 'bg-slate-800 text-white': cadastroAtivo === 'usuarios' }"
+            [ngClass]="{ 'bg-slate-800 text-white': isActiveRoute('/home/cadastro/usuarios') }"
             class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
           >
             Equipe (Usuários)
@@ -86,7 +86,7 @@
           <button
             type="button"
             (click)="abrirMunicipios()"
-            [ngClass]="{ 'bg-slate-800 text-white': cadastroAtivo === 'municipios' }"
+            [ngClass]="{ 'bg-slate-800 text-white': isActiveRoute('/home/cadastro/municipios') }"
             class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
           >
             Municípios
@@ -94,7 +94,7 @@
           <button
             type="button"
             (click)="abrirMacroRegioes()"
-            [ngClass]="{ 'bg-slate-800 text-white': cadastroAtivo === 'macro-regioes' }"
+            [ngClass]="{ 'bg-slate-800 text-white': isActiveRoute('/home/cadastro/macro-regioes') }"
             class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
           >
             Macroterritórios
@@ -102,7 +102,7 @@
           <button
             type="button"
             (click)="abrirBairros()"
-            [ngClass]="{ 'bg-slate-800 text-white': cadastroAtivo === 'bairros' }"
+            [ngClass]="{ 'bg-slate-800 text-white': isActiveRoute('/home/cadastro/bairros') }"
             class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
           >
             Bairros
@@ -110,7 +110,7 @@
           <button
             type="button"
             (click)="abrirComunidades()"
-            [ngClass]="{ 'bg-slate-800 text-white': cadastroAtivo === 'comunidades' }"
+            [ngClass]="{ 'bg-slate-800 text-white': isActiveRoute('/home/cadastro/comunidades') }"
             class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
           >
             Comunidades
@@ -118,7 +118,7 @@
           <button
             type="button"
             (click)="abrirPessoas()"
-            [ngClass]="{ 'bg-slate-800 text-white': cadastroAtivo === 'pessoas' }"
+            [ngClass]="{ 'bg-slate-800 text-white': isActiveRoute('/home/cadastro/pessoas') }"
             class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
           >
             Pessoas
@@ -126,7 +126,7 @@
           <button
             type="button"
             (click)="abrirSegmentos()"
-            [ngClass]="{ 'bg-slate-800 text-white': cadastroAtivo === 'segmentos' }"
+            [ngClass]="{ 'bg-slate-800 text-white': isActiveRoute('/home/cadastro/segmentos') }"
             class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
           >
             Segmentos
@@ -134,7 +134,7 @@
           <button
             type="button"
             (click)="abrirLiderancas()"
-            [ngClass]="{ 'bg-slate-800 text-white': cadastroAtivo === 'liderancas' }"
+            [ngClass]="{ 'bg-slate-800 text-white': isActiveRoute('/home/cadastro/liderancas') }"
             class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
           >
             Lideranças
@@ -156,7 +156,7 @@
       <button
         type="button"
         (click)="abrirOperacoes()"
-        [ngClass]="{ 'bg-slate-700 text-white': cadastroAtivo === 'operacoes' }"
+        [ngClass]="{ 'bg-slate-700 text-white': isActiveRoute('/home/operacoes') }"
         class="w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium text-slate-200 transition hover:bg-slate-700 hover:text-white group"
       >
         <span
@@ -265,7 +265,7 @@
     </header>
 
     <section class="p-4 lg:p-6">
-      <div *ngIf="cadastroAtivo === null" class="grid gap-6 xl:grid-cols-[1.5fr_0.9fr]">
+      <div *ngIf="isDashboardRoute" class="grid gap-6 xl:grid-cols-[1.5fr_0.9fr]">
         <div class="space-y-6">
           <div class="grid gap-4 sm:gap-6 grid-cols-2 lg:grid-cols-4">
             <div
@@ -468,42 +468,7 @@
         </aside>
       </div>
 
-      <app-municipio-cadastro
-        *ngIf="cadastroAtivo === 'municipios'"
-        (voltar)="voltarDashboard()"
-      ></app-municipio-cadastro>
-      <app-macro-regiao-cadastro
-        *ngIf="cadastroAtivo === 'macro-regioes'"
-        (voltar)="voltarDashboard()"
-      ></app-macro-regiao-cadastro>
-      <app-comunidade-cadastro
-        *ngIf="cadastroAtivo === 'comunidades'"
-        (voltar)="voltarDashboard()"
-      ></app-comunidade-cadastro>
-      <app-bairro-cadastro
-        *ngIf="cadastroAtivo === 'bairros'"
-        (voltar)="voltarDashboard()"
-      ></app-bairro-cadastro>
-      <app-usuario-cadastro
-        *ngIf="cadastroAtivo === 'usuarios'"
-        (voltar)="voltarDashboard()"
-      ></app-usuario-cadastro>
-      <app-pessoa-cadastro
-        *ngIf="cadastroAtivo === 'pessoas'"
-        (voltar)="voltarDashboard()"
-      ></app-pessoa-cadastro>
-      <app-segmento-cadastro
-        *ngIf="cadastroAtivo === 'segmentos'"
-        (voltar)="voltarDashboard()"
-      ></app-segmento-cadastro>
-      <app-lideranca-cadastro
-        *ngIf="cadastroAtivo === 'liderancas'"
-        (voltar)="voltarDashboard()"
-      ></app-lideranca-cadastro>
-      <app-ficha-cadastro
-        *ngIf="cadastroAtivo === 'operacoes'"
-        (voltar)="voltarDashboard()"
-      ></app-ficha-cadastro>
+      <router-outlet></router-outlet>
     </section>
   </main>
   <div

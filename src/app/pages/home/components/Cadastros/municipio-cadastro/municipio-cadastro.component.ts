@@ -1,7 +1,7 @@
-import { Component, Output, EventEmitter, OnInit, ChangeDetectorRef } from '@angular/core';
+﻿import { Component, Output, EventEmitter, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MunicipioService, Municipio } from '../../../core/services/municipio.service';
+import { MunicipioService, Municipio } from '../../../../../core/services/municipio.service';
 
 @Component({
   selector: 'app-municipio-cadastro',
@@ -49,7 +49,7 @@ export class MunicipioCadastroComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (erro) => {
-        this.exibirMensagem('Falha ao carregar a lista de municípios. ' + erro.message, 'erro');
+        this.exibirMensagem('Falha ao carregar a lista de municÃ­pios. ' + erro.message, 'erro');
         this.carregandoLista = false;
         this.cdr.detectChanges();
       },
@@ -90,7 +90,7 @@ export class MunicipioCadastroComponent implements OnInit {
 
   salvar(): void {
     if (!this.municipioEdicao.nome || !this.municipioEdicao.uf) {
-      this.exibirMensagem('Preencha os campos obrigatórios.', 'erro');
+      this.exibirMensagem('Preencha os campos obrigatÃ³rios.', 'erro');
       return;
     }
 
@@ -98,7 +98,7 @@ export class MunicipioCadastroComponent implements OnInit {
     const ufNormalizada = this.municipioEdicao.uf.trim().toUpperCase();
 
     if (!nomeNormalizado || !ufNormalizada) {
-      this.exibirMensagem('Preencha os campos obrigatórios.', 'erro');
+      this.exibirMensagem('Preencha os campos obrigatÃ³rios.', 'erro');
       return;
     }
 
@@ -111,7 +111,7 @@ export class MunicipioCadastroComponent implements OnInit {
     );
 
     if (jaExiste) {
-      this.exibirMensagem('Este município já está cadastrado para a UF informada.', 'erro');
+      this.exibirMensagem('Este municÃ­pio jÃ¡ estÃ¡ cadastrado para a UF informada.', 'erro');
       return;
     }
 
@@ -127,7 +127,7 @@ export class MunicipioCadastroComponent implements OnInit {
     if (this.municipioEdicao.id) {
       this.municipioService.atualizar(this.municipioEdicao.id, this.municipioEdicao as Municipio).subscribe({
         next: () => {
-          this.exibirMensagem('Município atualizado com sucesso.', 'sucesso');
+          this.exibirMensagem('MunicÃ­pio atualizado com sucesso.', 'sucesso');
           this.fecharFormulario();
           this.carregarMunicipios();
           this.carregandoSalvar = false;
@@ -141,7 +141,7 @@ export class MunicipioCadastroComponent implements OnInit {
     } else {
       this.municipioService.criar(this.municipioEdicao as Municipio).subscribe({
         next: () => {
-          this.exibirMensagem('Município cadastrado com sucesso.', 'sucesso');
+          this.exibirMensagem('MunicÃ­pio cadastrado com sucesso.', 'sucesso');
           this.fecharFormulario();
           this.carregarMunicipios();
           this.carregandoSalvar = false;
@@ -159,14 +159,14 @@ export class MunicipioCadastroComponent implements OnInit {
     const idParaDeletar = typeof alvo === 'number' ? alvo : alvo?.id;
 
     if (!idParaDeletar) {
-      this.exibirMensagem('Erro: não foi possível identificar o ID do município.', 'erro');
+      this.exibirMensagem('Erro: nÃ£o foi possÃ­vel identificar o ID do municÃ­pio.', 'erro');
       return;
     }
 
-    const nomeMunicipio = typeof alvo === 'object' && alvo?.nome ? alvo.nome : 'este município';
+    const nomeMunicipio = typeof alvo === 'object' && alvo?.nome ? alvo.nome : 'este municÃ­pio';
 
     const confirmacao = window.confirm(
-      `Atenção: tem certeza que deseja excluir ${nomeMunicipio}? Esta ação não poderá ser desfeita.`,
+      `AtenÃ§Ã£o: tem certeza que deseja excluir ${nomeMunicipio}? Esta aÃ§Ã£o nÃ£o poderÃ¡ ser desfeita.`,
     );
     if (!confirmacao) return;
 
@@ -177,10 +177,10 @@ export class MunicipioCadastroComponent implements OnInit {
       next: () => {
         this.carregarMunicipios();
         this.carregandoDeletar = false;
-        this.exibirMensagem('Município excluído com sucesso.', 'sucesso');
+        this.exibirMensagem('MunicÃ­pio excluÃ­do com sucesso.', 'sucesso');
       },
       error: () => {
-        this.exibirMensagem('Erro ao excluir município.', 'erro');
+        this.exibirMensagem('Erro ao excluir municÃ­pio.', 'erro');
         this.carregandoDeletar = false;
         this.cdr.detectChanges();
       },
@@ -202,3 +202,4 @@ export class MunicipioCadastroComponent implements OnInit {
     this.voltar.emit();
   }
 }
+

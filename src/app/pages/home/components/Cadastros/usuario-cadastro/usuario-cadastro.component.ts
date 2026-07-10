@@ -1,7 +1,7 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+﻿import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { UsuarioService, Usuario } from '../../../core/services/usuario.service';
+import { UsuarioService, Usuario } from '../../../../../core/services/usuario.service';
 
 @Component({
   selector: 'app-usuario-cadastro',
@@ -47,7 +47,7 @@ export class UsuarioCadastroComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: () => {
-        this.exibirMensagem('Falha ao carregar a lista de usuários.', 'erro');
+        this.exibirMensagem('Falha ao carregar a lista de usuÃ¡rios.', 'erro');
         this.carregandoLista = false;
         this.cdr.detectChanges();
       },
@@ -90,7 +90,7 @@ export class UsuarioCadastroComponent implements OnInit {
       !this.usuarioEdicao.login_usuario ||
       !this.usuarioEdicao.perfil
     ) {
-      this.exibirMensagem('Preencha os campos obrigatórios.', 'erro');
+      this.exibirMensagem('Preencha os campos obrigatÃ³rios.', 'erro');
       return;
     }
 
@@ -101,7 +101,7 @@ export class UsuarioCadastroComponent implements OnInit {
         .atualizar(this.usuarioEdicao.id, this.usuarioEdicao as Usuario)
         .subscribe({
           next: () => {
-            this.exibirMensagem('Usuário atualizado com sucesso.', 'sucesso');
+            this.exibirMensagem('UsuÃ¡rio atualizado com sucesso.', 'sucesso');
             this.fecharFormulario();
             this.carregarUsuarios();
             this.carregandoSalvar = false;
@@ -114,14 +114,14 @@ export class UsuarioCadastroComponent implements OnInit {
         });
     } else {
       if (!this.usuarioEdicao.senha_hash) {
-        this.exibirMensagem('A senha é obrigatória para novos usuários.', 'erro');
+        this.exibirMensagem('A senha Ã© obrigatÃ³ria para novos usuÃ¡rios.', 'erro');
         this.carregandoSalvar = false;
         return;
       }
 
       this.usuarioService.criar(this.usuarioEdicao as Usuario).subscribe({
         next: () => {
-          this.exibirMensagem('Usuário cadastrado com sucesso.', 'sucesso');
+          this.exibirMensagem('UsuÃ¡rio cadastrado com sucesso.', 'sucesso');
           this.fecharFormulario();
           this.carregarUsuarios();
           this.carregandoSalvar = false;
@@ -135,36 +135,36 @@ export class UsuarioCadastroComponent implements OnInit {
     }
   }
   deletar(alvo: any): void {
-    // 1. Descobre de forma inteligente qual é o ID, seja recebendo um número solto ou um objeto (verificando 'id' ou 'id_usuario')
+    // 1. Descobre de forma inteligente qual Ã© o ID, seja recebendo um nÃºmero solto ou um objeto (verificando 'id' ou 'id_usuario')
     const idParaDeletar = typeof alvo === 'number' ? alvo : alvo?.id || alvo?.id_usuario;
 
     if (!idParaDeletar) {
-      this.exibirMensagem('Erro: Não foi possível identificar o ID do usuário.', 'erro');
-      console.error('Payload recebido no botão deletar:', alvo); // Irá printar no F12 para ajudar caso a API esteja sem ID
+      this.exibirMensagem('Erro: NÃ£o foi possÃ­vel identificar o ID do usuÃ¡rio.', 'erro');
+      console.error('Payload recebido no botÃ£o deletar:', alvo); // IrÃ¡ printar no F12 para ajudar caso a API esteja sem ID
       return;
     }
 
-    // 2. Tenta pegar o nome se for um objeto, senão usa um texto genérico
-    const nomeUsuario = typeof alvo === 'object' && alvo?.nome ? alvo.nome : 'este usuário';
+    // 2. Tenta pegar o nome se for um objeto, senÃ£o usa um texto genÃ©rico
+    const nomeUsuario = typeof alvo === 'object' && alvo?.nome ? alvo.nome : 'este usuÃ¡rio';
 
-    // 3. Executa a confirmação
+    // 3. Executa a confirmaÃ§Ã£o
     const confirmacao = window.confirm(
-      `Atenção: Tem certeza que deseja excluir ${nomeUsuario}? Esta ação não poderá ser desfeita.`,
+      `AtenÃ§Ã£o: Tem certeza que deseja excluir ${nomeUsuario}? Esta aÃ§Ã£o nÃ£o poderÃ¡ ser desfeita.`,
     );
     if (!confirmacao) return;
 
     this.carregandoDeletar = true;
     this.cdr.detectChanges(); // Atualiza a interface visualmente
 
-    // 4. Dispara a deleção
+    // 4. Dispara a deleÃ§Ã£o
     this.usuarioService.deletar(idParaDeletar).subscribe({
       next: () => {
         this.carregarUsuarios();
         this.carregandoDeletar = false;
-        this.exibirMensagem('Usuário excluído com sucesso.', 'sucesso');
+        this.exibirMensagem('UsuÃ¡rio excluÃ­do com sucesso.', 'sucesso');
       },
       error: () => {
-        this.exibirMensagem('Erro ao excluir usuário.', 'erro');
+        this.exibirMensagem('Erro ao excluir usuÃ¡rio.', 'erro');
         this.carregandoDeletar = false;
         this.cdr.detectChanges();
       },
@@ -182,3 +182,5 @@ export class UsuarioCadastroComponent implements OnInit {
     }, 4000);
   }
 }
+
+

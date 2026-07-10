@@ -1,8 +1,8 @@
-import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
+﻿import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MunicipioService, Municipio } from '../../../core/services/municipio.service';
-import { MacroRegiao, MacroRegiaoService } from '../../../core/services/macro-regiao.service';
+import { MunicipioService, Municipio } from '../../../../../core/services/municipio.service';
+import { MacroRegiao, MacroRegiaoService } from '../../../../../core/services/macro-regiao.service';
 
 @Component({
   selector: 'app-macro-regiao-cadastro',
@@ -16,7 +16,7 @@ export class MacroRegiaoCadastroComponent implements OnInit {
 
   // Nota: Garante que a interface MacroRegiao no teu macro-regiao.service.ts tem os campos:
   // id?: number; nome: string; regiaoApelido?: string; idMunicipio?: number; nomeMunicipio?: string;
-  macroRegioes: any[] = []; // Usando any[] para evitar erros de tipagem caso a interface não esteja atualizada
+  macroRegioes: any[] = []; // Usando any[] para evitar erros de tipagem caso a interface nÃ£o esteja atualizada
   macroRegioesFiltradas: any[] = [];
   municipios: Municipio[] = [];
 
@@ -54,7 +54,7 @@ export class MacroRegiaoCadastroComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (erro) => {
-        this.exibirMensagem('Falha ao carregar a lista de municípios. ' + erro.message, 'erro');
+        this.exibirMensagem('Falha ao carregar a lista de municÃ­pios. ' + erro.message, 'erro');
         this.carregandoMunicipios = false;
         this.cdr.detectChanges();
       },
@@ -73,7 +73,7 @@ export class MacroRegiaoCadastroComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (erro) => {
-        this.exibirMensagem('Falha ao carregar a lista de macro regiões. ' + erro.message, 'erro');
+        this.exibirMensagem('Falha ao carregar a lista de macro regiÃµes. ' + erro.message, 'erro');
         this.carregandoLista = false;
         this.cdr.detectChanges();
       },
@@ -87,7 +87,7 @@ export class MacroRegiaoCadastroComponent implements OnInit {
       this.macroRegioesFiltradas = [...this.macroRegioes];
     } else {
       this.macroRegioesFiltradas = this.macroRegioes.filter((item) => {
-        // Agora usamos os dados planos que vêm do DTO
+        // Agora usamos os dados planos que vÃªm do DTO
         const municipioNome = item.nomeMunicipio?.toLowerCase() ?? '';
         
         return (
@@ -125,7 +125,7 @@ export class MacroRegiaoCadastroComponent implements OnInit {
 
   salvar(): void {
     if (!this.macroRegiaoEdicao.nome || !this.macroRegiaoEdicao.regiaoApelido || !this.municipioSelecionadoId) {
-      this.exibirMensagem('Preencha os campos obrigatórios.', 'erro');
+      this.exibirMensagem('Preencha os campos obrigatÃ³rios.', 'erro');
       return;
     }
 
@@ -133,7 +133,7 @@ export class MacroRegiaoCadastroComponent implements OnInit {
     const apelidoNormalizado = this.macroRegiaoEdicao.regiaoApelido.trim();
 
     if (!nomeNormalizado || !apelidoNormalizado) {
-      this.exibirMensagem('Preencha os campos obrigatórios.', 'erro');
+      this.exibirMensagem('Preencha os campos obrigatÃ³rios.', 'erro');
       return;
     }
 
@@ -151,7 +151,7 @@ export class MacroRegiaoCadastroComponent implements OnInit {
     if (payload.id) {
       this.macroRegiaoService.atualizar(payload.id, payload).subscribe({
         next: () => {
-          this.exibirMensagem('Macro região atualizada com sucesso.', 'sucesso');
+          this.exibirMensagem('Macro regiÃ£o atualizada com sucesso.', 'sucesso');
           this.fecharFormulario();
           this.carregarMacroRegioes();
           this.carregandoSalvar = false;
@@ -165,7 +165,7 @@ export class MacroRegiaoCadastroComponent implements OnInit {
     } else {
       this.macroRegiaoService.criar(payload).subscribe({
         next: () => {
-          this.exibirMensagem('Macro região cadastrada com sucesso.', 'sucesso');
+          this.exibirMensagem('Macro regiÃ£o cadastrada com sucesso.', 'sucesso');
           this.fecharFormulario();
           this.carregarMacroRegioes();
           this.carregandoSalvar = false;
@@ -183,13 +183,13 @@ export class MacroRegiaoCadastroComponent implements OnInit {
     const idParaDeletar = typeof alvo === 'number' ? alvo : alvo?.id;
 
     if (!idParaDeletar) {
-      this.exibirMensagem('Erro: não foi possível identificar o ID da macro região.', 'erro');
+      this.exibirMensagem('Erro: nÃ£o foi possÃ­vel identificar o ID da macro regiÃ£o.', 'erro');
       return;
     }
 
-    const nomeMacroRegiao = typeof alvo === 'object' && alvo?.nome ? alvo.nome : 'esta macro região';
+    const nomeMacroRegiao = typeof alvo === 'object' && alvo?.nome ? alvo.nome : 'esta macro regiÃ£o';
     const confirmacao = window.confirm(
-      `Atenção: tem certeza que deseja excluir ${nomeMacroRegiao}? Esta ação não poderá ser desfeita.`,
+      `AtenÃ§Ã£o: tem certeza que deseja excluir ${nomeMacroRegiao}? Esta aÃ§Ã£o nÃ£o poderÃ¡ ser desfeita.`,
     );
 
     if (!confirmacao) return;
@@ -201,10 +201,10 @@ export class MacroRegiaoCadastroComponent implements OnInit {
       next: () => {
         this.carregarMacroRegioes();
         this.carregandoDeletar = false;
-        this.exibirMensagem('Macro região excluída com sucesso.', 'sucesso');
+        this.exibirMensagem('Macro regiÃ£o excluÃ­da com sucesso.', 'sucesso');
       },
       error: (erro) => {
-        this.exibirMensagem('Erro ao excluir macro região. ' + erro.message, 'erro');
+        this.exibirMensagem('Erro ao excluir macro regiÃ£o. ' + erro.message, 'erro');
         this.carregandoDeletar = false;
         this.cdr.detectChanges();
       },
@@ -231,3 +231,4 @@ export class MacroRegiaoCadastroComponent implements OnInit {
     this.voltar.emit();
   }
 }
+

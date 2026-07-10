@@ -1,9 +1,9 @@
-import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
+﻿import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Bairro, BairroService } from '../../../core/services/bairro.service';
-import { MacroRegiao, MacroRegiaoService } from '../../../core/services/macro-regiao.service';
-import { Comunidade, ComunidadeService } from '../../../core/services/comunidade.service';
+import { Bairro, BairroService } from '../../../../../core/services/bairro.service';
+import { MacroRegiao, MacroRegiaoService } from '../../../../../core/services/macro-regiao.service';
+import { Comunidade, ComunidadeService } from '../../../../../core/services/comunidade.service';
 
 @Component({
   selector: 'app-comunidade-cadastro',
@@ -34,7 +34,7 @@ export class ComunidadeCadastroComponent implements OnInit {
   carregandoBairros = false;
   carregandoMacroRegioes = false;
 
-  grausPrioridade = ['Baixa', 'Média', 'Alta', 'Crítica'];
+  grausPrioridade = ['Baixa', 'MÃ©dia', 'Alta', 'CrÃ­tica'];
   classificacoes = ['Residencial', 'Comercial', 'Mista', 'Rural'];
 
   constructor(
@@ -79,7 +79,7 @@ export class ComunidadeCadastroComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (erro) => {
-        this.exibirMensagem('Falha ao carregar a lista de macro regiões. ' + erro.message, 'erro');
+        this.exibirMensagem('Falha ao carregar a lista de macro regiÃµes. ' + erro.message, 'erro');
         this.carregandoMacroRegioes = false;
         this.cdr.detectChanges();
       },
@@ -186,7 +186,7 @@ export class ComunidadeCadastroComponent implements OnInit {
 
   salvar(): void {
     if (!this.comunidadeEdicao.nome || !this.bairroSelecionadoId) {
-      this.exibirMensagem('Preencha os campos obrigatórios.', 'erro');
+      this.exibirMensagem('Preencha os campos obrigatÃ³rios.', 'erro');
       return;
     }
 
@@ -248,13 +248,13 @@ export class ComunidadeCadastroComponent implements OnInit {
     const idParaDeletar = typeof alvo === 'number' ? alvo : alvo?.id;
 
     if (!idParaDeletar) {
-      this.exibirMensagem('Erro: não foi possível identificar o ID da comunidade.', 'erro');
+      this.exibirMensagem('Erro: nÃ£o foi possÃ­vel identificar o ID da comunidade.', 'erro');
       return;
     }
 
     const nomeComunidade = typeof alvo === 'object' && alvo?.nome ? alvo.nome : 'esta comunidade';
     const confirmacao = window.confirm(
-      `Atenção: tem certeza que deseja excluir ${nomeComunidade}? Esta ação não poderá ser desfeita.`,
+      `AtenÃ§Ã£o: tem certeza que deseja excluir ${nomeComunidade}? Esta aÃ§Ã£o nÃ£o poderÃ¡ ser desfeita.`,
     );
 
     if (!confirmacao) return;
@@ -266,7 +266,7 @@ export class ComunidadeCadastroComponent implements OnInit {
       next: () => {
         this.carregarComunidades();
         this.carregandoDeletar = false;
-        this.exibirMensagem('Comunidade excluída com sucesso.', 'sucesso');
+        this.exibirMensagem('Comunidade excluÃ­da com sucesso.', 'sucesso');
       },
       error: (erro) => {
         this.exibirMensagem('Erro ao excluir comunidade. ' + erro.message, 'erro');
@@ -301,3 +301,4 @@ export class ComunidadeCadastroComponent implements OnInit {
     this.voltar.emit();
   }
 }
+
