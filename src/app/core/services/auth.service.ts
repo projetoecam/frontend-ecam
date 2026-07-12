@@ -16,10 +16,7 @@ export class AuthService {
     if (!baseUrl.endsWith('/api')) {
       baseUrl += '/api';
     }
-    
     const url = `${baseUrl}/login`; 
-  
-    console.log('[AuthService] Disparando POST de login para:', url);
     
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     
@@ -27,9 +24,28 @@ export class AuthService {
       tap(response => {
         if (response && response.token) {
           localStorage.setItem('token', response.token);
-          console.log('[AuthService] Token salvo com sucesso!');
         }
       })
     );
+  }
+
+
+  private decodificarPayloadDoToken(token: string): any {
+    try {
+      
+      const payloadBase64 = token.split('.')[1];
+      return JSON.parse(atob(payloadBase64));
+    } catch (e) {
+      return null;
+    }
+  }
+
+  hasPermissao(permissaoDesejada: string): boolean {
+    const token = localStorage.getItem('token');
+    if (!token) return false;
+
+    const payload = this.decodificarPayloadDoToken(token);
+    if (!payload || !payload.permissoes) return false;
+    return payload.permissoes.includes(permissaoDesejada);
   }
 }
