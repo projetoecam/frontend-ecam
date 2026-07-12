@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap, catchError, map } from 'rxjs/operators';
@@ -126,3 +126,4 @@ export class MunicipioService {
     return throwError(() => new Error(mensagem));
   }
 }
+

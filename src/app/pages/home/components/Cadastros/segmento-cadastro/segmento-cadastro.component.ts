@@ -1,7 +1,9 @@
-import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
+﻿import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Segmento, SegmentoService } from '../../../core/services/segmento.service';
+import { Segmento, SegmentoService } from '../../../../../core/services/segmento.service';
+import { OperationFeedbackService } from '../../../../../shared/services/operation-feedback.service';
+import { OperationConfirmService } from '../../../../../shared/services/operation-confirm.service';
 
 @Component({
   selector: 'app-segmento-cadastro',
@@ -29,6 +31,8 @@ export class SegmentoCadastroComponent implements OnInit {
   constructor(
     private segmentoService: SegmentoService,
     private cdr: ChangeDetectorRef,
+    private operationFeedback: OperationFeedbackService,
+    private operationConfirm: OperationConfirmService,
   ) {}
 
   ngOnInit(): void {
@@ -104,9 +108,10 @@ export class SegmentoCadastroComponent implements OnInit {
     if (payload.id) {
       this.segmentoService.atualizar(payload.id, payload).subscribe({
         next: () => {
-          this.exibirMensagem('Segmento atualizado com sucesso.', 'sucesso');
-          this.fecharFormulario();
-          this.carregarSegmentos();
+          this.exibirMensagem('Segmento atualizado com sucesso.', 'sucesso', () => {
+            this.fecharFormulario();
+            this.carregarSegmentos();
+          });
           this.carregandoSalvar = false;
         },
         error: (erro) => {
@@ -118,9 +123,10 @@ export class SegmentoCadastroComponent implements OnInit {
     } else {
       this.segmentoService.criar(payload).subscribe({
         next: () => {
-          this.exibirMensagem('Segmento cadastrado com sucesso.', 'sucesso');
-          this.fecharFormulario();
-          this.carregarSegmentos();
+          this.exibirMensagem('Segmento cadastrado com sucesso.', 'sucesso', () => {
+            this.fecharFormulario();
+            this.carregarSegmentos();
+          });
           this.carregandoSalvar = false;
         },
         error: (erro) => {
@@ -132,7 +138,7 @@ export class SegmentoCadastroComponent implements OnInit {
     }
   }
 
-  deletar(alvo: any): void {
+  async deletar(alvo: any): Promise<void> {
     const idParaDeletar = typeof alvo === 'number' ? alvo : alvo?.id;
 
     if (!idParaDeletar) {
@@ -141,9 +147,12 @@ export class SegmentoCadastroComponent implements OnInit {
     }
 
     const nomeSegmento = typeof alvo === 'object' && alvo?.nome ? alvo.nome : 'este segmento';
-    const confirmacao = window.confirm(
-      `Atenção: tem certeza que deseja excluir ${nomeSegmento}? Esta ação não poderá ser desfeita.`,
-    );
+    const confirmacao = await this.operationConfirm.confirm({
+      title: 'Excluir segmento',
+      message: `Tem certeza que deseja excluir ${nomeSegmento}? Esta ação não poderá ser desfeita.`,
+      confirmText: 'Sim, excluir',
+      cancelText: 'Voltar',
+    });
 
     if (!confirmacao) return;
 
@@ -164,18 +173,21 @@ export class SegmentoCadastroComponent implements OnInit {
     });
   }
 
-  exibirMensagem(msg: string, tipo: 'sucesso' | 'erro'): void {
-    this.mensagem = msg;
-    this.tipoMensagem = tipo;
-    this.cdr.detectChanges();
+  exibirMensagem(msg: string, tipo: 'sucesso' | 'erro', onClose?: () => void): void {
+    this.operationFeedback.show(msg, tipo, 1000);
 
-    setTimeout(() => {
-      this.mensagem = '';
-      this.cdr.detectChanges();
-    }, 4000);
+    if (onClose) {
+      setTimeout(() => {
+        onClose();
+        this.cdr.detectChanges();
+      }, 1000);
+    }
   }
 
   fecharPainel(): void {
     this.voltar.emit();
   }
 }
+
+
+

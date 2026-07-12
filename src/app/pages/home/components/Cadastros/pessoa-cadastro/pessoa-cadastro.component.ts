@@ -1,9 +1,11 @@
-import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
+﻿import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { FichaService, Pessoa } from '../../../core/services/ficha.service';
-import { Comunidade, ComunidadeService } from '../../../core/services/comunidade.service';
-import { Usuario, UsuarioService } from '../../../core/services/usuario.service';
+import { FichaService, Pessoa } from '../../../../../core/services/ficha.service';
+import { Comunidade, ComunidadeService } from '../../../../../core/services/comunidade.service';
+import { Usuario, UsuarioService } from '../../../../../core/services/usuario.service';
+import { OperationFeedbackService } from '../../../../../shared/services/operation-feedback.service';
+import { OperationConfirmService } from '../../../../../shared/services/operation-confirm.service';
 
 @Component({
   selector: 'app-pessoa-cadastro',
@@ -46,6 +48,8 @@ export class PessoaCadastroComponent implements OnInit {
     private comunidadeService: ComunidadeService,
     private usuarioService: UsuarioService,
     private cdr: ChangeDetectorRef,
+    private operationFeedback: OperationFeedbackService,
+    private operationConfirm: OperationConfirmService,
   ) {}
 
   ngOnInit(): void {
@@ -231,9 +235,10 @@ export class PessoaCadastroComponent implements OnInit {
     if (payload.id) {
       this.fichaService.atualizar(payload.id, payload).subscribe({
         next: () => {
-          this.exibirMensagem('Pessoa atualizada com sucesso.', 'sucesso');
-          this.fecharFormulario();
-          this.carregarPessoas();
+          this.exibirMensagem('Pessoa atualizada com sucesso.', 'sucesso', () => {
+            this.fecharFormulario();
+            this.carregarPessoas();
+          });
           this.carregandoSalvar = false;
         },
         error: (erro) => {
@@ -245,9 +250,10 @@ export class PessoaCadastroComponent implements OnInit {
     } else {
       this.fichaService.criar(payload).subscribe({
         next: () => {
-          this.exibirMensagem('Pessoa cadastrada com sucesso.', 'sucesso');
-          this.fecharFormulario();
-          this.carregarPessoas();
+          this.exibirMensagem('Pessoa cadastrada com sucesso.', 'sucesso', () => {
+            this.fecharFormulario();
+            this.carregarPessoas();
+          });
           this.carregandoSalvar = false;
         },
         error: (erro) => {
@@ -259,7 +265,7 @@ export class PessoaCadastroComponent implements OnInit {
     }
   }
 
-  deletar(alvo: any): void {
+  async deletar(alvo: any): Promise<void> {
     const idParaDeletar = typeof alvo === 'number' ? alvo : alvo?.id;
 
     if (!idParaDeletar) {
@@ -268,9 +274,12 @@ export class PessoaCadastroComponent implements OnInit {
     }
 
     const nomePessoa = typeof alvo === 'object' && alvo?.nomeCompleto ? alvo.nomeCompleto : 'esta pessoa';
-    const confirmacao = window.confirm(
-      `Atenção: tem certeza que deseja excluir ${nomePessoa}? Esta ação não poderá ser desfeita.`,
-    );
+    const confirmacao = await this.operationConfirm.confirm({
+      title: 'Excluir pessoa',
+      message: `Tem certeza que deseja excluir ${nomePessoa}? Esta ação não poderá ser desfeita.`,
+      confirmText: 'Sim, excluir',
+      cancelText: 'Voltar',
+    });
 
     if (!confirmacao) return;
 
@@ -291,18 +300,20 @@ export class PessoaCadastroComponent implements OnInit {
     });
   }
 
-  exibirMensagem(msg: string, tipo: 'sucesso' | 'erro'): void {
-    this.mensagem = msg;
-    this.tipoMensagem = tipo;
-    this.cdr.detectChanges();
+  exibirMensagem(msg: string, tipo: 'sucesso' | 'erro', onClose?: () => void): void {
+    this.operationFeedback.show(msg, tipo, 1000);
 
-    setTimeout(() => {
-      this.mensagem = '';
-      this.cdr.detectChanges();
-    }, 4000);
+    if (onClose) {
+      setTimeout(() => {
+        onClose();
+        this.cdr.detectChanges();
+      }, 1000);
+    }
   }
 
   fecharPainel(): void {
     this.voltar.emit();
   }
 }
+
+

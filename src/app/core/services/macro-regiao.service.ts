@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
@@ -118,3 +118,4 @@ export class MacroRegiaoService {
     return throwError(() => new Error(mensagem));
   }
 }
+

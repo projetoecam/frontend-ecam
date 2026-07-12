@@ -1,14 +1,16 @@
-import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
+﻿import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { concatMap } from 'rxjs/operators';
-import { Pessoa, FichaService } from '../../../core/services/ficha.service';
-import { Comunidade, ComunidadeService } from '../../../core/services/comunidade.service';
-import { Usuario, UsuarioService } from '../../../core/services/usuario.service';
-import { Municipio, MunicipioService } from '../../../core/services/municipio.service';
-import { Bairro, BairroService } from '../../../core/services/bairro.service';
-import { Demanda, DemandaService } from '../../../core/services/demanda.service';
-import { DemandaTipo, DemandaTipoService } from '../../../core/services/demanda-tipo.service';
+import { Pessoa, FichaService } from '../../../../../core/services/ficha.service';
+import { Comunidade, ComunidadeService } from '../../../../../core/services/comunidade.service';
+import { Usuario, UsuarioService } from '../../../../../core/services/usuario.service';
+import { Municipio, MunicipioService } from '../../../../../core/services/municipio.service';
+import { Bairro, BairroService } from '../../../../../core/services/bairro.service';
+import { Demanda, DemandaService } from '../../../../../core/services/demanda.service';
+import { DemandaTipo, DemandaTipoService } from '../../../../../core/services/demanda-tipo.service';
+import { OperationFeedbackService } from '../../../../../shared/services/operation-feedback.service';
+import { OperationConfirmService } from '../../../../../shared/services/operation-confirm.service';
 
 interface DemandaItem {
   selecionado: boolean;
@@ -71,6 +73,10 @@ export class FichaCadastroComponent implements OnInit {
   carregandoBairros = false;
   carregandoUsuarios = false;
 
+  secao1Concluida = false;
+  secao2Concluida = false;
+  fichaConcluidaSalva = false;
+
   constructor(
     private fichaService: FichaService,
     private comunidadeService: ComunidadeService,
@@ -80,6 +86,8 @@ export class FichaCadastroComponent implements OnInit {
     private demandaService: DemandaService,
     private demandaTipoService: DemandaTipoService,
     private cdr: ChangeDetectorRef,
+    private operationFeedback: OperationFeedbackService,
+    private operationConfirm: OperationConfirmService,
   ) {}
 
   ngOnInit(): void {
@@ -249,10 +257,16 @@ export class FichaCadastroComponent implements OnInit {
       
       // Ao abrir para edição, force a atualização dos campos dependentes (Bairro e Municipio)
       this.onComunidadeChange();
+      this.secao1Concluida = true;
+      this.secao2Concluida = true;
+      this.fichaConcluidaSalva = false;
     } else {
       this.pessoaEdicao = {};
       this.fichaForm = this.criarFormularioVazio();
       this.comunidadeSelecionadaId = '';
+      this.secao1Concluida = false;
+      this.secao2Concluida = false;
+      this.fichaConcluidaSalva = false;
     }
 
     this.formularioAberto = true;
@@ -263,15 +277,72 @@ export class FichaCadastroComponent implements OnInit {
     this.pessoaEdicao = {};
     this.fichaForm = this.criarFormularioVazio();
     this.comunidadeSelecionadaId = '';
+    this.secao1Concluida = false;
+    this.secao2Concluida = false;
+    this.fichaConcluidaSalva = false;
   }
 
   limparFormulario(): void {
     this.fichaForm = this.criarFormularioVazio();
     this.comunidadeSelecionadaId = '';
+    this.secao1Concluida = false;
+    this.secao2Concluida = false;
+    this.fichaConcluidaSalva = false;
     this.cdr.detectChanges();
   }
 
+  salvarSecao1(): void {
+    if (!this.validarSecao1()) return;
+
+    this.secao1Concluida = true;
+    this.exibirMensagem('Seção 1 salva. Agora você pode preencher a Seção 2.', 'sucesso');
+    this.cdr.detectChanges();
+  }
+
+  salvarSecao2(): void {
+    if (!this.secao1Concluida) {
+      this.exibirMensagem('Salve primeiro a Seção 1.', 'erro');
+      return;
+    }
+
+    if (!this.validarSecao2()) return;
+
+    this.secao2Concluida = true;
+    this.exibirMensagem('Seção 2 salva. A Seção 3 foi liberada.', 'sucesso');
+    this.cdr.detectChanges();
+  }
+
+  private validarSecao1(): boolean {
+    if (
+      !this.fichaForm.nomeRepresentante.trim() ||
+      !this.fichaForm.telefone.trim() ||
+      !this.fichaForm.cpf.trim() ||
+      !this.fichaForm.endereco.trim() ||
+      !this.fichaForm.cep.trim() ||
+      !this.fichaForm.nomeMae.trim()
+    ) {
+      this.exibirMensagem('Preencha os campos obrigatórios da Seção 1 (CPF, Telefone, Nome, Endereço, CEP e Nome da Mãe).', 'erro');
+      return false;
+    }
+
+    return true;
+  }
+
+  private validarSecao2(): boolean {
+    if (!this.fichaForm.comunidadeId || !this.fichaForm.municipioId || !this.fichaForm.bairroId) {
+      this.exibirMensagem('Preencha os campos obrigatórios da Seção 2 (Comunidade, Município e Bairro).', 'erro');
+      return false;
+    }
+
+    return true;
+  }
+
   salvar(): void {
+    if (!this.secao1Concluida || !this.secao2Concluida) {
+      this.exibirMensagem('Salve as Seções 1 e 2 antes de finalizar a ficha.', 'erro');
+      return;
+    }
+
     if (
       !this.fichaForm.comunidadeId ||
       !this.fichaForm.municipioId ||
@@ -291,6 +362,7 @@ export class FichaCadastroComponent implements OnInit {
     }
 
     this.carregandoSalvar = true;
+    this.fichaConcluidaSalva = false;
     this.cdr.detectChanges();
 
     // 1. DTO DA PESSOA
@@ -353,9 +425,11 @@ export class FichaCadastroComponent implements OnInit {
       })
     ).subscribe({
       next: () => {
-        this.exibirMensagem('Ficha processada com sucesso (Pessoa, Demanda e Tipos de Demanda criados)!', 'sucesso');
-        this.fecharFormulario();
-        this.carregarPessoas(); 
+        this.fichaConcluidaSalva = true;
+        this.exibirMensagem('Ficha processada com sucesso (Pessoa, Demanda e Tipos de Demanda criados)!', 'sucesso', () => {
+          this.fecharFormulario();
+          this.carregarPessoas();
+        });
         this.carregandoSalvar = false;
         this.cdr.detectChanges();
       },
@@ -367,11 +441,16 @@ export class FichaCadastroComponent implements OnInit {
     });
   }
 
-  deletar(alvo: any): void {
+  async deletar(alvo: any): Promise<void> {
     const idParaDeletar = typeof alvo === 'number' ? alvo : alvo?.id;
     if (!idParaDeletar) return;
 
-    const confirmacao = window.confirm(`Atenção: tem certeza que deseja excluir?`);
+    const confirmacao = await this.operationConfirm.confirm({
+      title: 'Excluir registro',
+      message: 'Tem certeza que deseja excluir este registro? Esta ação não poderá ser desfeita.',
+      confirmText: 'Sim, excluir',
+      cancelText: 'Voltar',
+    });
     if (!confirmacao) return;
 
     this.carregandoDeletar = true;
@@ -391,11 +470,15 @@ export class FichaCadastroComponent implements OnInit {
     });
   }
 
-  exibirMensagem(msg: string, tipo: 'sucesso' | 'erro'): void {
-    this.mensagem = msg;
-    this.tipoMensagem = tipo;
-    this.cdr.detectChanges();
-    setTimeout(() => { this.mensagem = ''; this.cdr.detectChanges(); }, 4000);
+  exibirMensagem(msg: string, tipo: 'sucesso' | 'erro', onClose?: () => void): void {
+    this.operationFeedback.show(msg, tipo, 1000);
+
+    if (onClose) {
+      setTimeout(() => {
+        onClose();
+        this.cdr.detectChanges();
+      }, 1000);
+    }
   }
 
   formatarTelefone(): void {
@@ -459,3 +542,5 @@ export class FichaCadastroComponent implements OnInit {
     this.voltar.emit();
   }
 }
+
+

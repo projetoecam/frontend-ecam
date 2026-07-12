@@ -1,7 +1,9 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+﻿import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { UsuarioService, Usuario } from '../../../core/services/usuario.service';
+import { UsuarioService, Usuario } from '../../../../../core/services/usuario.service';
+import { OperationFeedbackService } from '../../../../../shared/services/operation-feedback.service';
+import { OperationConfirmService } from '../../../../../shared/services/operation-confirm.service';
 
 @Component({
   selector: 'app-usuario-cadastro',
@@ -29,6 +31,8 @@ export class UsuarioCadastroComponent implements OnInit {
   constructor(
     private usuarioService: UsuarioService,
     private cdr: ChangeDetectorRef,
+    private operationFeedback: OperationFeedbackService,
+    private operationConfirm: OperationConfirmService,
   ) {}
 
   ngOnInit(): void {
@@ -101,9 +105,10 @@ export class UsuarioCadastroComponent implements OnInit {
         .atualizar(this.usuarioEdicao.id, this.usuarioEdicao as Usuario)
         .subscribe({
           next: () => {
-            this.exibirMensagem('Usuário atualizado com sucesso.', 'sucesso');
-            this.fecharFormulario();
-            this.carregarUsuarios();
+            this.exibirMensagem('Usuário atualizado com sucesso.', 'sucesso', () => {
+              this.fecharFormulario();
+              this.carregarUsuarios();
+            });
             this.carregandoSalvar = false;
           },
           error: (erro) => {
@@ -121,9 +126,10 @@ export class UsuarioCadastroComponent implements OnInit {
 
       this.usuarioService.criar(this.usuarioEdicao as Usuario).subscribe({
         next: () => {
-          this.exibirMensagem('Usuário cadastrado com sucesso.', 'sucesso');
-          this.fecharFormulario();
-          this.carregarUsuarios();
+          this.exibirMensagem('Usuário cadastrado com sucesso.', 'sucesso', () => {
+            this.fecharFormulario();
+            this.carregarUsuarios();
+          });
           this.carregandoSalvar = false;
         },
         error: (erro) => {
@@ -134,7 +140,7 @@ export class UsuarioCadastroComponent implements OnInit {
       });
     }
   }
-  deletar(alvo: any): void {
+  async deletar(alvo: any): Promise<void> {
     // 1. Descobre de forma inteligente qual é o ID, seja recebendo um número solto ou um objeto (verificando 'id' ou 'id_usuario')
     const idParaDeletar = typeof alvo === 'number' ? alvo : alvo?.id || alvo?.id_usuario;
 
@@ -148,9 +154,12 @@ export class UsuarioCadastroComponent implements OnInit {
     const nomeUsuario = typeof alvo === 'object' && alvo?.nome ? alvo.nome : 'este usuário';
 
     // 3. Executa a confirmação
-    const confirmacao = window.confirm(
-      `Atenção: Tem certeza que deseja excluir ${nomeUsuario}? Esta ação não poderá ser desfeita.`,
-    );
+    const confirmacao = await this.operationConfirm.confirm({
+      title: 'Excluir usuário',
+      message: `Tem certeza que deseja excluir ${nomeUsuario}? Esta ação não poderá ser desfeita.`,
+      confirmText: 'Sim, excluir',
+      cancelText: 'Voltar',
+    });
     if (!confirmacao) return;
 
     this.carregandoDeletar = true;
@@ -171,14 +180,17 @@ export class UsuarioCadastroComponent implements OnInit {
     });
   }
 
-  exibirMensagem(msg: string, tipo: string) {
-    this.mensagem = msg;
-    this.tipoMensagem = tipo;
-    this.cdr.detectChanges();
+  exibirMensagem(msg: string, tipo: 'sucesso' | 'erro', onClose?: () => void): void {
+    this.operationFeedback.show(msg, tipo, 1000);
 
-    setTimeout(() => {
-      this.mensagem = '';
-      this.cdr.detectChanges();
-    }, 4000);
+    if (onClose) {
+      setTimeout(() => {
+        onClose();
+        this.cdr.detectChanges();
+      }, 1000);
+    }
   }
 }
+
+
+

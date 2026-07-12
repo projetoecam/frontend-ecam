@@ -1,6 +1,6 @@
-<div class="space-y-6 relative">
+﻿<div class="space-y-6 relative">
   <div *ngIf="mensagem" [ngClass]="tipoMensagem === 'erro' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-green-50 text-green-700 border-green-200'" class="px-4 py-3 rounded-lg border flex items-center gap-3">
-    <div class="font-bold">{{ tipoMensagem === 'erro' ? '!' : '✓' }}</div>
+    <div class="font-bold">{{ tipoMensagem === 'erro' ? '!' : 'âœ“' }}</div>
     <div>
       <p class="font-semibold">{{ tipoMensagem === 'erro' ? 'Atenção' : 'Sucesso' }}</p>
       <p class="text-sm">{{ mensagem }}</p>
@@ -9,13 +9,13 @@
 
   <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
     <div class="w-full">
-      <h2 class="text-2xl font-semibold text-slate-900">Cadastro de Usuários</h2>
-      <p class="mt-1 text-sm text-slate-500">Gerencie todos os usuários do sistema</p>
+      <h2 class="text-2xl font-semibold text-slate-900">Cadastro de Segmento</h2>
+      <p class="mt-1 text-sm text-slate-500">Gerencie os segmentos disponíveis no sistema</p>
 
       <div class="mt-4 flex flex-col sm:flex-row gap-3">
         <input
           type="text"
-          placeholder="Buscar por nome, login ou perfil..."
+          placeholder="Buscar por nome do segmento..."
           [(ngModel)]="searchTerm"
           (ngModelChange)="onSearchChange()"
           class="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -25,7 +25,7 @@
           (click)="abrirFormulario()"
           class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition whitespace-nowrap"
         >
-          + Novo Usuário
+          + Novo Segmento
         </button>
       </div>
     </div>
@@ -33,9 +33,8 @@
 
   <div *ngIf="formularioAberto" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
     <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
-      
       <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-        <h3 class="font-semibold text-slate-900 text-lg">{{ usuarioEdicao.id ? 'Editar Usuário' : 'Novo Usuário' }}</h3>
+        <h3 class="font-semibold text-slate-900 text-lg">{{ segmentoEdicao.id ? 'Editar Segmento' : 'Novo Segmento' }}</h3>
         <button (click)="fecharFormulario()" class="text-slate-400 hover:text-slate-600 text-2xl font-light leading-none">&times;</button>
       </div>
 
@@ -44,56 +43,10 @@
           <label class="block text-sm font-medium text-slate-700 mb-1">Nome</label>
           <input
             type="text"
-            [(ngModel)]="usuarioEdicao.nome"
-            placeholder="Nome completo"
+            [(ngModel)]="segmentoEdicao.nome"
+            placeholder="Nome do segmento"
             class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Login</label>
-          <input
-            type="text"
-            [(ngModel)]="usuarioEdicao.login_usuario"
-            [disabled]="!!usuarioEdicao.id"
-            placeholder="Login de acesso"
-            class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-slate-100 disabled:text-slate-500"
-          />
-          <p *ngIf="usuarioEdicao.id" class="text-xs text-slate-400 mt-1">O login não pode ser alterado após a criação.</p>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Senha</label>
-          <input
-            type="password"
-            [(ngModel)]="usuarioEdicao.senha_hash"
-            [placeholder]="usuarioEdicao.id ? 'Deixe em branco para manter a atual' : 'Digite a senha'"
-            class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Perfil</label>
-            <select
-              [(ngModel)]="usuarioEdicao.perfil"
-              class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="">Selecione...</option>
-              <option *ngFor="let perfil of perfisDisponiveis" [value]="perfil">{{ perfil }}</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Status</label>
-            <select
-              [(ngModel)]="usuarioEdicao.ativo"
-              class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <option [ngValue]="true">Ativo</option>
-              <option [ngValue]="false">Inativo</option>
-            </select>
-          </div>
         </div>
       </div>
 
@@ -111,7 +64,7 @@
           [disabled]="carregandoSalvar"
           class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition disabled:opacity-50 flex items-center gap-2"
         >
-          {{ carregandoSalvar ? 'Salvando...' : 'Salvar Usuário' }}
+          {{ carregandoSalvar ? 'Salvando...' : 'Salvar Segmento' }}
         </button>
       </div>
     </div>
@@ -120,41 +73,38 @@
   <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
     <div class="flex items-center justify-between mb-4">
       <h3 class="font-semibold text-slate-900">
-        <span *ngIf="carregandoLista">⏳ Carregando...</span>
-        <span *ngIf="!carregandoLista">Total: {{ usuariosFiltrados.length }} usuário(s)</span>
+        <span *ngIf="carregandoLista">â³ Carregando...</span>
+        <span *ngIf="!carregandoLista">Total: {{ segmentosFiltrados.length }} registro(s)</span>
       </h3>
     </div>
 
-    <div *ngIf="!carregandoLista && usuariosFiltrados.length === 0" class="py-8 text-center text-slate-500 bg-slate-50 rounded-lg border border-dashed border-slate-200">
-      <p>Nenhum usuário encontrado com os filtros atuais.</p>
+    <div *ngIf="!carregandoLista && segmentosFiltrados.length === 0" class="py-8 text-center text-slate-500 bg-slate-50 rounded-lg border border-dashed border-slate-200">
+      <p>Nenhum segmento encontrado com os filtros atuais.</p>
     </div>
 
     <div class="divide-y divide-slate-100" *ngIf="!carregandoLista">
       <div
-        *ngFor="let usuario of usuariosFiltrados"
+        *ngFor="let segmento of segmentosFiltrados"
         class="py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-slate-50 transition px-2 rounded-lg"
       >
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2">
-            <p class="font-medium text-slate-900">{{ usuario.nome }}</p>
-            <span [ngClass]="usuario.ativo ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'" class="px-2 py-0.5 text-xs rounded-full font-medium">
-              {{ usuario.ativo ? 'Ativo' : 'Inativo' }}
-            </span>
+            <p class="font-medium text-slate-900">{{ segmento.nome }}</p>
           </div>
-          <p class="text-sm text-slate-500 mt-1">Login: <strong>{{ usuario.login_usuario }}</strong> &bull; Perfil: {{ usuario.perfil }}</p>
+          <p class="text-sm text-slate-500 mt-1">ID: {{ segmento.id }}</p>
         </div>
 
         <div class="flex gap-2 w-full sm:w-auto">
           <button
             type="button"
-            (click)="abrirFormulario(usuario)"
+            (click)="abrirFormulario(segmento)"
             class="flex-1 sm:flex-none px-3 py-1.5 text-sm bg-indigo-50 text-indigo-700 rounded-md hover:bg-indigo-100 transition font-medium border border-indigo-200"
           >
             Editar
           </button>
           <button
             type="button"
-            (click)="deletar(usuario)"
+            (click)="deletar(segmento)"
             [disabled]="carregandoDeletar"
             class="flex-1 sm:flex-none px-3 py-1.5 text-sm bg-red-50 text-red-700 rounded-md hover:bg-red-100 transition font-medium border border-red-200 disabled:opacity-50"
           >
@@ -165,3 +115,4 @@
     </div>
   </div>
 </div>
+

@@ -1,8 +1,10 @@
-import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
+﻿import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MunicipioService, Municipio } from '../../../core/services/municipio.service';
-import { MacroRegiao, MacroRegiaoService } from '../../../core/services/macro-regiao.service';
+import { MunicipioService, Municipio } from '../../../../../core/services/municipio.service';
+import { MacroRegiao, MacroRegiaoService } from '../../../../../core/services/macro-regiao.service';
+import { OperationFeedbackService } from '../../../../../shared/services/operation-feedback.service';
+import { OperationConfirmService } from '../../../../../shared/services/operation-confirm.service';
 
 @Component({
   selector: 'app-macro-regiao-cadastro',
@@ -36,6 +38,8 @@ export class MacroRegiaoCadastroComponent implements OnInit {
     private macroRegiaoService: MacroRegiaoService,
     private municipioService: MunicipioService,
     private cdr: ChangeDetectorRef,
+    private operationFeedback: OperationFeedbackService,
+    private operationConfirm: OperationConfirmService,
   ) {}
 
   ngOnInit(): void {
@@ -151,9 +155,10 @@ export class MacroRegiaoCadastroComponent implements OnInit {
     if (payload.id) {
       this.macroRegiaoService.atualizar(payload.id, payload).subscribe({
         next: () => {
-          this.exibirMensagem('Macro região atualizada com sucesso.', 'sucesso');
-          this.fecharFormulario();
-          this.carregarMacroRegioes();
+          this.exibirMensagem('Macro região atualizada com sucesso.', 'sucesso', () => {
+            this.fecharFormulario();
+            this.carregarMacroRegioes();
+          });
           this.carregandoSalvar = false;
         },
         error: (erro) => {
@@ -165,9 +170,10 @@ export class MacroRegiaoCadastroComponent implements OnInit {
     } else {
       this.macroRegiaoService.criar(payload).subscribe({
         next: () => {
-          this.exibirMensagem('Macro região cadastrada com sucesso.', 'sucesso');
-          this.fecharFormulario();
-          this.carregarMacroRegioes();
+          this.exibirMensagem('Macro região cadastrada com sucesso.', 'sucesso', () => {
+            this.fecharFormulario();
+            this.carregarMacroRegioes();
+          });
           this.carregandoSalvar = false;
         },
         error: (erro) => {
@@ -179,7 +185,7 @@ export class MacroRegiaoCadastroComponent implements OnInit {
     }
   }
 
-  deletar(alvo: any): void {
+  async deletar(alvo: any): Promise<void> {
     const idParaDeletar = typeof alvo === 'number' ? alvo : alvo?.id;
 
     if (!idParaDeletar) {
@@ -188,9 +194,12 @@ export class MacroRegiaoCadastroComponent implements OnInit {
     }
 
     const nomeMacroRegiao = typeof alvo === 'object' && alvo?.nome ? alvo.nome : 'esta macro região';
-    const confirmacao = window.confirm(
-      `Atenção: tem certeza que deseja excluir ${nomeMacroRegiao}? Esta ação não poderá ser desfeita.`,
-    );
+    const confirmacao = await this.operationConfirm.confirm({
+      title: 'Excluir macro região',
+      message: `Tem certeza que deseja excluir ${nomeMacroRegiao}? Esta ação não poderá ser desfeita.`,
+      confirmText: 'Sim, excluir',
+      cancelText: 'Voltar',
+    });
 
     if (!confirmacao) return;
 
@@ -211,15 +220,15 @@ export class MacroRegiaoCadastroComponent implements OnInit {
     });
   }
 
-  exibirMensagem(msg: string, tipo: 'sucesso' | 'erro'): void {
-    this.mensagem = msg;
-    this.tipoMensagem = tipo;
-    this.cdr.detectChanges();
+  exibirMensagem(msg: string, tipo: 'sucesso' | 'erro', onClose?: () => void): void {
+    this.operationFeedback.show(msg, tipo, 1000);
 
-    setTimeout(() => {
-      this.mensagem = '';
-      this.cdr.detectChanges();
-    }, 4000);
+    if (onClose) {
+      setTimeout(() => {
+        onClose();
+        this.cdr.detectChanges();
+      }, 1000);
+    }
   }
 
   get nomeMunicipioSelecionado(): string {
@@ -231,3 +240,5 @@ export class MacroRegiaoCadastroComponent implements OnInit {
     this.voltar.emit();
   }
 }
+
+
