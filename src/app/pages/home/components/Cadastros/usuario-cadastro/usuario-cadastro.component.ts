@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { UsuarioService, Usuario } from '../../../../../core/services/usuario.service';
 import { OperationFeedbackService } from '../../../../../shared/services/operation-feedback.service';
 import { OperationConfirmService } from '../../../../../shared/services/operation-confirm.service';
+import { PerfilService, PerfilAcesso } from '../../../../../core/services/perfil_acesso.service';
 
 @Component({
   selector: 'app-usuario-cadastro',
@@ -15,10 +16,10 @@ import { OperationConfirmService } from '../../../../../shared/services/operatio
 export class UsuarioCadastroComponent implements OnInit {
   usuarios: Usuario[] = [];
   usuariosFiltrados: Usuario[] = [];
-  usuarioEdicao: Partial<Usuario> = {};
+  usuarioEdicao: Partial<Usuario & { perfil: string }> = {};
 
   searchTerm: string = '';
-  perfisDisponiveis: string[] = ['ADMIN', 'COORDENADOR', 'OPERADOR'];
+  perfisDisponiveis: PerfilAcesso[] = [];
 
   formularioAberto = false;
   mensagem = '';
@@ -30,13 +31,27 @@ export class UsuarioCadastroComponent implements OnInit {
 
   constructor(
     private usuarioService: UsuarioService,
+    private perfilService: PerfilService,
     private cdr: ChangeDetectorRef,
     private operationFeedback: OperationFeedbackService,
     private operationConfirm: OperationConfirmService,
   ) {}
 
   ngOnInit(): void {
+    this.carregarPerfis();
     this.carregarUsuarios();
+  }
+
+  carregarPerfis(): void {
+    this.perfilService.listarPerfis().subscribe({
+      next: (dados: PerfilAcesso[]) => {
+        this.perfisDisponiveis = dados;
+      },
+      error: (erro: any) => {
+        console.error('Erro ao carregar perfis', erro);
+        this.exibirMensagem('Falha ao carregar os perfis de acesso.', 'erro');
+      }
+    });
   }
 
   carregarUsuarios(): void {
@@ -44,9 +59,20 @@ export class UsuarioCadastroComponent implements OnInit {
     this.cdr.detectChanges();
 
     this.usuarioService.obterTodos().subscribe({
-      next: (dados) => {
-        this.usuarios = dados;
-        this.usuariosFiltrados = dados;
+      next: (dados: any[]) => { 
+        // Normalização de Dados: Limpamos os dados assim que chegam do backend
+        const usuariosNormalizados = dados.map((u: any) => {
+          return {
+            ...u,
+            // Extrai o perfil do array relacional (se existir) para a string simples que o frontend espera
+            perfil: u.perfil ? u.perfil : (u.perfis && u.perfis.length > 0 ? u.perfis[0].nome : 'Sem perfil')
+          };
+        });
+
+        // O cast 'as Usuario[]' acalma o compilador restrito do TypeScript
+        this.usuarios = usuariosNormalizados as Usuario[];
+        this.usuariosFiltrados = usuariosNormalizados as Usuario[];
+        
         this.carregandoLista = false;
         this.cdr.detectChanges();
       },
@@ -65,17 +91,22 @@ export class UsuarioCadastroComponent implements OnInit {
       this.usuariosFiltrados = this.usuarios;
     } else {
       this.usuariosFiltrados = this.usuarios.filter(
-        (u) =>
-          u.nome?.toLowerCase().includes(termo) ||
-          u.login_usuario?.toLowerCase().includes(termo) ||
-          u.perfil?.toLowerCase().includes(termo),
+        (u: any) => {
+          // Graças à normalização, basta ler a propriedade u.perfil diretamente
+          const nomePerfil = u.perfil || '';
+          
+          return u.nome?.toLowerCase().includes(termo) ||
+                 u.login_usuario?.toLowerCase().includes(termo) ||
+                 nomePerfil.toLowerCase().includes(termo);
+        }
       );
     }
     this.cdr.detectChanges();
   }
 
-  abrirFormulario(usuario?: Usuario): void {
+  abrirFormulario(usuario?: any): void {
     if (usuario) {
+      // Como o carregarUsuarios já extraiu o perfil corretamente, copiamos o objeto de forma direta
       this.usuarioEdicao = { ...usuario, senha_hash: '' };
     } else {
       this.usuarioEdicao = { ativo: true, perfil: '' };
@@ -111,7 +142,7 @@ export class UsuarioCadastroComponent implements OnInit {
             });
             this.carregandoSalvar = false;
           },
-          error: (erro) => {
+          error: (erro: any) => {
             this.exibirMensagem('Erro ao atualizar. ' + erro.message, 'erro');
             this.carregandoSalvar = false;
             this.cdr.detectChanges();
@@ -132,7 +163,7 @@ export class UsuarioCadastroComponent implements OnInit {
           });
           this.carregandoSalvar = false;
         },
-        error: (erro) => {
+        error: (erro: any) => {
           this.exibirMensagem('Erro ao salvar. ' + erro.message, 'erro');
           this.carregandoSalvar = false;
           this.cdr.detectChanges();
@@ -140,20 +171,18 @@ export class UsuarioCadastroComponent implements OnInit {
       });
     }
   }
+
   async deletar(alvo: any): Promise<void> {
-    // 1. Descobre de forma inteligente qual é o ID, seja recebendo um número solto ou um objeto (verificando 'id' ou 'id_usuario')
     const idParaDeletar = typeof alvo === 'number' ? alvo : alvo?.id || alvo?.id_usuario;
 
     if (!idParaDeletar) {
       this.exibirMensagem('Erro: Não foi possível identificar o ID do usuário.', 'erro');
-      console.error('Payload recebido no botão deletar:', alvo); // Irá printar no F12 para ajudar caso a API esteja sem ID
+      console.error('Payload recebido no botão deletar:', alvo);
       return;
     }
 
-    // 2. Tenta pegar o nome se for um objeto, senão usa um texto genérico
     const nomeUsuario = typeof alvo === 'object' && alvo?.nome ? alvo.nome : 'este usuário';
 
-    // 3. Executa a confirmação
     const confirmacao = await this.operationConfirm.confirm({
       title: 'Excluir usuário',
       message: `Tem certeza que deseja excluir ${nomeUsuario}? Esta ação não poderá ser desfeita.`,
@@ -163,9 +192,8 @@ export class UsuarioCadastroComponent implements OnInit {
     if (!confirmacao) return;
 
     this.carregandoDeletar = true;
-    this.cdr.detectChanges(); // Atualiza a interface visualmente
+    this.cdr.detectChanges();
 
-    // 4. Dispara a deleção
     this.usuarioService.deletar(idParaDeletar).subscribe({
       next: () => {
         this.carregarUsuarios();
@@ -191,6 +219,3 @@ export class UsuarioCadastroComponent implements OnInit {
     }
   }
 }
-
-
-

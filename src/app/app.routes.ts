@@ -10,7 +10,7 @@ import { PessoaCadastroComponent } from './pages/home/components/Cadastros/pesso
 import { SegmentoCadastroComponent } from './pages/home/components/Cadastros/segmento-cadastro/segmento-cadastro.component';
 import { LiderancaCadastroComponent } from './pages/home/components/Cadastros/lideranca-cadastro/lideranca-cadastro.component';
 import { FichaCadastroComponent } from './pages/home/components/Operacao/ficha-cadastro/ficha-cadastro.component';
-
+import { ConfiguracoesComponent } from './pages/home/components/Configuracoes/configuracoes.component';
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   {
@@ -26,6 +26,7 @@ export const routes: Routes = [
       { path: 'cadastro/segmentos', component: SegmentoCadastroComponent },
       { path: 'cadastro/liderancas', component: LiderancaCadastroComponent },
       { path: 'operacoes', component: FichaCadastroComponent },
+      { path: 'configuracoes', component: ConfiguracoesComponent}
     ],
   },
   { path: '', redirectTo: 'login', pathMatch: 'full' },

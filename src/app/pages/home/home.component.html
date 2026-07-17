@@ -180,8 +180,9 @@
 
       <button
         type="button"
-        (click)="mostrarMensagemDesenvolvimento()"
-        class="w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium text-slate-200 transition hover:bg-slate-700 hover:text-white opacity-50 group"
+        [routerLink]="['/home/configuracoes']"
+        routerLinkActive="bg-slate-700 text-white"
+        class="w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium text-slate-200 transition hover:bg-slate-700 hover:text-white group"
       >
         <span
           class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-800 text-slate-300 transition-transform duration-200 group-hover:scale-110"
@@ -514,4 +515,3 @@
   <app-operation-toast></app-operation-toast>
   <app-operation-confirm></app-operation-confirm>
 </div>
-
