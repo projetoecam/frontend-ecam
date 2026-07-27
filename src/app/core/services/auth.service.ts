@@ -12,11 +12,7 @@ export class AuthService {
   constructor(private http: HttpClient) { }
 
   login(dadosLogin: { login: string, senha: string }): Observable<any> {
-    let baseUrl = environment.apiUrl.replace(/\/$/, ""); 
-    if (!baseUrl.endsWith('/api')) {
-      baseUrl += '/api';
-    }
-    const url = `${baseUrl}/login`; 
+    const url = `${environment.apiUrl}/login`; 
     
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     
@@ -29,10 +25,8 @@ export class AuthService {
     );
   }
 
-
   private decodificarPayloadDoToken(token: string): any {
     try {
-      
       const payloadBase64 = token.split('.')[1];
       return JSON.parse(atob(payloadBase64));
     } catch (e) {
