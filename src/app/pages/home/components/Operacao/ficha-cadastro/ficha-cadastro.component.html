@@ -1,6 +1,6 @@
-<div class="space-y-6 relative">
+﻿<div class="space-y-6 relative">
   <div *ngIf="mensagem" [ngClass]="tipoMensagem === 'erro' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-green-50 text-green-700 border-green-200'" class="px-4 py-3 rounded-lg border flex items-center gap-3">
-    <div class="font-bold">{{ tipoMensagem === 'erro' ? '!' : '✓' }}</div>
+    <div class="font-bold">{{ tipoMensagem === 'erro' ? '!' : 'âœ“' }}</div>
     <div>
       <p class="font-semibold">{{ tipoMensagem === 'erro' ? 'Atenção' : 'Sucesso' }}</p>
       <p class="text-sm">{{ mensagem }}</p>
@@ -40,54 +40,16 @@
 
       <div class="p-6 space-y-5 overflow-y-auto">
         <fieldset class="group-box">
-          <legend class="group-box-title">Seção 1 - Identificação da Comunidade</legend>
+          <legend class="group-box-title">Seção 1 - Representante(s) da Comunidade</legend>
           <div class="table-layout-panel">
-            <div class="field-cell md:col-span-2">
-              <label class="form-label">Nome da Comunidade</label>
-              <select [(ngModel)]="fichaForm.comunidadeId" (change)="onComunidadeChange()" class="form-input">
-                <option [ngValue]="''">Selecione a comunidade</option>
-                <option *ngFor="let comunidade of comunidades" [ngValue]="comunidade.id">
-                  {{ comunidade.nome }}
-                </option>
-              </select>
-              <p *ngIf="carregandoComunidades" class="text-xs text-slate-400">
-                Carregando comunidades...
-              </p>
-            </div>
-
             <div class="field-cell">
-              <label class="form-label">Município (Preenchimento Automático)</label>
-              <select [(ngModel)]="fichaForm.municipioId" class="form-input">
-                <option [ngValue]="''">Selecione o município</option>
-                <option *ngFor="let municipio of municipios" [ngValue]="municipio.id">
-                  {{ municipio.nome }}
-                </option>
-              </select>
-              <p *ngIf="carregandoMunicipios" class="text-xs text-slate-400">Carregando municípios...</p>
-            </div>
-
-            <div class="field-cell">
-              <label class="form-label">Bairro (Preenchimento Automático)</label>
-              <select [(ngModel)]="fichaForm.bairroId" class="form-input">
-                <option [ngValue]="''">Selecione o bairro</option>
-                <option *ngFor="let bairro of bairros" [ngValue]="bairro.id">
-                  {{ bairro.nome }}
-                </option>
-              </select>
-              <p *ngIf="carregandoBairros" class="text-xs text-slate-400">Carregando bairros...</p>
-            </div>
-          </div>
-        </fieldset>
-
-        <fieldset class="group-box">
-          <legend class="group-box-title">Seção 2 - Representante(s) da Comunidade</legend>
-          <div class="table-layout-panel">
-            <div class="field-cell md:col-span-2">
-              <label class="form-label">Nome do Solicitante/Representante</label>
+              <label class="form-label">CPF</label>
               <input
                 type="text"
-                [(ngModel)]="fichaForm.nomeRepresentante"
-                placeholder="Nome do representante"
+                [(ngModel)]="fichaForm.cpf"
+                (ngModelChange)="formatarCpf()"
+                placeholder="000.000.000-00"
+                inputmode="numeric"
                 class="form-input"
               />
             </div>
@@ -104,14 +66,12 @@
               />
             </div>
 
-            <div class="field-cell">
-              <label class="form-label">CPF</label>
+            <div class="field-cell md:col-span-2">
+              <label class="form-label">Nome do Solicitante/Representante</label>
               <input
                 type="text"
-                [(ngModel)]="fichaForm.cpf"
-                (ngModelChange)="formatarCpf()"
-                placeholder="000.000.000-00"
-                inputmode="numeric"
+                [(ngModel)]="fichaForm.nomeRepresentante"
+                placeholder="Nome do representante"
                 class="form-input"
               />
             </div>
@@ -147,10 +107,94 @@
                 class="form-input"
               />
             </div>
+
+            <div class="field-cell md:col-span-2 flex justify-end">
+              <button
+                type="button"
+                (click)="salvarSecao1()"
+                [ngClass]="secao1Concluida
+                  ? 'px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg cursor-default transition'
+                  : 'px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition'"
+              >
+                {{ secao1Concluida ? 'Salvo' : 'Salvar' }}
+              </button>
+            </div>
+
+            <div class="field-cell md:col-span-2">
+              <div
+                [ngClass]="secao1Concluida
+                  ? 'rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-700'
+                  : 'rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700'"
+              >
+                {{ secao1Concluida ? 'Seção 1 salva. Continue para a Seção 2.' : 'Seção 1 disponível para salvar.' }}
+              </div>
+            </div>
           </div>
         </fieldset>
 
-        <fieldset class="group-box">
+        <fieldset *ngIf="secao1Concluida" class="group-box">
+          <legend class="group-box-title">Seção 2 - Identificação da Comunidade</legend>
+          <div class="table-layout-panel">
+            <div class="field-cell md:col-span-2">
+              <label class="form-label">Nome da Comunidade</label>
+              <select [(ngModel)]="fichaForm.comunidadeId" (change)="onComunidadeChange()" class="form-input">
+                <option [ngValue]="''">Selecione a comunidade</option>
+                <option *ngFor="let comunidade of comunidades" [ngValue]="comunidade.id">
+                  {{ comunidade.nome }}
+                </option>
+              </select>
+              <p *ngIf="carregandoComunidades" class="text-xs text-slate-400">
+                Carregando comunidades...
+              </p>
+            </div>
+
+            <div class="field-cell">
+              <label class="form-label">Município (Preenchimento Automático)</label>
+              <select [(ngModel)]="fichaForm.municipioId" class="form-input">
+                <option [ngValue]="''">Selecione o município</option>
+                <option *ngFor="let municipio of municipios" [ngValue]="municipio.id">
+                  {{ municipio.nome }}
+                </option>
+              </select>
+              <p *ngIf="carregandoMunicipios" class="text-xs text-slate-400">Carregando municípios...</p>
+            </div>
+
+            <div class="field-cell">
+              <label class="form-label">Bairro (Preenchimento Automático)</label>
+              <select [(ngModel)]="fichaForm.bairroId" class="form-input">
+                <option [ngValue]="''">Selecione o bairro</option>
+                <option *ngFor="let bairro of bairros" [ngValue]="bairro.id">
+                  {{ bairro.nome }}
+                </option>
+              </select>
+              <p *ngIf="carregandoBairros" class="text-xs text-slate-400">Carregando bairros...</p>
+            </div>
+
+            <div class="field-cell md:col-span-2 flex justify-end">
+              <button
+                type="button"
+                (click)="salvarSecao2()"
+                [ngClass]="secao2Concluida
+                  ? 'px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg cursor-default transition'
+                  : 'px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition'"
+              >
+                {{ secao2Concluida ? 'Salvo' : 'Salvar' }}
+              </button>
+            </div>
+
+            <div class="field-cell md:col-span-2">
+              <div
+                [ngClass]="secao2Concluida
+                  ? 'rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-700'
+                  : 'rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700'"
+              >
+                {{ secao2Concluida ? 'Seção 2 salva. Seção 3 liberada.' : 'Seção 2 disponível para salvar.' }}
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset *ngIf="secao2Concluida" class="group-box">
           <legend class="group-box-title">Seção 3 - Principais Demandas da Comunidade</legend>
           <div class="table-layout-panel">
             <div class="field-cell md:col-span-2 demanda-item">
@@ -220,7 +264,7 @@
           </div>
         </fieldset>
 
-        <fieldset class="group-box">
+        <fieldset *ngIf="secao2Concluida" class="group-box">
           <legend class="group-box-title">Rodapé - Órgão / Encaminhamento</legend>
           <div class="table-layout-panel">
             <div class="field-cell">
@@ -252,12 +296,15 @@
           Fechar
         </button>
         <button
+          *ngIf="secao2Concluida"
           type="button"
           (click)="salvar()"
-          [disabled]="carregandoSalvar"
-          class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition disabled:opacity-50 flex items-center gap-2"
+          [disabled]="carregandoSalvar || fichaConcluidaSalva"
+          [ngClass]="fichaConcluidaSalva
+            ? 'px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg transition flex items-center gap-2 cursor-default'
+            : 'px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition disabled:opacity-60 flex items-center gap-2'"
         >
-          {{ carregandoSalvar ? 'Salvando...' : 'Salvar Ficha Completa' }}
+          {{ carregandoSalvar ? 'Salvando...' : (fichaConcluidaSalva ? 'Ficha Salva' : 'Salvar Ficha Completa') }}
         </button>
       </div>
     </div>
@@ -266,7 +313,7 @@
   <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
     <div class="flex items-center justify-between mb-4">
       <h3 class="font-semibold text-slate-900">
-        <span *ngIf="carregandoLista">⏳ Carregando...</span>
+        <span *ngIf="carregandoLista">â³ Carregando...</span>
         <span *ngIf="!carregandoLista">Representantes com Fichas: {{ pessoasFiltradas.length }}</span>
       </h3>
     </div>

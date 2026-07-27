@@ -1,6 +1,6 @@
-<div class="space-y-6 relative">
+﻿<div class="space-y-6 relative">
   <div *ngIf="mensagem" [ngClass]="tipoMensagem === 'erro' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-green-50 text-green-700 border-green-200'" class="px-4 py-3 rounded-lg border flex items-center gap-3">
-    <div class="font-bold">{{ tipoMensagem === 'erro' ? '!' : '✓' }}</div>
+    <div class="font-bold">{{ tipoMensagem === 'erro' ? '!' : 'âœ“' }}</div>
     <div>
       <p class="font-semibold">{{ tipoMensagem === 'erro' ? 'Atenção' : 'Sucesso' }}</p>
       <p class="text-sm">{{ mensagem }}</p>
@@ -9,13 +9,13 @@
 
   <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
     <div class="w-full">
-      <h2 class="text-2xl font-semibold text-slate-900">Cadastro de Municípios</h2>
-      <p class="mt-1 text-sm text-slate-500">Gerencie todos os municípios do sistema</p>
+      <h2 class="text-2xl font-semibold text-slate-900">Cadastro de Bairro</h2>
+      <p class="mt-1 text-sm text-slate-500">Gerencie os bairros vinculados a uma macro região</p>
 
       <div class="mt-4 flex flex-col sm:flex-row gap-3">
         <input
           type="text"
-          placeholder="Buscar por nome ou UF..."
+          placeholder="Buscar por nome ou macro região..."
           [(ngModel)]="searchTerm"
           (ngModelChange)="onSearchChange()"
           class="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -25,7 +25,7 @@
           (click)="abrirFormulario()"
           class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition whitespace-nowrap"
         >
-          + Novo Município
+          + Novo Bairro
         </button>
       </div>
     </div>
@@ -34,7 +34,7 @@
   <div *ngIf="formularioAberto" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
     <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
       <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-        <h3 class="font-semibold text-slate-900 text-lg">{{ municipioEdicao.id ? 'Editar Município' : 'Novo Município' }}</h3>
+        <h3 class="font-semibold text-slate-900 text-lg">{{ bairroEdicao.id ? 'Editar Bairro' : 'Novo Bairro' }}</h3>
         <button (click)="fecharFormulario()" class="text-slate-400 hover:text-slate-600 text-2xl font-light leading-none">&times;</button>
       </div>
 
@@ -43,23 +43,25 @@
           <label class="block text-sm font-medium text-slate-700 mb-1">Nome</label>
           <input
             type="text"
-            [(ngModel)]="municipioEdicao.nome"
-            placeholder="Nome do município"
+            [(ngModel)]="bairroEdicao.nome"
+            placeholder="Nome do bairro"
             class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">UF</label>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Macro Região</label>
           <select
-            [(ngModel)]="municipioEdicao.uf"
+            [(ngModel)]="macroRegiaoSelecionadaId"
             class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
-            <option value="">Selecione um estado</option>
-            <option *ngFor="let estado of estadosBrasileiros" [value]="estado">
-              {{ estado }}
+            <option [ngValue]="''">Selecione uma macro região</option>
+            <option *ngFor="let macroRegiao of macroRegioes" [ngValue]="macroRegiao.id">
+              {{ macroRegiao.nome }}
             </option>
           </select>
+          <p *ngIf="carregandoMacroRegioes" class="mt-1 text-xs text-slate-400">Carregando macro regiões...</p>
+          <p *ngIf="!carregandoMacroRegioes && nomeMacroRegiaoSelecionada" class="mt-1 text-xs text-slate-400">Selecionado: {{ nomeMacroRegiaoSelecionada }}</p>
         </div>
       </div>
 
@@ -77,7 +79,7 @@
           [disabled]="carregandoSalvar"
           class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition disabled:opacity-50 flex items-center gap-2"
         >
-          {{ carregandoSalvar ? 'Salvando...' : 'Salvar Município' }}
+          {{ carregandoSalvar ? 'Salvando...' : 'Salvar Bairro' }}
         </button>
       </div>
     </div>
@@ -86,38 +88,42 @@
   <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
     <div class="flex items-center justify-between mb-4">
       <h3 class="font-semibold text-slate-900">
-        <span *ngIf="carregandoLista">⏳ Carregando...</span>
-        <span *ngIf="!carregandoLista">Total: {{ municipiosFiltrados.length }} município(s)</span>
+        <span *ngIf="carregandoLista">â³ Carregando...</span>
+        <span *ngIf="!carregandoLista">Total: {{ bairrosFiltrados.length }} registro(s)</span>
       </h3>
     </div>
 
-    <div *ngIf="!carregandoLista && municipiosFiltrados.length === 0" class="py-8 text-center text-slate-500 bg-slate-50 rounded-lg border border-dashed border-slate-200">
-      <p>Nenhum município encontrado com os filtros atuais.</p>
+    <div *ngIf="!carregandoLista && bairrosFiltrados.length === 0" class="py-8 text-center text-slate-500 bg-slate-50 rounded-lg border border-dashed border-slate-200">
+      <p>Nenhum bairro encontrado com os filtros atuais.</p>
     </div>
 
     <div class="divide-y divide-slate-100" *ngIf="!carregandoLista">
       <div
-        *ngFor="let municipio of municipiosFiltrados"
+        *ngFor="let bairro of bairrosFiltrados"
         class="py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-slate-50 transition px-2 rounded-lg"
       >
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2">
-            <p class="font-medium text-slate-900">{{ municipio.nome }}</p>
+            <p class="font-medium text-slate-900">{{ bairro.nome }}</p>
           </div>
-          <p class="text-sm text-slate-500 mt-1">UF: <strong>{{ municipio.uf }}</strong> &bull; ID: {{ municipio.id }}</p>
+          <p class="text-sm text-slate-500 mt-1">
+            Macro Região: <strong>{{ bairro.macroRegiao?.nome }}</strong> &bull;
+            Apelido: <strong>{{ bairro.macroRegiao?.regiao_apelido }}</strong> &bull;
+            ID: {{ bairro.id }}
+          </p>
         </div>
 
         <div class="flex gap-2 w-full sm:w-auto">
           <button
             type="button"
-            (click)="abrirFormulario(municipio)"
+            (click)="abrirFormulario(bairro)"
             class="flex-1 sm:flex-none px-3 py-1.5 text-sm bg-indigo-50 text-indigo-700 rounded-md hover:bg-indigo-100 transition font-medium border border-indigo-200"
           >
             Editar
           </button>
           <button
             type="button"
-            (click)="deletar(municipio)"
+            (click)="deletar(bairro)"
             [disabled]="carregandoDeletar"
             class="flex-1 sm:flex-none px-3 py-1.5 text-sm bg-red-50 text-red-700 rounded-md hover:bg-red-100 transition font-medium border border-red-200 disabled:opacity-50"
           >

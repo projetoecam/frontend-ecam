@@ -1,9 +1,11 @@
-import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
+﻿import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Bairro, BairroService } from '../../../core/services/bairro.service';
-import { MacroRegiao, MacroRegiaoService } from '../../../core/services/macro-regiao.service';
-import { Comunidade, ComunidadeService } from '../../../core/services/comunidade.service';
+import { Bairro, BairroService } from '../../../../../core/services/bairro.service';
+import { MacroRegiao, MacroRegiaoService } from '../../../../../core/services/macro-regiao.service';
+import { Comunidade, ComunidadeService } from '../../../../../core/services/comunidade.service';
+import { OperationFeedbackService } from '../../../../../shared/services/operation-feedback.service';
+import { OperationConfirmService } from '../../../../../shared/services/operation-confirm.service';
 
 @Component({
   selector: 'app-comunidade-cadastro',
@@ -42,6 +44,8 @@ export class ComunidadeCadastroComponent implements OnInit {
     private bairroService: BairroService,
     private macroRegiaoService: MacroRegiaoService,
     private cdr: ChangeDetectorRef,
+    private operationFeedback: OperationFeedbackService,
+    private operationConfirm: OperationConfirmService,
   ) {}
 
   ngOnInit(): void {
@@ -216,9 +220,10 @@ export class ComunidadeCadastroComponent implements OnInit {
     if (payload.id) {
       this.comunidadeService.atualizar(payload.id, payload).subscribe({
         next: () => {
-          this.exibirMensagem('Comunidade atualizada com sucesso.', 'sucesso');
-          this.fecharFormulario();
-          this.carregarComunidades();
+          this.exibirMensagem('Comunidade atualizada com sucesso.', 'sucesso', () => {
+            this.fecharFormulario();
+            this.carregarComunidades();
+          });
           this.carregandoSalvar = false;
         },
         error: (erro) => {
@@ -230,9 +235,10 @@ export class ComunidadeCadastroComponent implements OnInit {
     } else {
       this.comunidadeService.criar(payload).subscribe({
         next: () => {
-          this.exibirMensagem('Comunidade cadastrada com sucesso.', 'sucesso');
-          this.fecharFormulario();
-          this.carregarComunidades();
+          this.exibirMensagem('Comunidade cadastrada com sucesso.', 'sucesso', () => {
+            this.fecharFormulario();
+            this.carregarComunidades();
+          });
           this.carregandoSalvar = false;
         },
         error: (erro) => {
@@ -244,7 +250,7 @@ export class ComunidadeCadastroComponent implements OnInit {
     }
   }
 
-  deletar(alvo: any): void {
+  async deletar(alvo: any): Promise<void> {
     const idParaDeletar = typeof alvo === 'number' ? alvo : alvo?.id;
 
     if (!idParaDeletar) {
@@ -253,9 +259,12 @@ export class ComunidadeCadastroComponent implements OnInit {
     }
 
     const nomeComunidade = typeof alvo === 'object' && alvo?.nome ? alvo.nome : 'esta comunidade';
-    const confirmacao = window.confirm(
-      `Atenção: tem certeza que deseja excluir ${nomeComunidade}? Esta ação não poderá ser desfeita.`,
-    );
+    const confirmacao = await this.operationConfirm.confirm({
+      title: 'Excluir comunidade',
+      message: `Tem certeza que deseja excluir ${nomeComunidade}? Esta ação não poderá ser desfeita.`,
+      confirmText: 'Sim, excluir',
+      cancelText: 'Voltar',
+    });
 
     if (!confirmacao) return;
 
@@ -276,15 +285,15 @@ export class ComunidadeCadastroComponent implements OnInit {
     });
   }
 
-  exibirMensagem(msg: string, tipo: 'sucesso' | 'erro'): void {
-    this.mensagem = msg;
-    this.tipoMensagem = tipo;
-    this.cdr.detectChanges();
+  exibirMensagem(msg: string, tipo: 'sucesso' | 'erro', onClose?: () => void): void {
+    this.operationFeedback.show(msg, tipo, 1000);
 
-    setTimeout(() => {
-      this.mensagem = '';
-      this.cdr.detectChanges();
-    }, 4000);
+    if (onClose) {
+      setTimeout(() => {
+        onClose();
+        this.cdr.detectChanges();
+      }, 1000);
+    }
   }
 
   get nomeBairroSelecionado(): string {
@@ -301,3 +310,5 @@ export class ComunidadeCadastroComponent implements OnInit {
     this.voltar.emit();
   }
 }
+
+

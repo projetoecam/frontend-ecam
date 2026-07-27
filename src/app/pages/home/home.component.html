@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-slate-100 text-slate-900 flex overflow-hidden">
+﻿<div class="min-h-screen bg-slate-100 text-slate-900 flex overflow-hidden">
   <div
     *ngIf="isMobileMenuOpen"
     (click)="toggleMobileMenu()"
@@ -49,7 +49,7 @@
       >
         <span
           class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-800 text-slate-300 transition-transform duration-200 group-hover:scale-110"
-          >🏠</span
+          >&#127968;</span
         >
         Painel Central
       </button>
@@ -63,14 +63,14 @@
           <span class="flex items-center gap-3">
             <span
               class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-800 text-slate-300 transition-transform duration-200 group-hover:scale-110"
-              >🗂️</span
+              >&#128450;&#65039;</span
             >
             Cadastros
           </span>
           <span
             class="text-slate-400 transition-transform duration-200"
             [ngClass]="{ 'rotate-180': isCadastrosOpen }"
-            >{{ isCadastrosOpen ? '−' : '+' }}</span
+            >{{ isCadastrosOpen ? '-' : '+' }}</span
           >
         </button>
 
@@ -78,7 +78,7 @@
           <button
             type="button"
             (click)="abrirUsuarios()"
-            [ngClass]="{ 'bg-slate-800 text-white': cadastroAtivo === 'usuarios' }"
+            [ngClass]="{ 'bg-slate-800 text-white': isActiveRoute('/home/cadastro/usuarios') }"
             class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
           >
             Equipe (Usuários)
@@ -86,7 +86,7 @@
           <button
             type="button"
             (click)="abrirMunicipios()"
-            [ngClass]="{ 'bg-slate-800 text-white': cadastroAtivo === 'municipios' }"
+            [ngClass]="{ 'bg-slate-800 text-white': isActiveRoute('/home/cadastro/municipios') }"
             class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
           >
             Municípios
@@ -94,7 +94,7 @@
           <button
             type="button"
             (click)="abrirMacroRegioes()"
-            [ngClass]="{ 'bg-slate-800 text-white': cadastroAtivo === 'macro-regioes' }"
+            [ngClass]="{ 'bg-slate-800 text-white': isActiveRoute('/home/cadastro/macro-regioes') }"
             class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
           >
             Macroterritórios
@@ -102,7 +102,7 @@
           <button
             type="button"
             (click)="abrirBairros()"
-            [ngClass]="{ 'bg-slate-800 text-white': cadastroAtivo === 'bairros' }"
+            [ngClass]="{ 'bg-slate-800 text-white': isActiveRoute('/home/cadastro/bairros') }"
             class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
           >
             Bairros
@@ -110,7 +110,7 @@
           <button
             type="button"
             (click)="abrirComunidades()"
-            [ngClass]="{ 'bg-slate-800 text-white': cadastroAtivo === 'comunidades' }"
+            [ngClass]="{ 'bg-slate-800 text-white': isActiveRoute('/home/cadastro/comunidades') }"
             class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
           >
             Comunidades
@@ -118,7 +118,7 @@
           <button
             type="button"
             (click)="abrirPessoas()"
-            [ngClass]="{ 'bg-slate-800 text-white': cadastroAtivo === 'pessoas' }"
+            [ngClass]="{ 'bg-slate-800 text-white': isActiveRoute('/home/cadastro/pessoas') }"
             class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
           >
             Pessoas
@@ -126,10 +126,18 @@
           <button
             type="button"
             (click)="abrirSegmentos()"
-            [ngClass]="{ 'bg-slate-800 text-white': cadastroAtivo === 'segmentos' }"
+            [ngClass]="{ 'bg-slate-800 text-white': isActiveRoute('/home/cadastro/segmentos') }"
             class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
           >
             Segmentos
+          </button>
+          <button
+            type="button"
+            (click)="abrirLiderancas()"
+            [ngClass]="{ 'bg-slate-800 text-white': isActiveRoute('/home/cadastro/liderancas') }"
+            class="block w-full text-left rounded-2xl px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
+          >
+            Lideranças
           </button>
         </div>
       </div>
@@ -140,7 +148,7 @@
       >
         <span
           class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-800 text-slate-300 transition-transform duration-200 group-hover:scale-110"
-          >👥</span
+          >&#128101;</span
         >
         Pessoas e Lideranças
       </button>
@@ -148,12 +156,12 @@
       <button
         type="button"
         (click)="abrirOperacoes()"
-        [ngClass]="{ 'bg-slate-700 text-white': cadastroAtivo === 'operacoes' }"
+        [ngClass]="{ 'bg-slate-700 text-white': isActiveRoute('/home/operacoes') }"
         class="w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium text-slate-200 transition hover:bg-slate-700 hover:text-white group"
       >
         <span
           class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-800 text-slate-300 transition-transform duration-200 group-hover:scale-110"
-          >🎯</span
+          >&#127919;</span
         >
         Operações
       </button>
@@ -165,19 +173,20 @@
       >
         <span
           class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-800 text-slate-300 transition-transform duration-200 group-hover:scale-110"
-          >📈</span
+          >&#128200;</span
         >
         Relatórios
       </button>
 
       <button
         type="button"
-        (click)="mostrarMensagemDesenvolvimento()"
-        class="w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium text-slate-200 transition hover:bg-slate-700 hover:text-white opacity-50 group"
+        [routerLink]="['/home/configuracoes']"
+        routerLinkActive="bg-slate-700 text-white"
+        class="w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium text-slate-200 transition hover:bg-slate-700 hover:text-white group"
       >
         <span
           class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-800 text-slate-300 transition-transform duration-200 group-hover:scale-110"
-          >⚙️</span
+          >&#9881;&#65039;</span
         >
         Configurações
       </button>
@@ -257,7 +266,7 @@
     </header>
 
     <section class="p-4 lg:p-6">
-      <div *ngIf="cadastroAtivo === null" class="grid gap-6 xl:grid-cols-[1.5fr_0.9fr]">
+      <div *ngIf="isDashboardRoute" class="grid gap-6 xl:grid-cols-[1.5fr_0.9fr]">
         <div class="space-y-6">
           <div class="grid gap-4 sm:gap-6 grid-cols-2 lg:grid-cols-4">
             <div
@@ -391,7 +400,7 @@
             class="rounded-[2rem] border border-slate-200 bg-white p-6 sm:p-8 shadow-sm relative overflow-hidden"
           >
             <div class="absolute top-0 right-0 p-6 opacity-10">
-              <span class="text-6xl">⚠️</span>
+              <span class="text-6xl">&#9888;&#65039;</span>
             </div>
             <h3 class="text-lg font-semibold text-slate-900 relative">Radar de Engajamento</h3>
             <p class="mt-1 text-sm text-slate-500 relative mb-6">Prevenção de perdas e crise</p>
@@ -460,38 +469,7 @@
         </aside>
       </div>
 
-      <app-municipio-cadastro
-        *ngIf="cadastroAtivo === 'municipios'"
-        (voltar)="voltarDashboard()"
-      ></app-municipio-cadastro>
-      <app-macro-regiao-cadastro
-        *ngIf="cadastroAtivo === 'macro-regioes'"
-        (voltar)="voltarDashboard()"
-      ></app-macro-regiao-cadastro>
-      <app-comunidade-cadastro
-        *ngIf="cadastroAtivo === 'comunidades'"
-        (voltar)="voltarDashboard()"
-      ></app-comunidade-cadastro>
-      <app-bairro-cadastro
-        *ngIf="cadastroAtivo === 'bairros'"
-        (voltar)="voltarDashboard()"
-      ></app-bairro-cadastro>
-      <app-usuario-cadastro
-        *ngIf="cadastroAtivo === 'usuarios'"
-        (voltar)="voltarDashboard()"
-      ></app-usuario-cadastro>
-      <app-pessoa-cadastro
-        *ngIf="cadastroAtivo === 'pessoas'"
-        (voltar)="voltarDashboard()"
-      ></app-pessoa-cadastro>
-      <app-segmento-cadastro
-        *ngIf="cadastroAtivo === 'segmentos'"
-        (voltar)="voltarDashboard()"
-      ></app-segmento-cadastro>
-      <app-ficha-cadastro
-        *ngIf="cadastroAtivo === 'operacoes'"
-        (voltar)="voltarDashboard()"
-      ></app-ficha-cadastro>
+      <router-outlet></router-outlet>
     </section>
   </main>
   <div
@@ -519,7 +497,7 @@
         </svg>
       </div>
 
-      <h3 class="text-xl font-bold text-slate-900 mb-2">Área em Construção</h3>
+      <h3 class="text-xl font-bold text-slate-900 mb-2">Ãrea em Construção</h3>
       <p class="text-sm text-slate-500 mb-8">
         Este módulo ainda está a ser desenvolvido pela nossa equipa técnica. Assim que estiver
         disponível, poderá ver todas as novas funcionalidades!
@@ -534,4 +512,6 @@
       </button>
     </div>
   </div>
+  <app-operation-toast></app-operation-toast>
+  <app-operation-confirm></app-operation-confirm>
 </div>

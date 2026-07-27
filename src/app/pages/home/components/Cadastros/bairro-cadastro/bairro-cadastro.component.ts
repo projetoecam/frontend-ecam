@@ -1,8 +1,10 @@
-import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
+﻿import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MacroRegiao, MacroRegiaoService } from '../../../core/services/macro-regiao.service';
-import { Bairro, BairroService } from '../../../core/services/bairro.service';
+import { MacroRegiao, MacroRegiaoService } from '../../../../../core/services/macro-regiao.service';
+import { Bairro, BairroService } from '../../../../../core/services/bairro.service';
+import { OperationFeedbackService } from '../../../../../shared/services/operation-feedback.service';
+import { OperationConfirmService } from '../../../../../shared/services/operation-confirm.service';
 
 @Component({
   selector: 'app-bairro-cadastro',
@@ -34,6 +36,8 @@ export class BairroCadastroComponent implements OnInit {
     private bairroService: BairroService,
     private macroRegiaoService: MacroRegiaoService,
     private cdr: ChangeDetectorRef,
+    private operationFeedback: OperationFeedbackService,
+    private operationConfirm: OperationConfirmService,
   ) {}
 
   ngOnInit(): void {
@@ -149,9 +153,10 @@ export class BairroCadastroComponent implements OnInit {
     if (payload.id) {
       this.bairroService.atualizar(payload.id, payload).subscribe({
         next: () => {
-          this.exibirMensagem('Bairro atualizado com sucesso.', 'sucesso');
-          this.fecharFormulario();
-          this.carregarBairros();
+          this.exibirMensagem('Bairro atualizado com sucesso.', 'sucesso', () => {
+            this.fecharFormulario();
+            this.carregarBairros();
+          });
           this.carregandoSalvar = false;
         },
         error: (erro) => {
@@ -163,9 +168,10 @@ export class BairroCadastroComponent implements OnInit {
     } else {
       this.bairroService.criar(payload).subscribe({
         next: () => {
-          this.exibirMensagem('Bairro cadastrado com sucesso.', 'sucesso');
-          this.fecharFormulario();
-          this.carregarBairros();
+          this.exibirMensagem('Bairro cadastrado com sucesso.', 'sucesso', () => {
+            this.fecharFormulario();
+            this.carregarBairros();
+          });
           this.carregandoSalvar = false;
         },
         error: (erro) => {
@@ -177,7 +183,7 @@ export class BairroCadastroComponent implements OnInit {
     }
   }
 
-  deletar(alvo: any): void {
+  async deletar(alvo: any): Promise<void> {
     const idParaDeletar = typeof alvo === 'number' ? alvo : alvo?.id;
 
     if (!idParaDeletar) {
@@ -186,9 +192,12 @@ export class BairroCadastroComponent implements OnInit {
     }
 
     const nomeBairro = typeof alvo === 'object' && alvo?.nome ? alvo.nome : 'este bairro';
-    const confirmacao = window.confirm(
-      `Atenção: tem certeza que deseja excluir ${nomeBairro}? Esta ação não poderá ser desfeita.`,
-    );
+    const confirmacao = await this.operationConfirm.confirm({
+      title: 'Excluir bairro',
+      message: `Tem certeza que deseja excluir ${nomeBairro}? Esta ação não poderá ser desfeita.`,
+      confirmText: 'Sim, excluir',
+      cancelText: 'Voltar',
+    });
 
     if (!confirmacao) return;
 
@@ -209,15 +218,15 @@ export class BairroCadastroComponent implements OnInit {
     });
   }
 
-  exibirMensagem(msg: string, tipo: 'sucesso' | 'erro'): void {
-    this.mensagem = msg;
-    this.tipoMensagem = tipo;
-    this.cdr.detectChanges();
+  exibirMensagem(msg: string, tipo: 'sucesso' | 'erro', onClose?: () => void): void {
+    this.operationFeedback.show(msg, tipo, 1000);
 
-    setTimeout(() => {
-      this.mensagem = '';
-      this.cdr.detectChanges();
-    }, 4000);
+    if (onClose) {
+      setTimeout(() => {
+        onClose();
+        this.cdr.detectChanges();
+      }, 1000);
+    }
   }
 
   get nomeMacroRegiaoSelecionada(): string {
@@ -229,3 +238,5 @@ export class BairroCadastroComponent implements OnInit {
     this.voltar.emit();
   }
 }
+
+
