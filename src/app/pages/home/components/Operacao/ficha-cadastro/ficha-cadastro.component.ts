@@ -1,4 +1,5 @@
-﻿import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
+﻿// ficha-cadastro.component.ts
+import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { concatMap } from 'rxjs/operators';
@@ -224,7 +225,6 @@ export class FichaCadastroComponent implements OnInit {
     this.filtrar();
   }
 
-  // --- NOVA LÓGICA DE AUTO-PREENCHIMENTO ---
   onComunidadeChange(): void {
     if (!this.fichaForm.comunidadeId) return;
 
@@ -233,7 +233,6 @@ export class FichaCadastroComponent implements OnInit {
     if (comunidade && comunidade.idBairro) {
       this.fichaForm.bairroId = comunidade.idBairro;
       
-      // Auto-selecionar município para facilitar (se houver pelo menos um na lista)
       if (this.municipios.length > 0 && !this.fichaForm.municipioId) {
         this.fichaForm.municipioId = this.municipios[0].id || '';
       }
@@ -255,7 +254,6 @@ export class FichaCadastroComponent implements OnInit {
       this.fichaForm.cep = pessoa.cep ?? '';
       this.fichaForm.nomeMae = pessoa.nomeMae ?? '';
       
-      // Ao abrir para edição, force a atualização dos campos dependentes (Bairro e Municipio)
       this.onComunidadeChange();
       this.secao1Concluida = true;
       this.secao2Concluida = true;
@@ -338,6 +336,7 @@ export class FichaCadastroComponent implements OnInit {
   }
 
   salvar(): void {
+    // Bloqueio rigoroso de duplo clique/submissão
     if (this.carregandoSalvar || this.fichaConcluidaSalva) {
       return;
     }
@@ -390,14 +389,13 @@ export class FichaCadastroComponent implements OnInit {
       dataCadastro: this.pessoaEdicao.dataCadastro,
     };
 
-    // Chamada encadeada RxJS para garantir a ordem exata de gravação
     const salvarPessoa$ = pessoaPayload.id
       ? this.fichaService.atualizar(pessoaPayload.id, pessoaPayload)
       : this.fichaService.criar(pessoaPayload);
 
     salvarPessoa$.pipe(
       concatMap((pessoaSalva) => {
-        // 2. DTO DA DEMANDA
+        // 2. DTO DA DEMANDA - Mapeando o campo OBS corretamente
         const orgao = [this.fichaForm.supervisao.trim(), this.fichaForm.coordenacao.trim()].filter(Boolean).join(' / ');
         const demandaPayload: Demanda = {
           idSolicitante: pessoaSalva.id,
@@ -411,7 +409,7 @@ export class FichaCadastroComponent implements OnInit {
         return this.demandaService.criar(demandaPayload);
       }),
       concatMap((demandaSalva) => {
-        // 3. DTO DO TIPO DE DEMANDA (Detalhes da Ficha)
+        // 3. DTO DO TIPO DE DEMANDA
         const demandaTipoPayload: DemandaTipo = {
           idDemanda: demandaSalva.id,
           tipoSaude: this.fichaForm.demandas.saude.selecionado,
@@ -430,16 +428,22 @@ export class FichaCadastroComponent implements OnInit {
     ).subscribe({
       next: () => {
         this.fichaConcluidaSalva = true;
-        this.exibirMensagem('Ficha processada com sucesso (Pessoa, Demanda e Tipos de Demanda criados)!', 'sucesso', () => {
+        this.carregandoSalvar = false;
+        this.exibirMensagem('Ficha processada com sucesso!', 'sucesso', () => {
           this.fecharFormulario();
           this.carregarPessoas();
         });
-        this.carregandoSalvar = false;
         this.cdr.detectChanges();
       },
       error: (erro) => {
-        this.exibirMensagem('Erro ao processar as integrações. ' + erro.message, 'erro');
-        this.carregandoSalvar = false;
+        this.carregandoSalvar = false; // Libera o bloqueio do botão
+        
+        // Tratamento visual para o erro 409
+        if (erro.status === 409 || erro.message?.includes('409')) {
+             this.exibirMensagem('Erro de conflito: CPF ou Ficha já cadastrada no sistema.', 'erro');
+        } else {
+             this.exibirMensagem('Erro ao processar as integrações. ' + (erro.message || 'Verifique sua conexão.'), 'erro');
+        }
         this.cdr.detectChanges();
       }
     });
@@ -546,5 +550,3 @@ export class FichaCadastroComponent implements OnInit {
     this.voltar.emit();
   }
 }
-
-
