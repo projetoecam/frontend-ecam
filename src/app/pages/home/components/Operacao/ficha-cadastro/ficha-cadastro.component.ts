@@ -1,8 +1,7 @@
-﻿// ficha-cadastro.component.ts
-import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
+﻿import { Component, ChangeDetectorRef, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { concatMap } from 'rxjs/operators';
+import { concatMap, tap } from 'rxjs/operators';
 import { Pessoa, FichaService } from '../../../../../core/services/ficha.service';
 import { Comunidade, ComunidadeService } from '../../../../../core/services/comunidade.service';
 import { Usuario, UsuarioService } from '../../../../../core/services/usuario.service';
@@ -335,8 +334,12 @@ export class FichaCadastroComponent implements OnInit {
     return true;
   }
 
-  salvar(): void {
-    // Bloqueio rigoroso de duplo clique/submissão
+  salvar(event?: Event): void {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
     if (this.carregandoSalvar || this.fichaConcluidaSalva) {
       return;
     }
@@ -368,7 +371,6 @@ export class FichaCadastroComponent implements OnInit {
     this.fichaConcluidaSalva = false;
     this.cdr.detectChanges();
 
-    // 1. DTO DA PESSOA
     const pessoaPayload: Pessoa = {
       id: this.pessoaEdicao.id,
       nomeCompleto: this.fichaForm.nomeRepresentante.trim(),
@@ -394,8 +396,10 @@ export class FichaCadastroComponent implements OnInit {
       : this.fichaService.criar(pessoaPayload);
 
     salvarPessoa$.pipe(
+      tap((pessoaSalva) => {
+        this.pessoaEdicao.id = pessoaSalva.id;
+      }),
       concatMap((pessoaSalva) => {
-        // 2. DTO DA DEMANDA - Mapeando o campo OBS corretamente
         const orgao = [this.fichaForm.supervisao.trim(), this.fichaForm.coordenacao.trim()].filter(Boolean).join(' / ');
         const demandaPayload: Demanda = {
           idSolicitante: pessoaSalva.id,
@@ -409,7 +413,6 @@ export class FichaCadastroComponent implements OnInit {
         return this.demandaService.criar(demandaPayload);
       }),
       concatMap((demandaSalva) => {
-        // 3. DTO DO TIPO DE DEMANDA
         const demandaTipoPayload: DemandaTipo = {
           idDemanda: demandaSalva.id,
           tipoSaude: this.fichaForm.demandas.saude.selecionado,
@@ -436,14 +439,14 @@ export class FichaCadastroComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (erro) => {
-        this.carregandoSalvar = false; // Libera o bloqueio do botão
+        this.carregandoSalvar = false; 
         
-        // Tratamento visual para o erro 409
-        if (erro.status === 409 || erro.message?.includes('409')) {
-             this.exibirMensagem('Erro de conflito: CPF ou Ficha já cadastrada no sistema.', 'erro');
+        if (erro.status === 409 || erro.message?.includes('409') || erro.error?.message?.includes('409')) {
+          this.exibirMensagem('Este CPF já está cadastrado no sistema. Não é possível cadastrar duas vezes.', 'erro');
         } else {
-             this.exibirMensagem('Erro ao processar as integrações. ' + (erro.message || 'Verifique sua conexão.'), 'erro');
+          this.exibirMensagem('Erro ao processar integração: ' + (erro.error?.message || erro.message), 'erro');
         }
+        
         this.cdr.detectChanges();
       }
     });
