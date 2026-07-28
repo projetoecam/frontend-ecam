@@ -338,6 +338,10 @@ export class FichaCadastroComponent implements OnInit {
   }
 
   salvar(): void {
+    if (this.carregandoSalvar || this.fichaConcluidaSalva) {
+      return;
+    }
+
     if (!this.secao1Concluida || !this.secao2Concluida) {
       this.exibirMensagem('Salve as Seções 1 e 2 antes de finalizar a ficha.', 'erro');
       return;
